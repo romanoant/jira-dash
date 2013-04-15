@@ -1,0 +1,80 @@
+var assert = require ('assert');
+var buildoverview = require ('./blockers');
+
+describe ('blockers', function(){
+
+  var config;
+
+  beforeEach(function(done){
+    config = {
+      interval : 20000,
+      teams :  ["Editor", "Kung Foo Ants", "UI Stack", "Team Black", "PDL", "The Muppets", "Security", "SuperSonic Hedgehogs"],
+      jql : "project = \"CONFDEV\" AND (resolution = EMPTY OR component in (\"SuperSonic Hedgehogs\", \"Kung Foo Ants\", \"Editor\") AND status = \"Resolved\") AND updatedDate > -14d AND priority = Blocker"
+    };
+
+    config.globalAuth = {
+        jac: {
+            username: "myusername",
+            password: "secretpassword"
+        }
+    };
+    done();
+  });
+
+
+  // ---------------------
+  //  TESTS
+  // ---------------------
+  it('must send right data if no error', function(done){
+    var dependencies = {
+      request: function(options, callback){
+        callback(null, {statusCode : 200}, "{}");
+      }
+    };
+
+    var widgets = {
+      sendData : function(data){
+        assert.ok(!data.error);
+        done();
+      }
+    };
+
+    buildoverview(widgets, config, dependencies);
+  });
+
+
+  it('must give us an error response if there is an error processing the request', function(done){
+    var dependencies = {
+      request: function(options, callback){
+        callback("error during http request", {statusCode : 500}, "{}");
+      }
+    };
+
+    var widgets = {
+      sendData : function(data){
+        assert.ok(data.error);
+        done();
+      }
+    };
+
+    buildoverview(widgets, config, dependencies);
+  });
+
+
+  it('must handle error if status code is ok but JSON response is bad', function(done){
+    var dependencies = {
+      request: function(options, callback){
+        callback(null, {statusCode : 200}, "-no valid json response-");
+      }
+    };
+
+    var widgets = {
+      sendData : function(data){
+        assert.ok(data.error);
+        done();
+      }
+    };
+
+    buildoverview(widgets, config, dependencies);
+  });
+});

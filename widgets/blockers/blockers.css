@@ -1,0 +1,85 @@
+li {
+    font-size: 35px;
+	line-height: 35px;
+    list-style: none outside none;
+    padding: 18px !important;
+    border-radius: 9px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+li div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+li .issue-summary{
+    font-size:30px;
+}
+li .issue-data {
+    display: -webkit-flex;
+    -webkit-flex-direction: row;
+}
+
+li .issue-data > * {
+    -webkit-flex: 1 1 auto;
+    white-space: nowrap;
+}
+
+li .issue-key {
+    font-weight: bold;
+    padding-bottom: 9px;
+    white-space: nowrap;
+}
+
+/* overflow: hidden: adding this to show ellipsis even though we are using flexbox 
+ (be aware express.js parser doesn't like comments inside CSS rules)
+*/
+li .issue-owner {
+    white-space: nowrap;
+    text-align: right;
+    color: #454545;
+    margin-left: 20px;
+    text-overflow: ellipsis;
+    overflow: hidden; 
+    min-width: 0px
+}
+
+li.unassigned {
+    background-color: #B72F28 !important;
+}
+
+li .avatar {
+    width: 60px;
+    height: 60px;
+    float: left;
+    margin-right: 15px;
+    border-radius: 30px;
+}
+
+li a {
+    color: inherit;
+    font-style: inherit;
+    text-decoration: none;
+}
+
+h3 {
+	font-size: 35px;
+	
+}
+
+.no-blockers-message {
+	font-size: 50px;
+	text-align: center;
+	color: #454545;
+}
+
+.smiley-face {
+	font-size: 240px;
+}
+
+h2 a {
+    color: #454545;
+    text-decoration: none;
+}

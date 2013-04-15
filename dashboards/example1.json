@@ -1,0 +1,19 @@
+{
+  "layout": {
+      "title": false,
+      "customJS" : ["pretty.js", "date.format.js", "md5.js", "jquery.peity.js"],
+      "widgets" : [
+          { "enabled" : true, "row" : 1, "col" : 1, "width" : 2, "height" : 2, "widget" : "blockers",          "job" : "blockers", "config": "confluence-blockers"},
+      ]
+  },
+
+  "config": {
+    "confluence-blockers" : {
+      "timeout": 30000,
+      "retryOnErrorTimes" : 3,
+      "interval" : 120000,
+      "jira_server" : "https://jira.atlassian.com",
+      "jql" : "project = \"CONF\" AND updatedDate > -14d AND priority = Blocker"
+    }
+  }
+}
