@@ -1,9 +1,9 @@
 {
   "layout": {
       "title": false,
-      "customJS" : ["pretty.js", "date.format.js", "md5.js", "jquery.peity.js"],
+      "customJS" : [],
       "widgets" : [
-          { "enabled" : true, "row" : 1, "col" : 1, "width" : 2, "height" : 2, "widget" : "blockers",          "job" : "blockers", "config": "confluence-blockers"}
+          { "enabled" : true, "row" : 1, "col" : 1, "width" : 6, "height" : 4, "widget" : "blockers",          "job" : "blockers", "config": "confluence-blockers"}
       ]
   },
 
