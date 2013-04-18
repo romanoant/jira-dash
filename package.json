@@ -1,0 +1,14 @@
+{
+    "author":"Atlassian",
+    "name":"atlasboard-atlassian-package",
+    "description":"Atlassian package for Atlasboard",
+    "version":"0.0.1",
+    "homepage":"",
+    "repository":{
+        "type":"git",
+        "url":""
+    },
+    "dependencies":{
+        "request": "2.12.0"
+    }
+}
