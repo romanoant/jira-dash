@@ -14,6 +14,35 @@
       "interval" : 120000,
       "jira_server" : "https://jira.atlassian.com",
       "jql" : "project = \"CONF\" AND updatedDate > -14d AND priority = Blocker"
+    },
+
+    "fitness": {
+      "_comment": "never gonna give you up, the one and only, rock music, gangnam style, i believe in a thing called love, flight of valkyries, mc hammer, push it, pump up the jam, along comes mary, smooth criminal, cant stop, eye of the tiger, burning heart, maniac",
+      "media": ["dQw4w9WgXcQ", "z8f2mW1GFSI", "DP3MFBzMH2o", "CH1XGdu-hzQ", "sRYNYb30nxU", "3YOYlgvI1uE", "otCpCn0l4Wo", "vCadcBR95oU", "9EcjWd-O4jI", "5WLdLZnZQbQ", "CDl9ZMfj6aE", "BfOdWSiyWoc", "btPJPFnesV4", "lYlkYkHkZxs", "8NjbGr2nk2c" ],
+      "widgetTitle": "Daily Fitness",
+      "activities": [
+        {
+          "name": "pushups",
+          "cron": "00 30 10 * * 1-5",
+          "title": "Pushup Time!",
+          "announcement": "Time for morning push ups! With music presented by {0}"
+        },
+
+        {
+          "name": "planks",
+          "cron": "00 00 15 * * 1-5",
+          "title": "Planks",
+          "announcement": "Get down for some serious planking! {0}"
+        },
+
+        {
+          "name": "debug",
+          "cron": "30 * * * * *",
+          "title": "lets debug",
+          "announcement": "yoyo debug {0}",
+          "enabled": false
+        }
+      ]
     }
   }
 }
