@@ -9,7 +9,8 @@
         "url":""
     },
     "dependencies":{
-        "request": "2.12.0"
+        "request": "2.12.0",
+        "cron": "1.0.1"
     },
     "contributors":   [
         {

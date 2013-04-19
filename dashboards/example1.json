@@ -3,7 +3,8 @@
       "title": false,
       "customJS" : ["md5.js"],
       "widgets" : [
-          { "enabled" : true, "row" : 1, "col" : 1, "width" : 6, "height" : 4, "widget" : "blockers",          "job" : "blockers", "config": "confluence-blockers"}
+          { "enabled" : true, "row" : 1, "col" : 1, "width" : 4, "height" : 4, "widget" : "blockers",          "job" : "blockers", "config": "confluence-blockers"},
+          { "enabled" : true, "row" : 1, "col" : 2, "width" : 2, "height" : 2, "widget" : "fitness", "job" : "fitness", "config": "fitness"}
       ]
   },
 
