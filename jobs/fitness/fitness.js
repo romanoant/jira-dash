@@ -11,21 +11,20 @@ var DEFAULTS = {
 
 module.exports = function(config, dependencies, job_callback) {
 	if (!this.jobs) {
-		this.jobs = createCronJobs(config, job_callback);
+		this.jobs = createCronJobs(config, dependencies, job_callback);
 	}
 
 	// tell client we are ready
 	job_callback(null, {ready: true, widgetTitle: config.widgetTitle});
 };
 
-
 /**
  * Creates cron jobs for all enabled activities.
  * 
  * Returns an object with the activity names as key and the cron job as properties.
  */
-function createCronJobs(config, job_callback) {
-	console.log("Initializing fitness widget with ", config.media.length, "songs");
+function createCronJobs(config, dependencies, job_callback) {
+	dependencies.logger.log("Initializing fitness widget with  " + config.media.length + " songs");
 	
 	var activities = config.activities;
 
@@ -38,7 +37,7 @@ function createCronJobs(config, job_callback) {
 	activities = _.where(activities, {enabled: true});
 
 	return activities.reduce(function(memo, activity) {
-		var cronHandler = makeCronHandler(activity, config, job_callback);
+		var cronHandler = makeCronHandler(activity, config, dependencies, job_callback);
 		memo[activity.name] = newCron(activity.cron, cronHandler);	
 		return memo;
 	}, {});
@@ -47,7 +46,7 @@ function createCronJobs(config, job_callback) {
 /**
  * Creates a function that calls the job_callback with all the data the client needs for this activity.
  */
-function makeCronHandler(activity, config, job_callback) {
+function makeCronHandler(activity, config, dependencies, job_callback) {
 	return function () {
 		var data = {
 			widgetTitle: config.widgetTitle,
@@ -55,10 +54,17 @@ function makeCronHandler(activity, config, job_callback) {
 			mediaId: pickRandom(config.media),
 			duration: activity.duration
 		};
-
 		getSpeech(activity, data.mediaId, function(err, speech) {
 			data.speech = speech;
-			job_callback(err, data);
+			if (dependencies.hipchat && activity.hipchat){
+				dependencies.hipchat.message(activity.hipchat.roomId, activity.hipchat.from,
+						activity.hipchat.message, 1, function(err, data){
+							setTimeout(function(){
+								//give us 1 minute before start the music!
+								job_callback(err, data);
+							}, 60 * 1000);
+						});
+			}
 		});
 	}
 }
