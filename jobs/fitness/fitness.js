@@ -25,7 +25,7 @@ module.exports = function(config, dependencies, job_callback) {
  */
 function createCronJobs(config, dependencies, job_callback) {
 	dependencies.logger.log("Initializing fitness widget with  " + config.media.length + " songs");
-	
+
 	var activities = config.activities;
 
 	// default options
@@ -38,7 +38,7 @@ function createCronJobs(config, dependencies, job_callback) {
 
 	return activities.reduce(function(memo, activity) {
 		var cronHandler = makeCronHandler(activity, config, dependencies, job_callback);
-		memo[activity.name] = newCron(activity.cron, cronHandler);	
+		memo[activity.name] = newCron(activity.cron, cronHandler);
 		return memo;
 	}, {});
 }
@@ -54,19 +54,24 @@ function makeCronHandler(activity, config, dependencies, job_callback) {
 			mediaId: pickRandom(config.media),
 			duration: activity.duration
 		};
-		getSpeech(activity, data.mediaId, function(err, speech) {
+		getSpeech(activity, data.mediaId, config, dependencies, function(err, speech) {
 			data.speech = speech;
+
 			if (dependencies.hipchat && activity.hipchat){
 				dependencies.hipchat.message(activity.hipchat.roomId, activity.hipchat.from,
-						activity.hipchat.message, 1, function(err, data){
+						activity.hipchat.message, 1, function(err, statusCode){
+							if (err){ return job_callback(err); }
 							setTimeout(function(){
-								//give us 1 minute before start the music!
+								//give us some time before the music starts!
 								job_callback(err, data);
-							}, 60 * 1000);
+							}, 20 * 1000);
 						});
 			}
+			else{
+				job_callback(err, data);
+			}
 		});
-	}
+	};
 }
 
 function newCron(cronTime, cronHandler) {
@@ -88,12 +93,12 @@ var speechCache = {};
  * Gets the speech data for the activity's annoucement and media id. Uses a cache to store the speech data once
  * fetched from the APIs.
  */
-function getSpeech(activity, mediaId, callback) {
+function getSpeech(activity, mediaId, config, dependencies,callback) {
 	var speech = speechCache[activity.announcement + mediaId];
 	if (speech) {
 		callback(null, speech);
 	} else {
-		requestSpeechData(mediaId, activity.announcement, function(err, result) {
+		requestSpeechData(mediaId, activity.announcement, config, dependencies, function(err, result) {
 			speechCache[activity.announcement + mediaId] = result;
 
 			callback(err, result);
@@ -105,18 +110,21 @@ function getSpeech(activity, mediaId, callback) {
  * Gets the base64 data for a spoken audio track of the media's title. First we fetch the media title from
  * youtube and then use Google's TTS api to get the audio track of that title.
  */
-function requestSpeechData(mediaId, announcement, callback) {
+function requestSpeechData(mediaId, announcement, config, dependencies, callback) {
 	function getTitle(callback) {
 		var url = "http://gdata.youtube.com/feeds/api/videos/" + mediaId + "?v=2&alt=jsonc";
-		console.log("fetching title for:", url);
-		request({uri: url, json: true}, 
+		dependencies.logger.log("fetching title for:" + url);
+		request({uri: url, json: true},
 			function(err, response, body) {
-				if (!err) {
-					var title = body.data.title;
-					console.log("fetched title:", title)
+				if (err) {
+					dependencies.logger.error(err);
+					return callback(err);
 				}
-
-				callback(err, title);
+				else{
+					var title = body.data.title;
+					dependencies.logger.log("fetched title:", title);
+					return callback(null, title);
+				}
 			});
 	}
 
@@ -132,19 +140,24 @@ function requestSpeechData(mediaId, announcement, callback) {
 
 	function getTTS(title, callback) {
 		var speech = formatSpeech(announcement, title);
-		console.log("fetching speech for:", speech)
+		dependencies.logger.log("fetching speech for:" + speech);
 		request({
 			uri: "http://translate.google.com/translate_tts?tl=en&q=" + speech,
 			encoding: "binary"
 		}, function(err, response, body) {
-			console.log("fetched speech", "error", err);
-			// convert to base64
-			var dataUriPrefix = "data:" + response.headers["content-type"] + ";base64,";
-			var audio = new Buffer(body.toString(), "binary").toString("base64")
-	        audio = dataUriPrefix + audio;
+			if (err){
+				dependencies.logger.error(err);
+				return callback(err);
+			}
+			else {
+				// convert to base64
+				var dataUriPrefix = "data:" + response.headers["content-type"] + ";base64,";
+				var audio = new Buffer(body.toString(), "binary").toString("base64");
+				audio = dataUriPrefix + audio;
 
-	        callback(err, audio)
-		})
+				callback(null, audio);
+			}
+		});
 	}
 
 	// get data in serial
