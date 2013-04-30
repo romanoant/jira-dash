@@ -1,7 +1,6 @@
 var CronJob = require("cron").CronJob;
 var _ = require("underscore");
 var async = require("async");
-var request = require("request");
 
 var DEFAULTS = {
 	duration: 3 * 60 * 1000,
@@ -114,7 +113,7 @@ function requestSpeechData(mediaId, announcement, config, dependencies, callback
 	function getTitle(callback) {
 		var url = "http://gdata.youtube.com/feeds/api/videos/" + mediaId + "?v=2&alt=jsonc";
 		dependencies.logger.log("fetching title for:" + url);
-		request({uri: url, json: true},
+		dependencies.request({uri: url, json: true},
 			function(err, response, body) {
 				if (err) {
 					dependencies.logger.error(err);
@@ -141,7 +140,7 @@ function requestSpeechData(mediaId, announcement, config, dependencies, callback
 	function getTTS(title, callback) {
 		var speech = formatSpeech(announcement, title);
 		dependencies.logger.log("fetching speech for:" + speech);
-		request({
+		dependencies.request({
 			uri: "http://translate.google.com/translate_tts?tl=en&q=" + speech,
 			encoding: "binary"
 		}, function(err, response, body) {
