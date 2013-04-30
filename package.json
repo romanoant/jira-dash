@@ -9,8 +9,9 @@
         "url":""
     },
     "dependencies":{
-        "request": "2.12.0",
-        "cron": "1.0.1"
+        "async":                "0.2.6",
+        "cron":                 "1.0.1",
+        "underscore":           "1.4.2"
     },
     "contributors":   [
         {
