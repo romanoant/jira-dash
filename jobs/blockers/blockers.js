@@ -2,8 +2,12 @@ var querystring = require('querystring');
 
 module.exports = function(config, dependencies, job_callback) {
 
-  if (!config.jql || !config.jira_server || !config.globalAuth.jac ||
-        !config.globalAuth.jac.username || !config.globalAuth.jac.password){
+  if (!config.globalAuth || !config.globalAuth.jac ||
+    !config.globalAuth.username || !config.globalAuth.password){
+    return job_callback('non credentials found in blockers job. Please check config.globalAuth');
+  }
+
+  if (!config.jql || !config.jira_server){
     return job_callback('missing parameters in blockers job');
   }
 
