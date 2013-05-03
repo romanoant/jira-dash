@@ -1,0 +1,95 @@
+.build-status {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.build-status-bar {
+    margin-bottom: 18px;
+    border-radius: 9px;
+}
+
+.progress {
+    height: 20px;
+    border-radius: 9px 0 0 9px;
+}
+
+.failed-report{
+    padding: 3px 5px;
+    font-size:90%;
+}
+
+.build-status-bar .successful {
+    width: 100%;
+}
+
+.build-status-bar .failed {
+    width: 0;
+}
+
+div {
+    font-size: 30px;
+}
+
+.failed {
+    background-color: #B72F28 !important;
+    color: white !important;
+}
+
+.successful {
+    background-color: #1C842F !important;
+}
+
+.down {
+    color: red !important;
+}
+
+.plan-name {
+    font-weight: bold;
+    display: inline;
+}
+
+.plan-name a {
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+.completed-time {
+    font-size: 20px;
+}
+
+div.unassigned {
+    background-color: #B72F28;
+}
+
+div.build {
+    padding: 18px;
+    border-radius: 9px;
+    margin-bottom: 9px;
+}
+
+.build-overview-always-show {
+    padding-bottom: 18px;
+}
+
+.responsibles{
+    display: inline;
+    margin-left: 10px;
+}
+
+.responsibles img {
+    margin-right: 10px;
+    width: 60px;
+    height: 60px;
+    border-radius: 30px;
+}
+
+.hidden {
+    display: none;
+}
+
+.no-broken-builds-message {
+    font-size: 50px;
+    text-align: center;
+    color: #454545;
+}
