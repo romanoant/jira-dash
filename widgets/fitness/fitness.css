@@ -1,0 +1,24 @@
+.title {
+}
+
+.teaser {
+	color: red;
+	font-size: 32px;
+	text-align: center;
+	text-transform: uppercase;
+}
+
+.content {
+	position: absolute;
+	z-index: 2
+}
+
+.image {
+	display: block;
+	margin: auto;
+	width: 200px;
+}
+
+.hidden {
+	display: none;
+}
