@@ -15,6 +15,22 @@
     },
     "contributors":   [
         {
+            "name": "William Archinal",
+            "email":"william.archinal@gmail.com"
+        },
+        {
+            "name": "Christoph Kiehl",
+            "email":"ckiehl@atlassian.com"
+        },
+        {
+            "name": "Alexander Dickson",
+            "email":"alex@alexanderdickson.com"
+        },
+        {
+            "name": "Ivan Loire",
+            "email":"iloire@atlassian.com"
+        },
+        {
             "name": "David Richard",
             "email":"drichard@atlassian.com"
         }
