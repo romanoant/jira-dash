@@ -3,7 +3,7 @@ var querystring = require('querystring');
 module.exports = function(config, dependencies, job_callback) {
 
   if (!config.globalAuth || !config.globalAuth.jac ||
-    !config.globalAuth.username || !config.globalAuth.password){
+    !config.globalAuth.jac.username || !config.globalAuth.jac.password){
     return job_callback('non credentials found in blockers job. Please check config.globalAuth');
   }
 
