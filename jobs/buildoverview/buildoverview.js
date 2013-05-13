@@ -8,6 +8,11 @@ var cheerio = require('cheerio'),
 
 module.exports = function(config, dependencies, job_callback) {
 
+    if (!config.globalAuth || !config.globalAuth.cbac ||
+      !config.globalAuth.cbac.username || !config.globalAuth.cbac.password){
+      return job_callback('no bamboo credentials found in buildoverview job. Please check global authentication file');
+    }
+
     if (!config.bamboo_server){
         return job_callback("No bamboo server configured");
     }
