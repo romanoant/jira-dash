@@ -1,0 +1,33 @@
+.content {
+  text-align: center;
+}
+
+a {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+.remaining-issues {
+  font-size: 4em;
+  font-weight: bold;
+  line-height: 80%;
+}
+
+.open .remaining-issues {
+  color: #B72F28 !important;
+}
+
+.review .remaining-issues {
+  color: #E36441 !important;
+}
+
+.label {
+  font-size: 1.4em;
+  color: #454545;
+}
+
+.cell {
+  display: table-cell;
+  padding-right: 20px;
+}
+

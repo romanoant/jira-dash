@@ -1,0 +1,40 @@
+.content {
+  text-align: center;
+}
+
+a {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+.remaining-issues {
+  font-size: 6em;
+  font-weight: bold;
+  line-height: 80%;
+}
+
+.open .remaining-issues {
+  color: #B72F28 !important;
+}
+
+.review .remaining-issues {
+  color: #E36441 !important;
+}
+
+.label {
+  font-size: 2em;
+  font-weight: bold;
+  color: #454545;
+}
+
+.table {
+  display: table;
+  width: 100%;
+}
+
+.cell {
+  display: table-cell;
+  width: 50%;
+  vertical-align: middle;
+}
+
