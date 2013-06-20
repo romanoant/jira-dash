@@ -16,6 +16,31 @@
       "jira_server" : "https://jira.atlassian.com",
       "jql" : "project = \"CONF\" AND updatedDate > -14d AND priority = Blocker"
     },
+    "issuecount":{
+      "interval":  300000,
+      "title":     "Blockers In The Last 14 Days",
+      "jiraServer":"https://jira.atlassian.com",
+      "sections":  [
+        {
+          "title": "Confluence",
+          "counts":[
+            {
+              "label":"Blockers",
+              "jql":  "project = \"CONF\" AND createdDate > -14d AND priority = Blocker"
+            }
+          ]
+        },
+        {
+          "title": "JIRA",
+          "counts":[
+            {
+              "label":"Blockers",
+              "jql":  "project = \"JRA\" AND createdDate > -14d AND priority = Blocker"
+            }
+          ]
+        }
+      ]
+    },
 
     "fitness": {
       "_comment": "never gonna give you up, the one and only, rock music, gangnam style, i believe in a thing called love, flight of valkyries, mc hammer, push it, pump up the jam, along comes mary, smooth criminal, cant stop, eye of the tiger, burning heart, maniac",

@@ -1,0 +1,50 @@
+.content {
+    color: #454545;
+}
+
+.content a {
+    color: #454545;
+    text-decoration: none;
+}
+
+h3 {
+    font-size: 30px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    margin-top: 30px;
+}
+
+h3:first-child {
+    margin-top: 0;
+}
+
+.counts {
+}
+
+.count {
+    padding-right: 30px;
+    display: inline-block;
+}
+
+.count > * {
+    display: inline-block;
+}
+
+.label {
+    width: auto;
+    font-weight: bold;
+}
+
+.result {
+    padding-right: 10px;
+    font-weight: bold;
+    text-align: right;
+}
+
+.result, .result a {
+    color: #1C842F;
+}
+
+.result.pending a {
+    color: #B72F28;
+}
