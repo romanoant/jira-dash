@@ -8,7 +8,7 @@ var cache_expiration = 60 * 1000; //ms
 
 module.exports = function(plan, cbacAuth, config, request, callback) {
 
-    var cache_key = 'buildoverview-plan-' + plan + ':info';
+    var cache_key = 'buildoverview-plan-' + plan + ':server-' + config.bamboo_server + ':info';
     if (cache.get(cache_key)){
         return callback (null, cache.get(cache_key));
     }

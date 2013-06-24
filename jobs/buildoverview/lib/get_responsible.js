@@ -12,7 +12,7 @@ module.exports = function(buildKey, cbacAuth, request, config, callback) {
         return callback("build key not found");
     }
 
-    var cache_key = 'buildoverview-build-' + buildKey + ':responsibles';
+    var cache_key = 'buildoverview-build-' + buildKey + ':' + ':server-' + config.bamboo_server + ':responsibles';
     if (cache.get(cache_key)){
         return callback (null, cache.get(cache_key));
     }
