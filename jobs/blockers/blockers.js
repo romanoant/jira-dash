@@ -1,4 +1,5 @@
-var querystring = require('querystring');
+var querystring = require('querystring'),
+    cache = require('memory-cache');
 
 module.exports = function(config, dependencies, job_callback) {
 
@@ -32,6 +33,12 @@ module.exports = function(config, dependencies, job_callback) {
   // create link to display on the widget
   var linkParams = { jql: config.jql };
   var blockersLink = config.jira_server + "/issues/?" + querystring.stringify(linkParams);
+
+  var cache_expiration = 60 * 1000; //ms
+  var cache_key = 'atlassian-jira-blockers:config-' + JSON.stringify(config); // unique cache object per job config
+  if (cache.get(cache_key)){
+      return callback (null, cache.get(cache_key));
+  }
 
   dependencies.request(options, function(error, response, blockerJSON) {
     if (error || !response || (response.statusCode != 200)) {
@@ -89,7 +96,9 @@ module.exports = function(config, dependencies, job_callback) {
         });
       });
 
-      job_callback(null, {blockers: result, blockersLink: blockersLink});
+      var data = {blockers: result, blockersLink: blockersLink};
+      cache.put(cache_key, data, cache_expiration); //add to cache
+      job_callback(null, data);
     }
   });
 };
