@@ -80,8 +80,12 @@ module.exports = function(config, dependencies, job_callback) {
 
         //loop through issue components trying to match it to a team
         components.forEach(function(component) {
-          if (teams.indexOf(component.name) != -1) {
+          if(config.useComponentAsTeam) {
             team = component.name;
+          } else {
+            if (teams.indexOf(component.name) != -1) {
+              team = component.name;
+            }
           }
         });
 
