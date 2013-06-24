@@ -37,7 +37,7 @@ module.exports = function(config, dependencies, job_callback) {
   var cache_expiration = 60 * 1000; //ms
   var cache_key = 'atlassian-jira-blockers:config-' + JSON.stringify(config); // unique cache object per job config
   if (cache.get(cache_key)){
-      return callback (null, cache.get(cache_key));
+      return job_callback (null, cache.get(cache_key));
   }
 
   dependencies.request(options, function(error, response, blockerJSON) {
