@@ -55,28 +55,31 @@
         $audioContainer.html("<audio autoplay src='" + data.speech + "'></audio>");
 
         // show video after a few seconds
-        setTimeout(function() {
-            $title.hide();
-            hideTeaser();
+        if (data.mediaId) {
+            setTimeout(function() {
+                $title.hide();
+                hideTeaser();
 
-            $content.html(renderTemplate(data));
-        }, 6 * 1000);
+                $content.html(renderTemplate(data));
+            }, 6 * 1000);
+        }
 
-        var stopVideo = function() {
+        var restoreUi = function() {
             $title.show();
             $image.show();
             $content.empty();
+            hideTeaser();
         };
 
         // remove video with ESC
         $(document).on('keydown.fitness', function(e) {
             if (e.which === 27) {
-                stopVideo();
+                restoreUi();
             }
         });
 
         // hide video after duration
-        setTimeout(stopVideo, data.duration);
+        setTimeout(restoreUi, data.duration);
     }
 
     exports.onData = onData;
