@@ -84,6 +84,9 @@ function newCron(cronTime, cronHandler) {
 }
 
 function pickRandom(array) {
+    if (!array || array.length === 0) {
+        return null;
+    }
 	return array[_.random(array.length - 1)];
 }
 
@@ -111,6 +114,10 @@ function getSpeech(activity, mediaId, config, dependencies,callback) {
  */
 function requestSpeechData(mediaId, announcement, config, dependencies, callback) {
 	function getTitle(callback) {
+        if (!mediaId) {
+            return callback(null, "");
+        }
+
 		var url = "http://gdata.youtube.com/feeds/api/videos/" + mediaId + "?v=2&alt=jsonc";
 		dependencies.logger.log("fetching title for:" + url);
 		dependencies.request({uri: url, json: true},

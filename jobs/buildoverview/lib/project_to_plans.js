@@ -14,7 +14,7 @@ module.exports = function (project, cbacAuth, config, request, callback) {
     var plans = [];
 
     //cache hit?
-    var cache_key = 'buildoverview-project-' + project + ':plans';
+    var cache_key = 'buildoverview-project-' + project + ':server-' + config.bamboo_server + ':plans';
     if (cache.get(cache_key)){
         return callback(null, cache.get(cache_key));
     }
