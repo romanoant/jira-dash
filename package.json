@@ -35,6 +35,10 @@
         {
             "name": "David Richard",
             "email":"drichard@atlassian.com"
-        }
+        },
+		{
+			"name": "Aleksander Mierzwicki",
+			"email": "amierzwicki@atlassian.com"
+		}
     ]
 }

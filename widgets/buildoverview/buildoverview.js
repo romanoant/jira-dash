@@ -6,7 +6,60 @@ widget = {
             $('.widget-title', el).text(data.title);
         }
 
-        //build overview
+		function buildResponsible(build) {
+			var assigneeCount = 0;
+			var responsiblesDiv = $("<div/>").addClass("responsibles");
+			build.responsible.forEach(function (resp) {
+				if (resp.avatar) {
+					assigneeCount++;
+					$(responsiblesDiv).append($("<img/>").attr({
+						'src': resp.avatar,
+						'title': resp.name
+					}));
+				}
+			});
+			return {assigneeCount: assigneeCount, responsiblesDiv: responsiblesDiv};
+		}
+
+		function createBuildEntry(build) {
+			var buildDiv = $("<div/>").addClass('build').addClass("build-status").addClass(build.success);
+			if (build.down) {
+				buildDiv.append($("<div/>").addClass("plan-name").addClass("down").text(build.planName + " could not be accessed"));
+			} else {
+				buildDiv.append($("<div/>").addClass("plan-name").append($('<a/>').attr('href', build.link).text(build.planName)));
+
+				if (build.success === 'failed') {
+					var failDetails = $("<div/>").addClass("fail-details");
+					var timeRemaining = build.timeRemaining || '';
+					if (timeRemaining.indexOf('slower than usual') > 0) {
+						timeRemaining = '- ' + timeRemaining.replace('slower than usual', '');
+					}
+					var failedTests = (build.failedTestCount > 0) ? build.failedTestCount : '?';
+					failDetails.append($('<span/>').addClass('failed-tests-summary').text('(' + failedTests + ')'));
+					buildDiv.append(failDetails);
+				}
+
+				if (build.isRefreshing) {
+					buildDiv
+							.append($('<span/>').addClass('build-spinner'))
+							.append($('<span/>').addClass('time-remaining').text(timeRemaining));
+				}
+
+				if (build.success === "failed") {
+					var responsible = buildResponsible(build);
+					if (responsible.assigneeCount != 1) {
+						buildDiv.addClass("unassigned");
+					}
+					$(buildDiv).append(responsible.responsiblesDiv);
+				}
+			}
+			if (build.progress) {
+				$(buildDiv).prepend($('<div class="build-progress"></div>').width(build.progress));
+			}
+			return buildDiv;
+		}
+
+		//build overview
         $('.build-overview-always-show', el).empty();
 
         var totalFailedBuilds = 0;
@@ -23,54 +76,28 @@ widget = {
             else {
                 totalSuccessfulBuilds++;
             }
-            var buildDiv = $("<div/>").addClass("build-status").addClass(build.success);
-            if (build.down) {
-                buildDiv.append($("<div/>").addClass("plan-name").addClass("down").append(build.planName + " could not be accessed on CBAC"));
-            } else {
-                buildDiv.append($("<div/>").addClass("plan-name").append("<a href='" + build.link + "'>" + (build.isRefreshing ? build.planName + " [R]" : build.planName) + "</a>"));
-            }
-            $('.build-overview-always-show', el).append(buildDiv);
+            $('.build-overview-always-show', el).append(createBuildEntry(build));
         });
-
 
         //build breakers
         $('.build-breakers', el).empty();
 
-        data.failBuilds.forEach(function(build) {
-            if (build.down) {
-                if (!_.find(data.showBuilds, function(b){ return b.planName === build.planName ;})){
+		data.failBuilds.forEach(function(build) {
+			var isCurrentBuild = function (b) {
+				return b.planName === build.planName;
+			};
+
+			if (build.down) {
+				if (!_.find(data.showBuilds, isCurrentBuild)){
                     totalDownBuilds++;
                 }
             }
             else if (build.success === "failed") {
-                if (!_.find(data.showBuilds, function(b){ return b.planName === build.planName ;})){
-                    totalFailedBuilds++;
-                }
-
-                var buildDiv = $("<div/>").addClass("build");
-                buildDiv.append($("<div/>").addClass("plan-name").append("<a href='" + build.link + "'>" + (build.isRefreshing ? build.planName + " [R]" : build.planName) + "</a>"));
-
-                var assigneeCount = 0;
-                var responsiblesDiv = $("<div/>").addClass("responsibles");
-                build.responsible.forEach(function(resp) {
-                    if (resp.avatar) {
-                        assigneeCount ++;
-                        $(responsiblesDiv).append($("<img/>").attr({
-                            'src' : resp.avatar,
-                            'title' : resp.name
-                        }));
-                    }
-                });
-
-                if (assigneeCount != 1) {
-                    // Show build as red if there's multiple or zero assignees.
-                    buildDiv.addClass("unassigned");
-                }
-
-                $(buildDiv).append(responsiblesDiv);
-
-                $('.build-breakers', el).append(buildDiv);
-            }
+				if (!_.find(data.showBuilds, isCurrentBuild)) {
+					totalFailedBuilds++;
+				}
+				$('.build-breakers', el).append(createBuildEntry(build));
+			}
             else {
                 if (!_.find(data.showBuilds, function(b){ return b.planName === build.planName ;})){
                     totalSuccessfulBuilds++;
@@ -106,3 +133,4 @@ widget = {
         $('.spinner', el).remove();
     }
 };
+
