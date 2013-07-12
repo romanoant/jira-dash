@@ -13,6 +13,7 @@ module.exports = function(config, dependencies, job_callback) {
   }
 
   var teams = config.teams;
+  var projectTeams = config.projectTeams || {};
   var logger = dependencies.logger;
 
   var params = {
@@ -65,6 +66,7 @@ module.exports = function(config, dependencies, job_callback) {
       blockerData.issues.forEach(function(issue) {
         var baseUrl = issue.self.substring(0, issue.self.indexOf("/rest/api"));
         var issueKey = issue.key;
+        var projectKey = issueKey.split('-')[0];
         var summary = issue.fields.summary;
 
         var assignee = issue.fields.assignee;
@@ -75,7 +77,8 @@ module.exports = function(config, dependencies, job_callback) {
             assigneeEmail = assignee.emailAddress;
         }
 
-        var team = "Teamless Issue";
+        var team = projectTeams[projectKey] || "Teamless Issue";
+        
         var components = issue.fields.components;
 
         //loop through issue components trying to match it to a team
