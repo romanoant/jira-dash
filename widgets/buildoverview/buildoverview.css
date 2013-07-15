@@ -71,6 +71,10 @@ div.build {
     margin-bottom: 9px;
 }
 
+.build-info {
+	position: relative;
+}
+
 .build-overview-always-show {
     padding-bottom: 18px;
 }
@@ -119,6 +123,13 @@ div.build {
 
 .time-remaining {
 	font-size: 0.8em;
+	margin-left: 7px;
+}
+
+.time-remaining.slower-than-usual {
+	background: black;
+	padding: 0 7px 0 7px;
+	border-radius: 7px;
 }
 
 .failed-tests-summary {

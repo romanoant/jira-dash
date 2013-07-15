@@ -23,26 +23,35 @@ widget = {
 
 		function createBuildEntry(build) {
 			var buildDiv = $("<div/>").addClass('build').addClass("build-status").addClass(build.success);
+			if (build.progress) {
+				$(buildDiv).prepend($('<div class="build-progress"></div>').width(build.progress));
+			}
+
+			var buildInfo = $("<div/>").addClass('build-info');
 			if (build.down) {
-				buildDiv.append($("<div/>").addClass("plan-name").addClass("down").text(build.planName + " could not be accessed"));
+				buildInfo.append($("<div/>").addClass("plan-name").addClass("down").text(build.planName + " could not be accessed"));
 			} else {
-				buildDiv.append($("<div/>").addClass("plan-name").append($('<a/>').attr('href', build.link).text(build.planName)));
+				buildInfo.append($("<div/>").addClass("plan-name").append($('<a/>').attr('href', build.link).text(build.planName)));
 
 				if (build.success === 'failed') {
 					var failDetails = $("<div/>").addClass("fail-details");
-					var timeRemaining = build.timeRemaining || '';
-					if (timeRemaining.indexOf('slower than usual') > 0) {
-						timeRemaining = '- ' + timeRemaining.replace('slower than usual', '');
-					}
 					var failedTests = (build.failedTestCount > 0) ? build.failedTestCount : '?';
-					failDetails.append($('<span/>').addClass('failed-tests-summary').text('(' + failedTests + ')'));
-					buildDiv.append(failDetails);
+					failDetails.append($('<span/>').addClass('failed-tests-summary').text(failedTests));
+					buildInfo.append(failDetails);
 				}
 
 				if (build.isRefreshing) {
-					buildDiv
+					var timeRemainingInfo = $('<span/>').addClass('time-remaining');
+					var timeRemaining = build.timeRemaining || '';
+					if (timeRemaining.indexOf('slower than usual') > 0) {
+						timeRemaining = '- ' + timeRemaining.replace('slower than usual', '');
+						timeRemainingInfo.addClass('slower-than-usual');
+					}
+					timeRemainingInfo.text(timeRemaining);
+
+					buildInfo
 							.append($('<span/>').addClass('build-spinner'))
-							.append($('<span/>').addClass('time-remaining').text(timeRemaining));
+							.append(timeRemainingInfo);
 				}
 
 				if (build.success === "failed") {
@@ -50,12 +59,11 @@ widget = {
 					if (responsible.assigneeCount != 1) {
 						buildDiv.addClass("unassigned");
 					}
-					$(buildDiv).append(responsible.responsiblesDiv);
+					$(buildInfo).append(responsible.responsiblesDiv);
 				}
 			}
-			if (build.progress) {
-				$(buildDiv).prepend($('<div class="build-progress"></div>').width(build.progress));
-			}
+
+			buildDiv.append(buildInfo);
 			return buildDiv;
 		}
 
