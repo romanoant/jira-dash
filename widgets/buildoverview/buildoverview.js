@@ -49,9 +49,16 @@ widget = {
 					}
 					timeRemainingInfo.text(timeRemaining);
 
+					var spinnerSpan = $('<span/>').addClass('build-spinner');
 					buildInfo
-							.append($('<span/>').addClass('build-spinner'))
+							.append(spinnerSpan)
 							.append(timeRemainingInfo);
+
+					new Spinner({
+						lines: 10, // The number of lines to draw
+						color: '#FFF', // #rgb or #rrggbb
+						className: 'spinnerx'
+					}).spin(spinnerSpan[0]);
 				}
 
 				if (build.success === "failed") {
