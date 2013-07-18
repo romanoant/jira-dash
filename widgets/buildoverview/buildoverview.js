@@ -55,9 +55,11 @@ widget = {
 							.append(timeRemainingInfo);
 
 					new Spinner({
-						lines: 10, // The number of lines to draw
-						color: '#FFF', // #rgb or #rrggbb
-						className: 'spinnerx'
+						lines: 10,
+						color: '#FFF',
+						className: 'spinnerx',
+						speed: 0.6,
+						fps:2
 					}).spin(spinnerSpan[0]);
 				}
 
