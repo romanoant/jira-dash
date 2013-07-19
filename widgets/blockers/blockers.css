@@ -58,6 +58,15 @@ li .avatar {
   border-radius: 30px;
 }
 
+li .avatar.unknown {
+  text-align: center;
+  padding-top: 9px;
+  font-size: 48px;
+  color: #f44;
+  border-color: #f44;
+  border-style: solid;
+}
+
 li a {
   color: inherit;
   font-style: inherit;

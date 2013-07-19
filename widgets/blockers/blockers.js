@@ -8,10 +8,15 @@ widget = {
     if (data.blockers.length > 0) {
 
       data.blockers.forEach(function(blocker) {
-        var listItem = $("<li/>").append($("<img alt = '" + blocker.assigneeName +
+        var listItem = $("<li/>")
+        if(blocker.assigneeEmail) {
+          listItem.append($("<img alt = '" + blocker.assigneeName +
             "' title='" + blocker.assigneeName +
             "' class='avatar' src='http://www.gravatar.com/avatar/" +
             md5(blocker.assigneeEmail) + "'/>"));
+        } else {
+          listItem.append("<span class='avatar unknown'>?</span>");
+        }
 
         var $issueData = $("<div class=\"issue-data\"/>");
         listItem.append($issueData);
