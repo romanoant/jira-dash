@@ -15,6 +15,9 @@
         "underscore":           "1.4.2",
         "memory-cache":         "0.0.5"
     },
+    "scripts" : {
+        "test" : "find jobs -name '*.js' | grep test/ | xargs mocha"
+    },
     "contributors":   [
         {
             "name": "William Archinal",
