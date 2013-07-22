@@ -11,8 +11,7 @@
 
 .progress {
     height: 20px;
-    border-radius: 0 9px 9px 0;
-	margin-left: auto;
+    border-radius: 9px 0 0 9px;
 }
 
 .failed-report{
@@ -33,7 +32,7 @@ div {
 }
 
 .failed {
-    background-color: #A32C22;
+    background-color: #B72F28 !important;
     color: white !important;
 }
 
@@ -42,13 +41,12 @@ div {
 }
 
 .down {
-    color: #FF7400 !important;
+    color: red !important;
 }
 
 .plan-name {
     font-weight: bold;
     display: inline;
-	position: relative;
 }
 
 .plan-name a {
@@ -60,19 +58,14 @@ div {
     font-size: 20px;
 }
 
-div.failed.unassigned {
-    background-color: #ff0000;
+div.unassigned {
+    background-color: #B72F28;
 }
 
 div.build {
-	position: relative;
     padding: 10px 15px;
     border-radius: 9px;
     margin-bottom: 9px;
-}
-
-.build-info {
-	position: relative;
 }
 
 .build-overview-always-show {
@@ -82,7 +75,6 @@ div.build {
 .responsibles{
     display: inline;
     margin-left: 10px;
-	position: relative;
 }
 
 .responsibles img {
@@ -100,55 +92,4 @@ div.build {
     font-size: 50px;
     text-align: center;
     color: #454545;
-}
-
-.fail-details {
-	display: inline;
-
-	font-weight: bold;
-}
-
-.build-progress {
-	position: absolute;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	border-radius: 9px;
-	background: #000;
-	opacity: 0.5;
-}
-
-.time-remaining {
-	font-size: 0.8em;
-	margin-left: 7px;
-}
-
-.time-remaining.slower-than-usual {
-	background: black;
-	padding: 0 7px 0 7px;
-	border-radius: 7px;
-}
-
-.failed-tests-summary {
-	margin-left: 10px;
-	margin-right: 10px;
-	font-size: 0.6em;
-	vertical-align: top;
-}
-
-.build-spinner {
-	margin-left: 20px;
-
-	display: inline-block;
-	width: 30px;
-	height: 30px;
-}
-
-.fail-details + .build-spinner {
-	margin-left: 10px;
-}
-
-.spinnerx {
-	margin-left: 10px;
-	margin-top: 20px;
 }
