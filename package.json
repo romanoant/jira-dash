@@ -18,6 +18,9 @@
     "devDependencies":{
         "mocha":                "1.8.1"
     },
+    "scripts" : {
+        "test" : "find jobs -name '*.js' | grep test/ | xargs mocha"
+    },
     "contributors":   [
         {
             "name": "William Archinal",
