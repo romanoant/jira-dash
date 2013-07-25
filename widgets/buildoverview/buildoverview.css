@@ -136,18 +136,6 @@ div.build {
 	vertical-align: top;
 }
 
-.build-spinner {
-	margin-left: 20px;
-
-	display: inline-block;
-	width: 30px;
-	height: 30px;
-}
-
-.fail-details + .build-spinner {
-	margin-left: 10px;
-}
-
 .spinnerx {
 	margin-left: 10px;
 	margin-top: 20px;
