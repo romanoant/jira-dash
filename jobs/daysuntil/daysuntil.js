@@ -1,18 +1,16 @@
 module.exports = function(config, dependencies, job_callback) {
 
-  function DayDiff(CurrentDate, DueDate) {
-    var TYear=CurrentDate.getFullYear();
-    var TDay=new Date(DueDate);
-    TDay.getFullYear(TYear);
-    var DayCount=(TDay-CurrentDate)/(1000*60*60*24);
-    DayCount=Math.round(DayCount);
-    return(DayCount);
+  var businessDays = 0;
+
+  var dueDate = dependencies.moment(config.dueDate);
+  var days = dueDate.diff(new Date(), 'days');
+  for(i = 0; i < days; i++) {
+    dueDate.add(1, 'day');
+    // exclude Sundays (0) and Saturdays (6). Not accounting for public holidays ATM
+    if (dueDate.day() != 0 && dueDate.day() != 6) {
+      businessDays++;
+    }
   }
 
-  var today = new Date();
-  var dueDate = config.dueDate;
-  var days = DayDiff(today, dueDate);
-  var milestone = config.milestone;
-
-  job_callback(null, {days: days, milestone: milestone});
+  job_callback(null, {days: businessDays, title: config.milestone});
 };
