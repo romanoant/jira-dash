@@ -5,15 +5,18 @@ module.exports = function(config, dependencies, job_callback) {
   var dueDate = dependencies.moment(config.dueDate);
   var today = dependencies.moment();
 
-  var days = dueDate.diff(today, 'days');
+  // days between today and dueDate and then add one to include today
+  var days = dueDate.diff(today, 'days') + 1;
+
+  console.log("DATESDATESDATES: ", today.format(), dueDate.format(), days);
 
   var currentDay = today.clone();
   for(i = 0; i < days; i++) {
-    currentDay.add(1, 'day');
     // exclude Sundays (0) and Saturdays (6). Not accounting for public holidays ATM
     if (currentDay.day() != 0 && currentDay.day() != 6) {
       businessDays++;
     }
+    currentDay.add(1, 'day');
   }
 
   job_callback(null, {days: businessDays, title: config.milestone});
