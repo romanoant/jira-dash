@@ -1,0 +1,104 @@
+.content {
+	font-size: 100px;
+	color: #3b7fc4;
+	font-weight: bold;
+	text-align: left;
+	display: inline-block;
+	margin-left: 10px;
+	float: left;
+}
+
+.stfu {
+	position: relative;
+	display: inline-block;
+	float: right;
+	width: 260px;
+	height: 200px;
+}
+
+.stfu .message {
+	font-size: 45px;
+	float: left;
+	text-align: center;
+	position: relative;
+	font-weight: bold;
+	font-family: monospace;
+	letter-spacing: 20px;
+}
+
+.stfu-on .message {
+	color: red;
+}
+
+.stfu-off .message {
+	color: green;
+
+}
+
+.stfu-img {
+	vertical-align: top;
+}
+
+.stfu-on,
+.stfu-off {
+	position:absolute;
+	top: 0;
+	left: 0;
+}
+
+.stfu-on {
+	display: none;
+}
+
+.stfu-off {
+	display: none;
+}
+
+.rotated-text {
+	display: inline-block;
+	overflow: hidden;
+	width: 3.5em;
+	line-height: 50px;
+}
+.rotated-text__inner {
+	display: inline-block;
+	white-space: nowrap;
+	-webkit-transform: translate(0,100%) rotate(-90deg);
+	-moz-transform: translate(0,100%) rotate(-90deg);
+	-ms-transform: translate(0,100%) rotate(-90deg);
+	-o-transform: translate(0,100%) rotate(-90deg);
+	transform: translate(0,100%) rotate(-90deg);
+	-webkit-transform-origin: 0 0;
+	-moz-transform-origin: 0 0;
+	-ms-transform-origin: 0 0;
+	-o-transform-origin: 0 0;
+	transform-origin: 0 0;
+}
+/* This element stretches the parent to be square
+   by using the mechanics of vertical margins  */
+.rotated-text__inner:before {
+	content: "";
+	float: left;
+	margin-top: 100%;
+}
+
+.clock-date {
+	margin-top: 10px;
+	text-align: center;
+}
+
+.time-colon {
+	font-size: 80px;
+	vertical-align: text-top;
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+.time-colon-1 {
+	color: #205081;
+}
+
+.clock-date {
+	font-size: 0.5em;
+	margin-top: -80px;
+}
