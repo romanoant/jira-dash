@@ -5,21 +5,24 @@ widget = {
             $('h2', el).text(data.title);
         }
 
-		$('.content', el).empty();
-
-        data.reviews.sort(function(a, b) {
+		    data.reviews.sort(function(a, b) {
         	return a.username > b.username;
         });
 
-		data.reviews.forEach(function(user) {
-			var $user = $("<div class='user'></div>");
-      var $img = $("<img/>").attr("src", data.baseUrl + "/avatar/" + user.username).attr("alt", $user.username);
+        var firstTime = $('.content', el).children().length == 0;
 
-      $user.append($img);
-			$user.append("<div class='count'>" + user.openReviews + "</div");
+    		data.reviews.forEach(function(user) {
+          if (firstTime) {
+            var $user = $("<div class='user'></div>");
+            var $img = $("<img/>").attr("src", data.baseUrl + "/avatar/" + user.username).attr("alt", $user.username);
 
-    	$('.content', el).append($user);
-		});
+            $user.append($img);
+            $user.append("<div class='count' data-username='" + user.username + "'></div");
+            $('.content', el).append($user);
+          }
+
+          $('.content .user .count[data-username=' + user.username + ']', el).text(user.openReviews);
+    		});
 
 		// Choose maximum font size with which all content will still fit
         var fontSize = 60;
