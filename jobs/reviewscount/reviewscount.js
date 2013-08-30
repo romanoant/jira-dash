@@ -65,6 +65,6 @@ module.exports = function(config, dependencies, job_callback) {
 		});
 	}, function(err, reviewsByUser) {
 		logger.log(util.inspect(reviewsByUser));
-		job_callback(err, {title: config.title, reviews: reviewsByUser});
+		job_callback(err, {title: config.title, baseUrl: config.crucibleUrl, reviews: reviewsByUser});
 	})
 };

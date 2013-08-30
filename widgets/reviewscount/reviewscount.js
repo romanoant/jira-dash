@@ -13,11 +13,12 @@ widget = {
 
 		data.reviews.forEach(function(user) {
 			var $user = $("<div class='user'></div>");
-			$user.text(user.username);
+      var $img = $("<img/>").attr("src", data.baseUrl + "/avatar/" + user.username).attr("alt", $user.username);
 
-			$user.append("<div class='result'>" + user.openReviews + "</div");
+      $user.append($img);
+			$user.append("<div class='count'>" + user.openReviews + "</div");
 
-          	$('.content', el).append($user);
+    	$('.content', el).append($user);
 		});
 
 		// Choose maximum font size with which all content will still fit
