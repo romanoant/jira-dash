@@ -3,8 +3,8 @@ widget = {
     onData: function(el, data) {
         if (data.title) {
             $('h2', el).text(data.title);
-        }
-
+        
+}
 		    data.reviews.sort(function(a, b) {
         	return a.username > b.username;
         });
@@ -14,7 +14,7 @@ widget = {
     		data.reviews.forEach(function(user) {
           if (firstTime) {
             var $user = $("<div class='user'></div>");
-            var $img = $("<img/>").attr("src", data.baseUrl + "/avatar/" + user.username).attr("alt", $user.username);
+            var $img = $("<img/>").attr("src", data.baseUrl + "/avatar/" + user.username + "?s=60&redirect=false").attr("alt", $user.username);
 
             $user.append($img);
             $user.append("<div class='count' data-username='" + user.username + "'></div");
