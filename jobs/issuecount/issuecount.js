@@ -3,13 +3,26 @@ var async = require('async'),
 
 module.exports = function (config, dependencies, job_callback) {
 
+  // fallback to for configuration compatibility
+  var authName = config.authName || 'jac';
+
+  if (!config.globalAuth || !config.globalAuth[authName] ||
+    !config.globalAuth[authName].username || !config.globalAuth[authName].password) {
+    return job_callback('no JIRA credentials found in buildoverview job. Please check global authentication file');
+  }
+
+  if (!config.jiraServer) {
+      return job_callback("No JIRA server configured");
+  }
+
   var logger = dependencies.logger;
 
   var baseUrl = config.jiraServer + '/rest/api/2/search?';
   var clickUrl = config.jiraServer + "/issues/?";
   var options = {
     headers: {
-      "authorization": "Basic " + new Buffer(config.globalAuth.jac.username + ":" + config.globalAuth.jac.password).toString("base64")
+      "authorization": "Basic " + new Buffer(config.globalAuth[config.authName].username 
+        + ":" + config.globalAuth[config.authName].password).toString("base64")
     }
   };
 
