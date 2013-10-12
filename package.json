@@ -21,6 +21,9 @@
     "scripts" : {
         "test" : "find jobs -name '*.js' | grep test/ | xargs mocha"
     },
+    "engines" : {
+        "atlasboard": ">=0.5.2"
+    },
     "contributors":   [
         {
             "name": "William Archinal",
