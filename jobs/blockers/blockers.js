@@ -12,7 +12,7 @@ module.exports = function(config, dependencies, job_callback) {
     return job_callback('missing parameters in blockers job');
   }
 
-  var teams = config.teams;
+  var teams = config.teams || [];
   var projectTeams = config.projectTeams || {};
   var logger = dependencies.logger;
 
