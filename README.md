@@ -36,6 +36,7 @@ Sample configuration:
 	}
 
 *stfuOnly* if true the bulb will be visible only, clock is not displayed
+
 *stfuHours* you can list as many intervals as you wish, 945 means 9:45
 
 ### Reviews Counter
@@ -58,7 +59,11 @@ Sample configuration:
 	}
 
 *title* the widget header
+
 *authName* authorization configuration to use that's defined in globalAuth.json
+
 *crucibleUrl* Crucible address
+
 *teamMemebers* list of usernames from Crucible that you want to list reviews for
+
 *projects* list of Crucible project keys to check for reviews
