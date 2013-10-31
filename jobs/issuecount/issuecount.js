@@ -21,8 +21,8 @@ module.exports = function (config, dependencies, job_callback) {
   var clickUrl = config.jiraServer + "/issues/?";
   var options = {
     headers: {
-      "authorization": "Basic " + new Buffer(config.globalAuth[config.authName].username 
-        + ":" + config.globalAuth[config.authName].password).toString("base64")
+      "authorization": "Basic " + new Buffer(config.globalAuth[authName].username
+        + ":" + config.globalAuth[authName].password).toString("base64")
     }
   };
 

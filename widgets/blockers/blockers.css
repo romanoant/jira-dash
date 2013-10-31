@@ -17,13 +17,8 @@ li div {
 li .issue-summary{
   font-size:30px;
 }
-li .issue-data {
-  display: -webkit-flex;
-  -webkit-flex-direction: row;
-}
 
 li .issue-data > * {
-  -webkit-flex: 1 1 auto;
   white-space: nowrap;
 }
 

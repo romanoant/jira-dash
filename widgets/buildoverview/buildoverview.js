@@ -111,14 +111,23 @@ widget = {
         }
       });
 
-      if (totalFailedBuilds === 0) {
+      var totalBuilds = _.uniq(data.failBuilds.concat(data.showBuilds), false, function(build){ return build.planKey; }).length;
+      var allDown = (totalBuilds === totalDownBuilds);
+
+      // % bar
+      var percentage_failed = parseInt((totalFailedBuilds / totalBuilds) * 100, 10);
+      if (allDown){
+        percentage_failed = 100;
+      }
+      $('.fail-bar', el).width(percentage_failed + "%");
+
+      // big message for special cases
+      if (allDown){
+        $('.build-breakers', el).append($("<div/>").addClass("all-builds-down-message uppercase").append("ALL BAMBOO PLANS ARE DOWN"));
+      }
+      else if (totalFailedBuilds === 0) {
         $('.build-breakers', el).append($("<div/>").addClass("no-broken-builds-message uppercase").append("NO BROKEN BUILDS"));
       }
-
-      var totalBuilds = _.uniq(data.failBuilds.concat(data.showBuilds), false, function(build){ return build.planKey; }).length;
-
-      var percentage_failed = parseInt((totalFailedBuilds / totalBuilds) * 100, 10);
-      $('.fail-bar', el).width(percentage_failed + "%");
 
       // set text
       var bar_text = "";
@@ -128,11 +137,9 @@ widget = {
       else{
         bar_text = (totalBuilds - totalDownBuilds) + ' BUILDS GREEN';
       }
-
       if (totalDownBuilds > 0){
         bar_text += ' (' + totalDownBuilds + ' DOWN)';
       }
-
       $('.failed-report', el).html(bar_text);
 
       $('.content', el).removeClass('hidden').addClass('show');

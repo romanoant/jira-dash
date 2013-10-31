@@ -102,6 +102,12 @@ div.build {
   color: #454545;
 }
 
+.all-builds-down-message{
+  font-size: 50px;
+  text-align: center;
+  color: #A32C22;
+}
+
 .fail-details {
   display: inline;
   font-weight: bold;
