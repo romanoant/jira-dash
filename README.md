@@ -72,7 +72,7 @@ Sample configuration:
 
 ### Blockers
 
-![Clock widget](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/blockers.png)
+![Blockers](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/blockers.png)
 
 Displays blocker JIRA issues
 
@@ -94,7 +94,7 @@ Sample configuration:
 
 ### Build Overview
 
-![Clock widget](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/buildoverview.png)
+![Build overview](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/buildoverview.png)
 
 Displays Bamboo build overview
 
@@ -113,7 +113,7 @@ Sample configuration:
 
 ### Issue Count and Issues remaining
 
-![Clock widget](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/issuecount.png)
+![Issues remaining](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/issuecount.png)
 
 Displays JIRA issue count matching a certain filter
 
