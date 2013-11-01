@@ -129,3 +129,18 @@ Sample configuration:
         "openText" : "Unresolved Warranty",
         "reviewText" : "Resolved Warranty"
       },
+
+### Days Until
+
+![Days Until](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/daysuntil.png)
+
+Displays days until a certain date
+
+Sample configuration:
+
+    "daysuntil5.4": {
+      "retryOnErrorTimes" : 3,
+      "interval" : 120000,
+      "dueDate": "11/15/2013",
+      "milestone": "5.4 Freeze"
+    }
