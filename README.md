@@ -110,3 +110,22 @@ Sample configuration:
       "showBuilds":[],
       "widgetTitle" : "QUNIT BUILDS"
     }
+
+### Issue Count and Issues remaining
+
+![Clock widget](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/issuecount.png)
+
+Displays JIRA issue count matching a certain filter
+
+Sample configuration:
+
+      "issues-warranty" : {
+        "jira_server": "https://jira.atlassian.com",
+        "retryOnErrorTimes" : 3,
+        "interval" : 120000,
+        "jqlOpen" : "project = CONF AND filter = \"All Editor CONF issues\" AND type = bug AND labels = warranty AND Resolution is EMPTY",
+        "jqlReview" : "project = CONF AND filter = \"All Editor CONF issues\" AND type = bug AND labels = warranty AND Resolution = Fixed and updated > -14d",
+        "widgetTitle" : "Warranty",
+        "openText" : "Unresolved Warranty",
+        "reviewText" : "Resolved Warranty"
+      },
