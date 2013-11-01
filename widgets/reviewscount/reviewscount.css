@@ -1,0 +1,21 @@
+.content {
+    font-size: 35px;
+    color: #454545;
+    font-weight: bold;
+}
+
+.content .user {
+	margin-right: 35px;
+}
+
+.content .user,
+.content .user .count {
+	display: inline-block;
+}
+
+.content .user img {
+	margin-right: 10px;
+	width: 60px;
+	height: 60px;
+	border-radius: 30px;	
+}
