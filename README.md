@@ -22,6 +22,8 @@ See also: [https://bitbucket.org/atlassian/atlasboard/wiki/Package-Atlassian]()
 
 ### Clock
 
+![Clock widget](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/stfu.png)
+
 Displays current time and optionally shut the f**k up hours.
 
 Sample configuration:
@@ -67,3 +69,44 @@ Sample configuration:
 *teamMemebers* list of usernames from Crucible that you want to list reviews for
 
 *projects* list of Crucible project keys to check for reviews
+
+### Blockers
+
+![Clock widget](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/blockers.png)
+
+Displays blocker JIRA issues
+
+Sample configuration:
+
+    "confluence-blockers" : {
+      "timeout": 30000,
+      "retryOnErrorTimes" : 3,
+      "interval" : 120000,
+      "jira_server" : "https://jira.atlassian.com",
+      "useComponentAsTeam" : true,
+      "projectTeams": {
+        "CONFDEV": "Teamless Issue",
+        "CONFVN": "Vietnam"
+      },
+      "jql" : "(project in (\"CONFDEV\",\"CONFVN\") AND resolution = EMPTY AND priority = Blocker) OR (project = \"CONF\" AND resolution = EMPTY AND priority = Blocker AND labels in (\"ondemand\"))"
+    }
+
+
+### Build Overview
+
+![Clock widget](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/buildoverview.png)
+
+Displays Bamboo build overview
+
+Sample configuration:
+
+    "buildoverview-UI" : {
+      "bamboo_server" : "https://confluence-bamboo.internal.atlassian.com",
+      "retryOnErrorTimes" : 3,
+      "interval" : 120000,
+      "failBuilds":["CONFUI-QUNITFFESR", "CONFUI-QUNITFFLATEST", "CONFUI-QUNITCHROMEPLUGINS" , 
+                    "CONFUI-QUNITCHROMELATEST", "CONFUI-QUNITQCCHROMELATEST", "CONFUI-QUNITQCFFLATEST", 
+                    "CONFUI-QUNITQEFFLATEST11", "CONFUI-QUNITIE9"],
+      "showBuilds":[],
+      "widgetTitle" : "QUNIT BUILDS"
+    }
