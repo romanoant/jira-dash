@@ -25,15 +25,15 @@ module.exports = function(config, dependencies, job_callback) {
     var bamboo = new Bamboo(config.bamboo_server, username, password, dependencies.request, cache, cheerio);
 
     // get plan info with extra info if failed build
-    var getData = function(plan, callback) {
+    var getData = function(planKey, callback) {
 
       // get plan information from
-      bamboo.getPlanInfo(plan, function (err, build) {
+      bamboo.getPlanLatestBuildResult (planKey, function (err, build) {
 
         var result = {
-          link : config.bamboo_server + "/browse/" + plan,
-          planKey: plan,
-          planName: plan,
+          link : config.bamboo_server + "/browse/" + planKey,
+          planKey: planKey,
+          planName: planKey,
           responsible: [],
           isRefreshing: false,
           success : "",
@@ -42,8 +42,14 @@ module.exports = function(config, dependencies, job_callback) {
 
         if (err || !build){
           result.down = true;
-          logger.error (err ? ("error accessing build info for plan " + plan + ": " + err) : "non build info available for plan " + plan);
+          logger.error (err ? ("error accessing build info for plan " + planKey + ": " + err) : "non build info available for plan " + planKey);
           // we don´t pass the error to the caller. we just mark it as down.
+          return callback(null, result);
+        }
+
+        result.enabled = build.plan.enabled;
+
+        if (!build.plan.enabled) { // plan is disabled. We can filter general results for disabled plans
           return callback(null, result);
         }
 
@@ -54,7 +60,7 @@ module.exports = function(config, dependencies, job_callback) {
         return bamboo.getBuildStatus(possiblyInProgressBuild, function (err, runningBuildStatus) {
           if (err || !runningBuildStatus){
             result.down = true;
-            logger.error (err ? err : "error getting build info for plan " + plan);
+            logger.error (err ? err : "error getting build info for plan " + planKey);
             return callback(null, result);
           }
 
@@ -88,39 +94,47 @@ module.exports = function(config, dependencies, job_callback) {
       });
     };
 
-    // -----------------------
-    // fetch plans
-    // -----------------------
-    function check_plans(builds, callback) {
-       if (!builds || !builds.length) {
+    /**
+     * Flattens plan definitions into plans. (A plan definition can be a project, which can contains several plans)
+     *
+     * @param {Array} planDefinitions Plans or projects to be flattened into plans
+     */
+    function convertToPlans(planDefinitions, callback) {
+       if (!planDefinitions || !planDefinitions.length) {
           callback(null, []);
        } else {
-         var fetcher = function (build, callback) {
-           bamboo.getPlansFromProject(build, function (err, plans) {
+         var fetcher = function (project, callback) {
+           bamboo.getPlansFromProject(project, function (err, plans) {
             if (err){
-             logger.error ("error accesing build \"" +  build + "\": " + err);
+             logger.error ("error accesing project \"" +  project + "\": " + err);
              return callback(null, []); //we don't want the error to level up.
             }
             return callback(null, plans);
            });
           };
 
-         async.map(builds, fetcher, function(err, results){
+         async.map(planDefinitions, fetcher, function(err, results){
            callback(err, _.flatten(results));
          });
        }
     }
 
-    function execute_projects(builds, callback){
-      if (!builds || !builds.length){
+    /**
+     * Execute plans or projects contained on the planDefinitions
+     *
+     * @param {Array} planDefinitions Plan or projects containing plans.
+     */
+    function execute_planDefinitions(planDefinitions, callback){
+      if (!planDefinitions || !planDefinitions.length){
         return callback (null, []);
       }
-      return check_plans(builds, function(err, plans){
+      return convertToPlans(planDefinitions, function(err, plans){
         if (err || !plans || !plans.length){
           return callback(err, []);
         }
 
         return async.map(plans, getData, function(err, results){
+          results = results.filter (function(result) { return result.enabled; });
           callback(err, results);
         });
       });
@@ -138,8 +152,8 @@ module.exports = function(config, dependencies, job_callback) {
       return score(a) > score(b);
     };
 
-    var projects = [_.compact(config.failBuilds), _.compact(config.showBuilds)];
-    return async.map(projects, execute_projects, function(err, results){
+    var planDefinitions = [_.compact(config.failBuilds), _.compact(config.showBuilds)];
+    return async.map(planDefinitions, execute_planDefinitions, function(err, results){
       if (err){
         logger.error(err);
         job_callback(err);

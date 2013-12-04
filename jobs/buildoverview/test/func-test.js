@@ -58,7 +58,7 @@ describe('buildoverview', function () {
         request: function (options, callback) {
           if (options.url.match(/fake-one\/rest\/api\/latest\/result\/[^-]+-[^-]+-latest.json/)) {
             // latest build
-            callback(null, {statusCode: 200}, "{ \"key\": \"P-B-1\" }");
+            callback(null, {statusCode: 200}, '{ "key": "P-B-1", "plan" : { "enabled": "true" } }');
           }
           else if (options.url.match(/fake-one\/rest\/api\/latest\/result\/[^-]+-[^-]+-\d+.json/)) {
             // looking for build in progress
@@ -70,7 +70,7 @@ describe('buildoverview', function () {
           }
           else if (options.url.match(/fake-one\/rest\/api\/latest\/result\/[^-]+.json/)) {
             // get project
-            callback(null, {statusCode: 200}, "{ \"results\": { \"result\" : [] } }");
+            callback(null, {statusCode: 200}, '{ "results": { "result" : [] } }');
           }
           else {
             console.log('request: ', options);

@@ -102,11 +102,18 @@
       getCacheKey: function(target) {
         return 'bamboo:server-' + bamboo.config.url + ':' + target;
       },
-      getPlanInfo: function (plan, callback) {
-        var cacheKey = bamboo.getCacheKey('result-latest-' + plan);
-        var url = "/rest/api/latest/result/" + plan + "-latest.json";
+
+     /**
+      * Get latest build result for a particular plan
+      *
+      * @param {string} plan Plan key
+      */
+      getPlanLatestBuildResult: function (planKey, callback) {
+        var cacheKey = bamboo.getCacheKey('result-latest-' + planKey);
+        var url = "/rest/api/latest/result/" + planKey + "-latest.json";
         bamboo.getCachedJsonResponse(cacheKey, url, callback);
       },
+
       getResponsible: function (buildKey, callback) {
         if (!buildKey){
           return callback("build key not found");
@@ -141,6 +148,13 @@
           });
         });
       },
+
+      /**
+       * Returns plans for a certain project key
+       * 
+       * @param {string} projectKey Project or plan key. If a project key is passed, 
+       * it will fetch the underlying plans for that particular project
+       */
       getPlansFromProject: function(projectKey, callback) {
         if (!projectKey) {
           return callback("missing projectKey parameter", null);
