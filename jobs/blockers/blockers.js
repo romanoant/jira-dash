@@ -96,12 +96,16 @@ module.exports = function(config, dependencies, job_callback) {
           url: baseUrl + "/browse/" + issueKey,
           issueKey: issueKey,
           summary: summary,
+          unassigned : !issue.fields.assignee,
           assigneeName: assigneeName,
           assigneeEmail: assigneeEmail,
           team: team,
           down: false
         });
       });
+
+      // unassigned blockers first
+      result.sort(function(a, b){ return a.unassigned < b.unassigned });
 
       var data = {blockers: result, blockersLink: blockersLink};
       cache.put(cache_key, data, cache_expiration); //add to cache
