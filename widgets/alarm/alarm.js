@@ -14,7 +14,6 @@ widget = {
     }
     
     function startAlarm(alarmData) {
-      console.log(alarmData);
       var alarmPanel = $('<div class="alarm-panel"></div>').prependTo('body');
       
       // we need to define CSS here since the CSS file is scoped inside the widget selector and the alarm-panel

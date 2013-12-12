@@ -7,10 +7,10 @@
       "editor-alarm-pushups": {
         "interval": 0,
         "alarms":[
-          { cron: "* * * * * *", title: "test alarm", splashDuration: "4" }, // every minute, splash for 4 seconds
-          { cron: "0 * * * * *", title: "test alarm" }, // every hour
-          { cron: "0 0 * * * *", title: "test alarm" }, // every day at 00:00
-          { cron: "0 0 1 * * *", title: "test alarm" } // every 1st of every month
+          { cron: "0 * * * * *", title: "test alarm", splashDuration: "4" }, // every minute, splash for 4 seconds
+          { cron: "0 0 * * * *", title: "test alarm" }, // every hour
+          { cron: "0 0 0 * * *", title: "test alarm" }, // every day at 00:00:00
+          { cron: "0 0 0 1 * *", title: "test alarm" } // every 1st of every month
         "showDate": false
       },
 
@@ -54,6 +54,7 @@ function createCronJobsForAlarms (config, dependencies, job_callback) {
  */
 function makeCronHandler(alarm, config, dependencies, job_callback) {
   return function () {
+    console.log(alarm);
     job_callback(null, { alarm: alarm });
   };
 }
