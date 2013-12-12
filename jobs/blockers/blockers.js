@@ -1,3 +1,25 @@
+
+/**
++
++  JIRA blockers
++
++  Example config:
++
++    "confluence-blockers" : {
++      "timeout": 30000,
++      "retryOnErrorTimes" : 3,
++      "interval" : 120000,
++      "jira_server" : "https://jira.atlassian.com",
++      "useComponentAsTeam" : true,
++      "projectTeams": {
++        "CONFDEV": "Teamless Issue",
++        "CONFVN": "Vietnam"
++      },
++      "jql" : "(project in (\"CONFDEV\",\"CONFVN\") AND resolution = EMPTY AND priority = Blocker) OR (project = \"CONF\" AND resolution = EMPTY AND priority = Blocker AND labels in (\"ondemand\"))"
++    },
++
++*/
+
 var querystring = require('querystring'),
     cache = require('memory-cache');
 
