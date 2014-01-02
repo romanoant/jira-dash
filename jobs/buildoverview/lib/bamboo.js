@@ -1,4 +1,5 @@
 (function () {
+
   //noinspection UnnecessaryLocalVariableJS
   module.exports = function (url, username, password, request, cache, cheerio) {
     var bamboo = {
@@ -79,17 +80,34 @@
           bamboo.getJsonResponse(url, bamboo.cachedCallback(cacheKey, callback));
         });
       },
-      putCache: function(cacheKey, value) {
-        cache.put(cacheKey, value, bamboo.config.cacheExpiration);
+
+      /**
+       * Add item to cache.
+       *
+       * @param {string} cacheKey 
+       * @param {object} value 
+       * @param {number} [expiration="bamboo.config.cacheExpiration"] expiration in ms or use bamboo.config.cacheExpiration
+       */
+      putCache: function(cacheKey, value, expiration) {
+        cache.put(cacheKey, value, expiration || bamboo.config.cacheExpiration);
       },
-      cachedCallback: function (cacheKey, callback) {
+
+      /**
+       * Handle callback storing the value in cache if successful.
+       *
+       * @param {string} cacheKey 
+       * @param {function} callback
+       * @param {number} [expiration="bamboo.config.cacheExpiration"] expiration in ms or use bamboo.config.cacheExpiration
+       */
+      cachedCallback: function (cacheKey, callback, expiration) {
         return function (err, json) {
           if (!err) {
-            bamboo.putCache(cacheKey, json);
+            bamboo.putCache(cacheKey, json, expiration);
           }
           callback(err, json);
-        }
+        };
       },
+
       maybeCached: function (cacheKey, callback, notCachedCallback) {
         var cachedValue = cache.get(cacheKey);
         if (cachedValue) {
@@ -153,11 +171,11 @@
        * Returns plans for a certain project key
        * 
        * @param {string} projectKey Project or plan key. If a project key is passed, 
-       * it will fetch the underlying plans for that particular project
+       *     it will fetch the underlying plans for that particular project
        */
       getPlansFromProject: function(projectKey, callback) {
         if (!projectKey) {
-          return callback("missing projectKey parameter", null);
+          return callback("missing projectKey parameter");
         }
 
         var url = "/rest/api/latest/result/" + projectKey + ".json";
@@ -166,7 +184,7 @@
           var cacheAwareCallback = bamboo.cachedCallback(cacheKey, callback);
           if (projectKey.indexOf("-") != -1) {
             // that's not a project - that's a plan!
-            return cacheAwareCallback(null, [projectKey]);
+            return cacheAwareCallback(null, [projectKey], bamboo.config.plansToProjectsCacheExpiration);
           }
           else {
             return bamboo.getJsonResponse(url, function(err, json) {
@@ -183,19 +201,23 @@
                     plans.push(planKey);
                   }
                 });
-                cacheAwareCallback(null, plans);
+                cacheAwareCallback(null, plans, bamboo.config.plansToProjectsCacheExpiration);
               }
             });
           }
         });
       }
     };
+
     bamboo.config = {
-      cacheExpiration: 10 * 1000,
-      timeout: 30 * 1000,
+      cacheExpiration: 60 * 1000,
+      plansToProjectsCacheExpiration: 5 * 60 * 1000,
+      timeout: 60 * 1000,
       auth: bamboo.createAuth(username, password),
       url: url
     };
+
     return bamboo;
   };
+
 })();
