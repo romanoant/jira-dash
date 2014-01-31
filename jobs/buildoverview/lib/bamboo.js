@@ -19,10 +19,7 @@
         request(options, function (err, response, json_body) {
           if (err || !response || response.statusCode != 200) {
             if (!err && response && response.statusCode == 404) {
-              // this build is not running
-              return callback(null, {
-                finished: true
-              });
+              return callback('404 build ' + buildWithNumber + ' not found!');
             }
             else {
               var errMsg = "bad response from " + options.url
