@@ -12,7 +12,8 @@
           timeout: bamboo.config.timeout,
           url: bamboo.config.url + "/rest/api/latest/result/status/" + buildWithNumber + ".json",
           headers: {
-            "authorization": bamboo.config.auth
+            "authorization": bamboo.config.auth,
+            "accept": "application/json"
           }
         };
 
@@ -45,7 +46,8 @@
           timeout: bamboo.config.timeout,
           url: bamboo.config.url + urlPath,
           headers: {
-            "authorization": bamboo.config.auth
+            "authorization": bamboo.config.auth,
+            "accept": "application/json"
           }
         };
         request(options, function (err, response, body) {
