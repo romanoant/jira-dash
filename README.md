@@ -144,3 +144,58 @@ Sample configuration:
       "dueDate": "11/15/2013",
       "milestone": "5.4 Freeze"
     }
+
+
+### Pending Pull Requests
+
+![Pending Pull Requests](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/pending-PR.png)
+
+Display pending PR for a list of users (a team)
+
+Sample configuration:
+     
+     { 
+       "repositories": [
+    
+         { 
+           "name" : "confluence",   
+           "provider": "STASH", 
+    
+           "options": {
+              "stashBaseUrl": "https://stash.atlassian.com", 
+              "project": "CONF", 
+              "repository": "confluence" 
+           }
+         }.
+    
+         {
+           "name" : "jira",
+           "provider": "STASH", 
+    
+           "options": {
+              "stashBaseUrl": "https://stash.atlassian.com", 
+              "project": "JIRA", 
+              "repository": "jira" 
+           }
+         }
+     
+        ],
+     
+        "team": [
+           // if email, related gravatar will be used. Otherwise, "display" property as a text
+           { username: "iloire",  "display": "ivan", "email": "iloire@atlassian.com" }, 
+           { username: "dwillis", "display": "don", "email": "dwillis@atlassian.com" },
+           { usernane: "mreis",   "display": "miter", "email": "mreis@atlassian.com"}
+        ],
+      }
+
+
+Supported providers:
+
+ - STASH
+
+Planned:
+
+ - Bitbucker provider support
+ - Ability to filter users by repositories.
+ - Ability to change the username by repository.
