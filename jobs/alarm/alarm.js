@@ -23,7 +23,7 @@ module.exports = function (config, dependencies, job_callback) {
     this.alarms = createCronJobsForAlarms(config, dependencies, job_callback);
   }
   job_callback(null, { });
-  return alarms;
+  return this.alarms;
 };
 
 
@@ -54,7 +54,6 @@ function createCronJobsForAlarms (config, dependencies, job_callback) {
  */
 function makeCronHandler(alarm, config, dependencies, job_callback) {
   return function () {
-    console.log(alarm);
     job_callback(null, { alarm: alarm });
   };
 }
