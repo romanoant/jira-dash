@@ -184,8 +184,8 @@ Sample configuration:
         "team": [
            // if email, related gravatar will be used. Otherwise, "display" property as a text
            { username: "iloire",  "display": "ivan", "email": "iloire@atlassian.com" }, 
-           { username: "dwillis", "display": "ivan", "email": "dwillis@atlassian.com" },
-           { usernane: "mreis",   "display": "ivan", "email": "mreis@atlassian.com"}
+           { username: "dwillis", "display": "don", "email": "dwillis@atlassian.com" },
+           { usernane: "mreis",   "display": "miter", "email": "mreis@atlassian.com"}
         ],
       }
 
