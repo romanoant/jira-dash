@@ -7,7 +7,12 @@ widget = {
 
     var fadeParams = { duration: 3000, easing: 'linear' };
 
-    $('.title', el).text('data.title');
+    if (data.title){
+      $('.widget-title', el).show().text(data.title);
+    }
+    else {
+      $('.widget-title', el).hide();
+    }
 
     if (data.alarm) {
       startAlarm(data.alarm);
@@ -60,7 +65,7 @@ widget = {
       var now = new Date();
 
       var dateStr = prefixZero(now.getDate()) +
-        '-' + prefixZero(now.getMonth()) +
+        '-' + prefixZero(now.getMonth() + 1) +
         '-' + now.getFullYear();
 
       $('.clock-container', el).html(
