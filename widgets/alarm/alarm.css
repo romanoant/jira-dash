@@ -1,5 +1,4 @@
 .content {
-  font-size: 80px;
   color: #3b7fc4;
 }
 
@@ -8,12 +7,13 @@
 }
 
 .clock-time {
+  font-size: 4em;
   font-weight: bold;
   opacity: 0.6;
 }
 
 .clock-date {
-  font-size: 50%;
+  font-size: 1.7em;
   color: #454545;
   line-height: 1em;
 }
