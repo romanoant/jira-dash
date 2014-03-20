@@ -1,98 +1,128 @@
 /**
+ *
  * Job: pending-PR
+ * Description: Display pending PR for a list of users (a team)
  *
  * Expected configuration:
  * 
  * { 
- *   "stashBaseUrl": "https://stash.atlassian.com",
  *   "repositories": [
- *     { project: "CONF", repository: "confluence" }
+ *
+ *     { 
+ *       "name" : "confluence",   
+ *       "provider": "STASH", 
+ *
+ *       "options": {
+ *          "stashBaseUrl": "https://stash.atlassian.com", 
+ *          "project": "CONF", 
+ *          "repository": "confluence" 
+ *       }
+ *     }.
+ *
+ *     {
+ *       "name" : "jira",
+ *       "provider": "STASH", 
+ *
+ *       "options": {
+ *          "stashBaseUrl": "https://stash.atlassian.com", 
+ *          "project": "JIRA", 
+ *          "repository": "jira" 
+ *       }
+ *     }
+ *
  *   ],
+ *
  *   "team": [
- *     "iloire", "dwillis"
- *   ]
+ *      { username: "iloire",  "display": "ivan", "email": "iloire@atlassian.com" }, // if email, related gravatar will be used. Otherwise, "display" property as a text
+ *      { username: "dwillis", "display": "ivan", "email": "dwillis@atlassian.com" },
+ *      { usernane: "mreis",   "display": "ivan", "email": "mreis@atlassian.com"}
+ *   ],
  * }
+ *
+ *
+ * Supported providers:
+ * - STASH: Supported
+ *
+ *
+ * Planned:
+ * - Bitbucker provider support
+ * - Ability to filter users by repositories.
+ * - Ability to change the username by repository.
+ *
  */
+
 
 /**
- * Filters PR by an specific username
- * @param  {array} array of entries
- * @param  {string} username
- * @return {array}  entries for that particular username
+ * Provider strategies
  */
-function getPRByUser(data, username) {
-  var listPRs = [];
-  for (var i = 0; i < data.values.length; i++) {
-    var pr = data.values[i];
-    if (pr.author.user.name == username){
-      listPRs.push (pr);
-    }
+var STRATEGIES = {
+  STASH : function (config, dependencies, repository, callback) {
+    require('./providers/stash')(config, dependencies, repository, callback);
+  },
+
+  BITBUCKET : function (config, dependencies, repository, callback) {
+    throw 'no implemented';
   }
-  return listPRs;
 }
 
-module.exports = function(config, dependencies, job_callback) {
-
-function compactResultsByUser (data){
-  var users = [];
-  for (var i = 0; i < config.team.length; i++) {
-    var prs = [];
-    for (var d = 0; d < data.length; d++) {
-      prs = prs.concat(getPRByUser (data[d], config.team[i]));
-    }
-    var entry = {
-      name : config.team[i],
-      PR: prs
-    };
-    users.push(entry);
-  }
-  return users;
-}
-
-
-  function fetchPRByProjectAndRepository(repository, callback) {
-    var options = {
-      url: config.stashBaseUrl + "/rest/api/1.0/projects/" + repository.project + "/repos/" + repository.repository + "/pull-requests?order=NEWEST",
-      headers: {
-        "authorization": "Basic " + new Buffer(config.globalAuth.stash.username + ":" + config.globalAuth.stash.password).toString("base64")
-      }
-    };
-
-    dependencies.easyRequest.JSON(options, callback);
-  }
-
-  var logger = dependencies.logger;
-  var _ = dependencies._;
-
+function parameterSanityCheck (config) {
+  // parameter sanity check
   if (!config.globalAuth || !config.globalAuth.stash) {
-    return job_callback('missing credentials');
+    return 'missing credentials';
   }
 
   if (!config.team || !config.team.length) {
-    return job_callback('missing team');
+    return 'missing team';
   }
 
   if (!config.repositories || !config.repositories.length) {
-    return job_callback('missing repositories');
-  }
-
-  if (!config.stashBaseUrl ) {
-    return job_callback('missing stashBaseUrl');
+    return 'missing repositories';
   }
 
   for (var i = 0; i < config.repositories.length; i++) {
     var repo = config.repositories[i];
-    if (!repo.project || !repo.repository){
-      return job_callback('missing field in repositories list');
+    if (!repo.provider){
+      return 'missing provider field in repository configuration';
+    }
+    if (!repo.options.project){
+      return 'missing project field in repository configuration';
+    }
+    if (!repo.options.repository){
+      return 'missing repository field in repository configuration';
     }
   }
+}
 
-  dependencies.async.map(config.repositories, fetchPRByProjectAndRepository, function (err, results){
-    if (err){
-      job_callback(err);
+function compactResults (entries) {
+  var compactedResult = [];
+  for (var i = 0; i < entries.length; i++) {
+    var existentEntry = compactedResult.filter(function (entry) { return entry.user.username == entries[i].user.username;});
+    if (existentEntry.length){
+      existentEntry[0].PR = existentEntry[0].PR + entries[i].PR;
     }
     else {
-      job_callback(null, { users: compactResultsByUser(results) });
+      compactedResult.push(entries[i])
     }
+  }
+  return compactedResult;
+}
+
+module.exports = function(config, dependencies, job_callback) {
+
+  function fetch (repository, callback) {
+    if (STRATEGIES[repository.provider])
+      STRATEGIES[repository.provider](config, dependencies, repository, callback);
+    else 
+      throw 'invalid strategy ' + repository.provider;
+  }
+
+  var inputErrors = parameterSanityCheck(config);
+  if (inputErrors){
+    return job_callback(inputErrors);
+  }
+
+  // fetch data and parse results
+  dependencies.async.map(config.repositories, fetch, function (err, users){
+    job_callback(err, err ? null : { users: compactResults(dependencies._.flatten(users)) });
   });
 };

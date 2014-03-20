@@ -1,6 +1,21 @@
 .content {
-    font-size: 35px;
-    color: #454545;
-    font-weight: bold;
-    text-align: center;
+  font-size: 35px;
+  color: #454545;
+  font-weight: bold;
+  text-align: center;
+}
+
+.user {
+  padding: 0 5px 0 10px;
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.user img { 
+  border-radius: 50%;
+}
+
+.user .number {
+  color: #fff;
+  margin-left: 5px;
 }

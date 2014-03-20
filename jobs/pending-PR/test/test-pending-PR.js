@@ -1,41 +1,39 @@
 var assert = require('assert');
 var pendingPR = require('../pending-PR');
+var test_util = require('./util/util');
 
 var mockedConfig, mockedDependencies, mockedData;
-
-function getFakePR (number, author) {
-  var listPRs=[];
-
-  for (var i = 0; i < number; i++) {
-    listPRs.push({
-      id : i,
-      title: 'title' + i,
-      description: 'description' + i,
-      state: 'OPEN',
-      author: {
-        user : {
-          name: author
-        }
-      }
-    });
-  }
-  return listPRs;
-}
 
 beforeEach(function (done) {
 
   mockedConfig = {
-    stashBaseUrl: 'http://stash.atlassian.com',
+
     globalAuth: {
       'stash': {
         username: "myusername",
         password: "secretpassword"
       }
     },
+
     interval: 20000,
-    team: ["iloire", "dwillis"],
+
+    team: [
+     { username: "iloire" },
+     { username: "dwillis" },
+     { username: "mreis" }
+    ],
+
     repositories: [
-      { project: "CONF", repository: "confluence" }
+      {
+        name: "confluence", 
+        provider: "STASH", 
+
+        options: {
+          stashBaseUrl: "https://stash.atlassian.com",
+          project: "CONF", 
+          repository: "confluence"
+        }
+      }
     ],
   };
 
@@ -58,14 +56,6 @@ describe('pending PR', function () {
   describe('required parameters', function () {
     it('returns error if credential object is not found', function (done) {
       mockedConfig.globalAuth = {};
-      pendingPR(mockedConfig, mockedDependencies, function(err){
-        assert.ok(err);
-        done();
-      });
-    });
-
-    it('requires stash base url', function (done) {
-      mockedConfig.stashBaseUrl = null;
       pendingPR(mockedConfig, mockedDependencies, function(err){
         assert.ok(err);
         done();
@@ -105,114 +95,108 @@ describe('pending PR', function () {
     });
 
     it('requires repositories project field', function (done) {
-      mockedConfig.repositories = [
-        { project: null, repository: 'confluence'}
-      ];
+      delete mockedConfig.repositories[0].options.project;
+
       pendingPR(mockedConfig, mockedDependencies, function(err){
         assert.ok(err);
+        assert.ok(err.indexOf('missing project') > -1);
         done();
       });
     });
 
     it('requires repositories repository field', function (done) {
-      mockedConfig.repositories = [
-        { project: 'CONF', repository: null}
-      ];
+      delete mockedConfig.repositories[0].options.repository;
+
       pendingPR(mockedConfig, mockedDependencies, function(err){
         assert.ok(err);
+        assert.ok(err.indexOf('missing repository') > -1);
+        done();
+      });
+    });
+
+    it('requires repositories provider field', function (done) {
+      delete mockedConfig.repositories[0].provider;
+
+      pendingPR(mockedConfig, mockedDependencies, function(err){
+        assert.ok(err);
+        assert.ok(err.indexOf('missing provider') > -1);
         done();
       });
     });
 
   });
 
-  describe('fetch data', function () { 
-    it('returns data from one user and one repositories', function (done) {
+  describe('STASH strategy', function () { 
 
-      mockedDependencies.easyRequest.JSON = function (options, cb) {
-        var response = {
-          size: 10,
-          limit: 10,
-          isLastPage: false, 
-          values: getFakePR (10, 'iloire')
+    describe('required parameters', function () { 
+      it('requires stashBaseUrl field', function (done) {
+        delete mockedConfig.repositories[0].options.stashBaseUrl;
+
+        pendingPR(mockedConfig, mockedDependencies, function(err){
+          assert.ok(err);
+          assert.ok(err.indexOf('missing stashBaseUrl') > -1);
+          done();
+        });
+      });
+    });
+
+    describe('fetch data', function () { 
+
+      it('returns data from multiple users and mutiple repositories', function (done) {
+        mockedDependencies.easyRequest.JSON = function (options, cb) {
+          var response;
+          if (options.url.indexOf('repos/confluence') > -1) {
+            response = {
+              size: 15,
+              limit: 15,
+              isLastPage: false,
+              values: test_util.getFakeStashPR (10, 'iloire', ['mreis']).concat(test_util.getFakeStashPR (5, 'dwillis', ['iloire', 'mreis']))
+            };
+          }
+          else {
+            response = {
+              size: 29,
+              limit: 30,
+              isLastPage: false,
+              values: test_util.getFakeStashPR (22, 'iloire').concat(test_util.getFakeStashPR (7, 'dwillis', ['mreis']))
+            };
+          }
+          cb(null, response);
         };
-        cb(null, response);
-      };
 
-      mockedConfig.repositories = [
-        { project: 'CONF', repository: 'confluence'}
-      ];
+        mockedConfig.repositories = [
+          {
+            provider : "STASH", 
+            options: {
+              project: 'CONF', repository: 'confluence', stashBaseUrl: 'http://stash.atlassian.com'
+            }
+          },
+          {
+            provider : "STASH", 
+            options: {
+              project: 'JIRA', repository: 'jira', stashBaseUrl: 'http://stash.atlassian.com'
+            }
+          },
+        ];
 
-      pendingPR(mockedConfig, mockedDependencies, function(err, data){
-        assert.ifError(err);
-        assert.equal(data.users.length, 2);
-        assert.equal(data.users[0].PR.length, 10);
-        assert.equal(data.users[1].PR.length, 0);
-        done();
+        pendingPR(mockedConfig, mockedDependencies, function(err, data){
+          assert.ifError(err);
+
+          assert.equal(data.users.length, 3);
+
+          assert.equal(data.users[0].user.username, 'iloire');
+          assert.equal(data.users[0].PR, 5);
+          
+          assert.equal(data.users[1].user.username, 'dwillis');
+          assert.equal(data.users[1].PR, 0);
+
+          assert.equal(data.users[2].user.username, 'mreis');
+          assert.equal(data.users[2].PR, 22);
+
+          done();
+        });
       });
+
     });
-
-
-    it('returns data from multiple users and one repositories', function (done) {
-      mockedDependencies.easyRequest.JSON = function (options, cb) {
-        var response = {
-          size: 15,
-          limit: 15,
-          isLastPage: false, 
-          values: getFakePR (10, 'iloire').concat(getFakePR (5, 'dwillis'))
-        };
-        cb(null, response);
-      };
-
-      mockedConfig.repositories = [
-        { project: 'CONF', repository: 'confluence'}
-      ];
-
-      pendingPR(mockedConfig, mockedDependencies, function(err, data){
-        assert.ifError(err);
-        assert.equal(data.users.length, 2);
-        assert.equal(data.users[0].PR.length, 10);
-        assert.equal(data.users[1].PR.length, 5);
-        done();
-      });
-    });
-
-    it('returns data from multiple users and mutiple repositories', function (done) {
-      mockedDependencies.easyRequest.JSON = function (options, cb) {
-        var response;
-        if (options.url.indexOf('repos/confluence') > -1) {
-          response = {
-            size: 15,
-            limit: 15,
-            isLastPage: false,
-            values: getFakePR (10, 'iloire').concat(getFakePR (5, 'dwillis'))
-          };
-        }
-        else {
-          response = {
-            size: 29,
-            limit: 30,
-            isLastPage: false,
-            values: getFakePR (22, 'iloire').concat(getFakePR (7, 'dwillis'))
-          };
-        }
-        cb(null, response);
-      };
-
-      mockedConfig.repositories = [
-        { project: 'CONF', repository: 'confluence'},
-        { project: 'JIRA', repository: 'jira'}
-      ];
-
-      pendingPR(mockedConfig, mockedDependencies, function(err, data){
-        assert.ifError(err);
-        assert.equal(data.users.length, 2);
-        assert.equal(data.users[0].PR.length, 32);
-        assert.equal(data.users[1].PR.length, 12);
-        done();
-      });
-    });
-
   });
-
 });
