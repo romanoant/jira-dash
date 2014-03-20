@@ -1,4 +1,3 @@
-
 /**
 +
 +  JIRA blockers
@@ -15,6 +14,7 @@
 +        "CONFDEV": "Teamless Issue",
 +        "CONFVN": "Vietnam"
 +      },
++      "highLightTeams" : ["Editor"]    
 +      "jql" : "(project in (\"CONFDEV\",\"CONFVN\") AND resolution = EMPTY AND priority = Blocker) OR (project = \"CONF\" AND resolution = EMPTY AND priority = Blocker AND labels in (\"ondemand\"))"
 +    },
 +
@@ -22,6 +22,44 @@
 
 var querystring = require('querystring'),
     cache = require('memory-cache');
+
+
+function fillIssueWithTeamInfo(config, issue){
+  
+  var projectKey = issue.key.split('-')[0];
+
+  var projectTeams = config.projectTeams || {};
+  var team = projectTeams[projectKey] || "Teamless Issue"; // default value
+
+  //loop through issue components trying to match it to a team
+  issue.fields.components.forEach(function(component) {
+    if(config.useComponentAsTeam) {
+      team = component.name;
+    } else {
+      var teams = config.teams || [];
+      if (teams.indexOf(component.name) != -1) {
+        team = component.name;
+      }
+    }
+  });
+
+  // highlight our teams according to config
+  var highlighted = false;
+  if (config.highLightTeams) {
+    for (var i = 0; i < config.highLightTeams.length; i++) {
+      if (config.highLightTeams[i] === team){
+        highlighted = true;
+        break;
+      }
+    }
+  }
+
+  return {
+    name: team,
+    highlighted: highlighted
+  };
+}
+
 
 module.exports = function(config, dependencies, job_callback) {
 
@@ -34,8 +72,6 @@ module.exports = function(config, dependencies, job_callback) {
     return job_callback('missing parameters in blockers job');
   }
 
-  var teams = config.teams || [];
-  var projectTeams = config.projectTeams || {};
   var logger = dependencies.logger;
 
   var params = {
@@ -57,81 +93,57 @@ module.exports = function(config, dependencies, job_callback) {
   var linkParams = { jql: config.jql };
   var blockersLink = config.jira_server + "/issues/?" + querystring.stringify(linkParams);
 
+  // cache response
   var cache_expiration = 60 * 1000; //ms
   var cache_key = 'atlassian-jira-blockers:config-' + JSON.stringify(config); // unique cache object per job config
   if (cache.get(cache_key)){
       return job_callback (null, cache.get(cache_key));
   }
 
-  dependencies.request(options, function(error, response, blockerJSON) {
-    if (error || !response || (response.statusCode != 200)) {
-        var err_msg = (error || (response ? ("bad statusCode: " +
-            response.statusCode) : "bad response")) + " from " + options.url;
-        job_callback(err_msg);
-    }
-    else {
-      var result = [];
-      var blockerData;
+  dependencies.easyRequest.JSON(options, function(error, blockerData) {
+    if (error)
+        return job_callback(error);
 
-      try {
-        blockerData = JSON.parse(blockerJSON);
-      }
-      catch (err){
-        var msg = 'error parsing JSON response from server';
-        return job_callback(msg);
-      }
+    var result = [];
 
-      if (!blockerData.issues){
-        blockerData.issues = [];
-      }
+    if (!blockerData.issues)
+      blockerData.issues = [];
 
-      blockerData.issues.forEach(function(issue) {
-        var baseUrl = issue.self.substring(0, issue.self.indexOf("/rest/api"));
-        var issueKey = issue.key;
-        var projectKey = issueKey.split('-')[0];
-        var summary = issue.fields.summary;
+    blockerData.issues.forEach(function(issue) {
+      var baseUrl = issue.self.substring(0, issue.self.indexOf("/rest/api"));
+      var assignee = issue.fields.assignee;
 
-        var assignee = issue.fields.assignee;
-        var assigneeName = "Unassigned";
-        var assigneeEmail = "";
-        if (assignee !== null) {
-            assigneeName = assignee.displayName;
-            assigneeEmail = assignee.emailAddress;
-        }
+      var teamInfo = fillIssueWithTeamInfo(config, issue);
 
-        var team = projectTeams[projectKey] || "Teamless Issue";
-        
-        var components = issue.fields.components;
-
-        //loop through issue components trying to match it to a team
-        components.forEach(function(component) {
-          if(config.useComponentAsTeam) {
-            team = component.name;
-          } else {
-            if (teams.indexOf(component.name) != -1) {
-              team = component.name;
-            }
-          }
-        });
-
-        result.push({
-          url: baseUrl + "/browse/" + issueKey,
-          issueKey: issueKey,
-          summary: summary,
-          unassigned : !issue.fields.assignee,
-          assigneeName: assigneeName,
-          assigneeEmail: assigneeEmail,
-          team: team,
-          down: false
-        });
+      result.push({
+        url: baseUrl + "/browse/" + issue.key,
+        issueKey: issue.key,
+        summary: issue.fields.summary,
+        unassigned : !issue.fields.assignee,
+        assigneeName: assignee ? assignee.displayName : "Unassigned",
+        assigneeEmail: assignee ? assignee.emailAddress : "",
+        team: teamInfo.name,
+        highlighted: teamInfo.highlighted,
+        down: false
       });
+    });
 
-      // unassigned blockers first
-      result.sort(function(a, b){ return a.unassigned < b.unassigned });
+    // unassigned and highlighted blockers first
+    result.sort(function(a, b){ 
+      if ((a.unassigned && b.unassigned) || (!a.unassigned && !b.unassigned)) {
+        return a.highlighted < b.highlighted   
+      }
+      return a.unassigned < b.unassigned 
+    });
 
-      var data = {blockers: result, blockersLink: blockersLink};
-      cache.put(cache_key, data, cache_expiration); //add to cache
-      job_callback(null, data);
-    }
+    var data = { 
+      blockers: result, 
+      blockersLink: blockersLink
+    };
+
+    cache.put(cache_key, data, cache_expiration);
+
+    job_callback(null, data);
+
   });
-};
+}

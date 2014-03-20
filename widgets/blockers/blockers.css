@@ -1,5 +1,5 @@
 li {
-  font-size: 35px;
+  font-size: 1.5em;
   line-height: 35px;
   list-style: none outside none;
   padding: 5px;
@@ -14,8 +14,9 @@ li div {
   white-space: nowrap;
 }
 
-li .issue-summary{
-  font-size:30px;
+li .issue-summary {
+  color: gray;
+  font-size: 1.2em;
 }
 
 li .issue-data > * {
@@ -73,7 +74,7 @@ h3 {
 }
 
 .no-blockers-message {
-  font-size: 50px;
+  font-size: 3em;
   text-align: center;
   color: #454545;
 }

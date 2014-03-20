@@ -1,6 +1,7 @@
 widget = {
 
   onData: function (el, data) {
+
     $('.blockers', el).empty();
 
     $('h2', el).html("<a href='" + data.blockersLink + "'>" + data.blockers.length + " BLOCKER(S)</a>");
@@ -22,6 +23,12 @@ widget = {
         listItem.append($issueData);
         $issueData.append($("<strong/>").addClass("issue-key").append("<a href='" + blocker.url + "'>" + blocker.issueKey + "</a>"));
         $issueData.append($("<strong/>").addClass("issue-owner").append(blocker.team));
+
+        if (blocker.highlighted) {
+          $('.issue-owner', listItem).css({
+            'color': 'red'
+          })
+        }
 
         listItem.append($("<div/>").addClass("issue-summary").append(blocker.summary));
 
