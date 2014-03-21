@@ -67,7 +67,8 @@ widget = {
     }
 
     //build overview
-    $('.build-overview-always-show', el).empty();
+    var $always_show_builds = $('.build-overview-always-show', el);
+    $always_show_builds.empty();
 
     var totalFailedBuilds = 0;
     var totalDownBuilds = 0;
@@ -83,9 +84,12 @@ widget = {
       else {
         totalSuccessfulBuilds++;
       }
-      $('.build-overview-always-show', el).append(createBuildEntry(build));
+      $always_show_builds.append(createBuildEntry(build));
     });
 
+    data.showBuilds.length ? $always_show_builds.show() : $always_show_builds.hide();
+
+    
     //build breakers
     $('.build-breakers', el).empty();
 
