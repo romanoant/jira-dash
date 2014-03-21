@@ -123,6 +123,6 @@ module.exports = function(config, dependencies, job_callback) {
 
   // fetch data and parse results
   dependencies.async.map(config.repositories, fetch, function (err, users){
-    job_callback(err, err ? null : { users: compactResults(dependencies._.flatten(users)) });
+    job_callback(err, err ? null : { users: compactResults(dependencies.underscore.flatten(users)) });
   });
 };
