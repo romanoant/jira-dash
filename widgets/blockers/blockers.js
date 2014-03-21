@@ -2,6 +2,17 @@ widget = {
 
   onData: function (el, data) {
 
+    function getAvatar (blocker){
+      if(blocker.assigneeEmail) {
+        return ($("<img alt = '" + blocker.assigneeName +
+          "' title='" + blocker.assigneeName +
+          "' class='avatar' src='http://www.gravatar.com/avatar/" +
+          md5(blocker.assigneeEmail) + "'/>"));
+      } else {
+        return ("<span class='avatar unknown'>?</span>");
+      }
+    }
+
     $('.blockers', el).empty();
 
     $('h2', el).html("<a href='" + data.blockersLink + "'>" + data.blockers.length + " BLOCKER(S)</a>");
@@ -10,27 +21,24 @@ widget = {
 
       data.blockers.forEach(function(blocker) {
         var listItem = $("<li/>")
-        if(blocker.assigneeEmail) {
-          listItem.append($("<img alt = '" + blocker.assigneeName +
-            "' title='" + blocker.assigneeName +
-            "' class='avatar' src='http://www.gravatar.com/avatar/" +
-            md5(blocker.assigneeEmail) + "'/>"));
-        } else {
-          listItem.append("<span class='avatar unknown'>?</span>");
-        }
+
+        listItem.append(getAvatar(blocker));
 
         var $issueData = $("<div class=\"issue-data\"/>");
-        listItem.append($issueData);
-        $issueData.append($("<strong/>").addClass("issue-key").append("<a href='" + blocker.url + "'>" + blocker.issueKey + "</a>"));
+        $issueData.append($("<strong/>").addClass("issue-key").append("<a target=_blank href='" + blocker.url + "'>" + blocker.issueKey + "</a>"));
         $issueData.append($("<strong/>").addClass("issue-owner").append(blocker.team));
+        listItem.append($issueData);
 
         if (blocker.highlighted) {
-          $('.issue-owner', listItem).css({
-            'color': 'red'
-          })
+          $('.issue-owner', listItem).addClass('highlighted');
+        }
+
+        if (blocker.blocking && blocker.blocking.length){
+           blocker.summary = "<span class=issue-blocking>" + blocker.blocking.join(', ') + "</span>" + blocker.summary;
         }
 
         listItem.append($("<div/>").addClass("issue-summary").append(blocker.summary));
+        listItem.append($("<div/>").addClass("issue-blocking").append());
 
         $('.blockers', el).append(listItem);
       });
