@@ -11,7 +11,7 @@ widget = {
       $('.widget-title', el).show().text(data.title);
     }
     else {
-      $('.widget-title', el).hide();
+      $('.widget-title', el).hide(); // alarm widget looks (and works) better without a title
     }
 
     if (data.alarm) {
