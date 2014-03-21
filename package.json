@@ -20,7 +20,7 @@
     "sinon": "1.9.0"
   },
   "scripts": {
-    "test": "find jobs -name '*.js' | grep test/ | xargs mocha"
+    "test": "find jobs -name '*.js' | grep test/ | xargs mocha  --globals alarms"
   },
   "engines": {
     "atlasboard": ">=0.5.6"
