@@ -24,6 +24,20 @@ var querystring = require('querystring'),
     cache = require('memory-cache');
 
 
+function getBlockingAreas(config, issue){
+  var blockingAreas = [];
+  var keyword = "blocking-";
+  if (issue.fields.labels){
+    issue.fields.labels.forEach(function(label) {
+      var i = label.indexOf(keyword);
+      if (i > -1){
+        blockingAreas.push(label.substr(keyword.length));
+      }
+    });
+  }
+  return blockingAreas;
+}
+
 function fillIssueWithTeamInfo(config, issue){
   
   var projectKey = issue.key.split('-')[0];
@@ -77,7 +91,7 @@ module.exports = function(config, dependencies, job_callback) {
   var params = {
     jql: config.jql,
     maxResults: config.maxResults || 15,
-    fields: "key,summary,assignee,components"
+    fields: "key,summary,assignee,components,labels"
   };
 
   var options = {
@@ -124,6 +138,7 @@ module.exports = function(config, dependencies, job_callback) {
         assigneeEmail: assignee ? assignee.emailAddress : "",
         team: teamInfo.name,
         highlighted: teamInfo.highlighted,
+        blocking: getBlockingAreas(config, issue),
         down: false
       });
     });
