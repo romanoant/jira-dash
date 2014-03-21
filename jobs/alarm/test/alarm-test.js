@@ -1,7 +1,9 @@
 var assert = require('assert'),
     alarm = require('../alarm'),
     sinon = require('sinon'),
-    moment = require('moment');
+    
+    //this injected by atlasboard in runtime. we need to add it as a package dependency in order to run the tests
+    moment = require('moment'); 
 
 describe('alarm test', function () {
 
