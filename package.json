@@ -1,53 +1,54 @@
 {
-    "author":"Atlassian",
-    "name":"atlasboard-atlassian-package",
-    "description":"Atlassian package for Atlasboard",
-    "version":"0.0.1",
-    "homepage":"",
-    "repository":{
-        "type":"git",
-        "url":""
+  "author": "Atlassian",
+  "name": "atlasboard-atlassian-package",
+  "description": "Atlassian package for Atlasboard",
+  "version": "0.0.1",
+  "homepage": "",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "dependencies": {
+    "async": "0.2.6",
+    "cron": "1.0.1",
+    "cheerio": "0.13.1",
+    "underscore": "1.4.2",
+    "memory-cache": "0.0.5"
+  },
+  "devDependencies": {
+    "mocha": "1.8.1",
+    "sinon": "^1.9.0"
+  },
+  "scripts": {
+    "test": "find jobs -name '*.js' | grep test/ | xargs mocha"
+  },
+  "engines": {
+    "atlasboard": ">=0.5.6"
+  },
+  "contributors": [
+    {
+      "name": "William Archinal",
+      "email": "william.archinal@gmail.com"
     },
-    "dependencies":{
-        "async":                "0.2.6",
-        "cron":                 "1.0.1",
-        "cheerio":              "0.13.1",
-        "underscore":           "1.4.2",
-        "memory-cache":         "0.0.5"
+    {
+      "name": "Christoph Kiehl",
+      "email": "ckiehl@atlassian.com"
     },
-    "devDependencies":{
-        "mocha":                "1.8.1"
+    {
+      "name": "Alexander Dickson",
+      "email": "alex@alexanderdickson.com"
     },
-    "scripts" : {
-        "test" : "find jobs -name '*.js' | grep test/ | xargs mocha"
+    {
+      "name": "Ivan Loire",
+      "email": "iloire@atlassian.com"
     },
-    "engines" : {
-        "atlasboard": ">=0.5.6"
+    {
+      "name": "David Richard",
+      "email": "drichard@atlassian.com"
     },
-    "contributors":   [
-        {
-            "name": "William Archinal",
-            "email":"william.archinal@gmail.com"
-        },
-        {
-            "name": "Christoph Kiehl",
-            "email":"ckiehl@atlassian.com"
-        },
-        {
-            "name": "Alexander Dickson",
-            "email":"alex@alexanderdickson.com"
-        },
-        {
-            "name": "Ivan Loire",
-            "email":"iloire@atlassian.com"
-        },
-        {
-            "name": "David Richard",
-            "email":"drichard@atlassian.com"
-        },
-		{
-			"name": "Aleksander Mierzwicki",
-			"email": "amierzwicki@atlassian.com"
-		}
-    ]
+    {
+      "name": "Aleksander Mierzwicki",
+      "email": "amierzwicki@atlassian.com"
+    }
+  ]
 }
