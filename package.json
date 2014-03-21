@@ -11,7 +11,7 @@
     "dependencies":{
         "async":                "0.2.6",
         "cron":                 "1.0.1",
-        "cheerio":              "0.10.5",
+        "cheerio":              "0.13.1",
         "underscore":           "1.4.2",
         "memory-cache":         "0.0.5"
     },
