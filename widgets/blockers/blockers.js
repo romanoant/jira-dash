@@ -33,11 +33,11 @@ widget = {
           $('.issue-owner', listItem).addClass('highlighted');
         }
 
+        var $summary = $("<div/>").addClass("issue-summary").append(blocker.summary).appendTo(listItem);
         if (blocker.blocking && blocker.blocking.length){
-           blocker.summary = "<span class=issue-blocking>" + blocker.blocking.join(', ') + "</span>" + blocker.summary;
+          $summary.prepend("<span class=issue-blocking>" + blocker.blocking.join(', ') + "</span>");
         }
 
-        listItem.append($("<div/>").addClass("issue-summary").append(blocker.summary));
         listItem.append($("<div/>").addClass("issue-blocking").append());
 
         $('.blockers', el).append(listItem);
