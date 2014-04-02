@@ -53,77 +53,93 @@ beforeEach(function (done) {
 
 describe('pending PR', function () {
 
-  describe('required parameters', function () {
-    it('returns error if credential object is not found', function (done) {
-      mockedConfig.globalAuth = {};
-      pendingPR(mockedConfig, mockedDependencies, function(err){
-        assert.ok(err);
+  describe('configuration', function () {
+
+    it('returns passes the title to the widget', function (done) {
+      mockedDependencies.easyRequest.JSON = function (options, cb) {
+        cb(null, { values : []} ); // fake response to get the callback
+      };
+
+      mockedConfig.title = 'viva llo y mi cavallo';
+      pendingPR(mockedConfig, mockedDependencies, function(err, data){
+        assert.ifError(err);
+        assert.equal(data.title, 'viva llo y mi cavallo');
         done();
       });
     });
 
-    it('requires team', function (done) {
-      mockedConfig.team = null;
-      pendingPR(mockedConfig, mockedDependencies, function(err){
-        assert.ok(err);
-        done();
+    describe('required parameters', function () {
+      it('returns error if credential object is not found', function (done) {
+        mockedConfig.globalAuth = {};
+        pendingPR(mockedConfig, mockedDependencies, function(err){
+          assert.ok(err);
+          done();
+        });
       });
-    });
 
-    it('requires team with at least one component', function (done) {
-      mockedConfig.team = [];
-      pendingPR(mockedConfig, mockedDependencies, function(err){
-        assert.ok(err);
-        done();
+      it('requires team', function (done) {
+        mockedConfig.team = null;
+        pendingPR(mockedConfig, mockedDependencies, function(err){
+          assert.ok(err);
+          done();
+        });
       });
-    });
 
-    it('requires repositories', function (done) {
-      mockedConfig.repositories = null;
-      pendingPR(mockedConfig, mockedDependencies, function(err){
-        assert.ok(err);
-        done();
+      it('requires team with at least one component', function (done) {
+        mockedConfig.team = [];
+        pendingPR(mockedConfig, mockedDependencies, function(err){
+          assert.ok(err);
+          done();
+        });
       });
-    });
 
-    it('requires repositories with at least one item', function (done) {
-      mockedConfig.repositories = [];
-      pendingPR(mockedConfig, mockedDependencies, function(err){
-        assert.ok(err);
-        done();
+      it('requires repositories', function (done) {
+        mockedConfig.repositories = null;
+        pendingPR(mockedConfig, mockedDependencies, function(err){
+          assert.ok(err);
+          done();
+        });
       });
-    });
 
-    it('requires repositories project field', function (done) {
-      delete mockedConfig.repositories[0].options.project;
-
-      pendingPR(mockedConfig, mockedDependencies, function(err){
-        assert.ok(err);
-        assert.ok(err.indexOf('missing project') > -1);
-        done();
+      it('requires repositories with at least one item', function (done) {
+        mockedConfig.repositories = [];
+        pendingPR(mockedConfig, mockedDependencies, function(err){
+          assert.ok(err);
+          done();
+        });
       });
-    });
 
-    it('requires repositories repository field', function (done) {
-      delete mockedConfig.repositories[0].options.repository;
+      it('requires repositories project field', function (done) {
+        delete mockedConfig.repositories[0].options.project;
 
-      pendingPR(mockedConfig, mockedDependencies, function(err){
-        assert.ok(err);
-        assert.ok(err.indexOf('missing repository') > -1);
-        done();
+        pendingPR(mockedConfig, mockedDependencies, function(err){
+          assert.ok(err);
+          assert.ok(err.indexOf('missing project') > -1);
+          done();
+        });
       });
-    });
 
-    it('requires repositories provider field', function (done) {
-      delete mockedConfig.repositories[0].provider;
+      it('requires repositories repository field', function (done) {
+        delete mockedConfig.repositories[0].options.repository;
 
-      pendingPR(mockedConfig, mockedDependencies, function(err){
-        assert.ok(err);
-        assert.ok(err.indexOf('missing provider') > -1);
-        done();
+        pendingPR(mockedConfig, mockedDependencies, function(err){
+          assert.ok(err);
+          assert.ok(err.indexOf('missing repository') > -1);
+          done();
+        });
       });
-    });
 
+      it('requires repositories provider field', function (done) {
+        delete mockedConfig.repositories[0].provider;
+
+        pendingPR(mockedConfig, mockedDependencies, function(err){
+          assert.ok(err);
+          assert.ok(err.indexOf('missing provider') > -1);
+          done();
+        });
+      });
+
+    });
   });
 
   describe('STASH strategy', function () { 

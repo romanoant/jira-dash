@@ -11,6 +11,9 @@ module.exports = function(config, dependencies, repository, callback) {
     if (err)
       return callback(err);
 
+    if (!data || !data.values)
+      return callback('no data');
+
     var users = [];
     for (var i = 0; i < config.team.length; i++) {
       var prs = 0;
