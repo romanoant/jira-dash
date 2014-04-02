@@ -33,18 +33,18 @@ module.exports = function(config, dependencies, job_callback) {
       url: "https://manifesto.uc-inf.net/api/summary"
     };
 
-    request.JSON(options, function(err, response, body) {
+    request.JSON(options, function(error, manifestoData) {
       if (error) {
         return job_callback(error);
       }
 
-      var results = extractResult(body);
+      var results = extractResult(manifestoData);
       return job_callback(null, results);
     });
   };
 
-  var extractResult = function(body) {
-    var filteredEnvironments = _.filter(body.environments, function(e) {
+  var extractResult = function(data) {
+    var filteredEnvironments = _.filter(data.environments, function(e) {
       return _.contains(config.environments, e.environment);
     })
 
