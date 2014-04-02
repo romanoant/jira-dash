@@ -14,6 +14,8 @@
     "cheerio": "0.13.1",
     "underscore": "1.4.2",
     "memory-cache": "0.0.5",
+    "request": "~2.33.0",
+    "node.extend": "~1.0.9",
     "moment": "2.5.1"
   },
   "devDependencies": {
@@ -46,6 +48,10 @@
     {
       "name": "David Richard",
       "email": "drichard@atlassian.com"
+    },
+    {
+      "name": "Seb Ruiz",
+      "email": "sruiz@atlassian.com"
     },
     {
       "name": "Aleksander Mierzwicki",
