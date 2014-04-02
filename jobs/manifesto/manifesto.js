@@ -1,6 +1,4 @@
-var _ = require("underscore"),
-  extend = require("node.extend"),
-  request = require("request");
+var extend = require("node.extend");
 
 module.exports = function(config, dependencies, job_callback) {
 
@@ -12,7 +10,9 @@ module.exports = function(config, dependencies, job_callback) {
     return job_callback("No environments configured");
   }
 
-  var logger = dependencies.logger;
+  var _ = dependencies.underscore,
+      request = dependencies.easyRequest,
+      logger = dependencies.logger;
 
 
   var defaultColors = {
@@ -29,11 +29,11 @@ module.exports = function(config, dependencies, job_callback) {
   var getData = function() {
 
     var options = {
-      url: "https://manifesto.uc-inf.net/api/summary",
-      json: true
+      timeout: config.timeout || 15000,
+      url: "https://manifesto.uc-inf.net/api/summary"
     };
 
-    request(options, function(err, response, body) {
+    request.JSON(options, function(err, response, body) {
       if (err || !response || response.statusCode != 200) {
         var errMsg = "bad response from " + options.url + (response ? " - status code: " + response.statusCode : "");
         console.log("ERROR", err || errMsg);

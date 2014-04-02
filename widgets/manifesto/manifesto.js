@@ -58,7 +58,6 @@ widget = {
                     );
                 pluginArray.push($pluginRow);
             });
-            console.log(pluginArray);
             return pluginArray;
         }
     }
