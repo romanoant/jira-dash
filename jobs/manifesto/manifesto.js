@@ -34,19 +34,12 @@ module.exports = function(config, dependencies, job_callback) {
     };
 
     request.JSON(options, function(err, response, body) {
-      if (err || !response || response.statusCode != 200) {
-        var errMsg = "bad response from " + options.url + (response ? " - status code: " + response.statusCode : "");
-        console.log("ERROR", err || errMsg);
-        return job_callback(err || errMsg);
-      } else {
-        try {
-          var results = extractResult(body);
-          return job_callback(null, results);
-        } catch (e) {
-          console.log("ERROR", e);
-          return job_callback(e, null);
-        }
+      if (error) {
+        return job_callback(error);
       }
+
+      var results = extractResult(body);
+      return job_callback(null, results);
     });
   };
 
