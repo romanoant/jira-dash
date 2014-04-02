@@ -4,8 +4,8 @@ var _ = require("underscore"),
 
 module.exports = function(config, dependencies, job_callback) {
 
-  if (!config.plugins) {
-    return job_callback("No plugins configured");
+  if (!config.plugins && !config.products) {
+    return job_callback("No plugins or products configured");
   }
 
   if (!config.environments) {
@@ -63,7 +63,7 @@ module.exports = function(config, dependencies, job_callback) {
 
       _.each(e.products, function(product) {
         product.plugins = _.filter(product.plugins, function(p) {
-          return _.contains(config.plugins, p.name);
+          return (config.plugins ? _.contains(config.plugins, p.name) : true);
         });
       });
     });

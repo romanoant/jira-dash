@@ -223,3 +223,23 @@ Sample configuration:
     }
 
 The JIRA Agile board estimation statistic is used to draw the progress bars. If your team doesn't estimate stories you can still get the progress bars by switching the board's estimation statistic to 'Issue Count' (Board > Configure > Estimation > Estimation Statistic) or the pretty bars won't show up.
+
+### Manifesto Artifacts
+
+![screenshot](http://monosnap.com/image/HUbPDsiR4FCYXTpm2p6Zpvf8HbJHCt.png)
+
+Shows deployment environments and artifacts.
+
+#### Confifugration
+
+```
+"manifesto": {
+    "plugins": ["atlassian-connect-plugin", "jwt-plugin"], // array of plugin artifacts to show
+    "products": ["jira", "confluence"],  // array of product artifacts to show
+    "environments": ["jirastudio-dev", "jirastudio-dog", "jirastudio-prd"], // array of environments to show
+    "colors": {
+        "jirastudio-dev": "red" // override the theme colour for an environment
+    }
+}
+```
+
