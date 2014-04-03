@@ -166,7 +166,7 @@ Sample configuration:
               "project": "CONF", 
               "repository": "confluence" 
            }
-         }.
+         },
     
          {
            "name" : "jira",
