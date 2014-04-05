@@ -1,6 +1,6 @@
 li {
   font-size: 1.5em;
-  line-height: 35px;
+  line-height: 1.3em;
   list-style: none outside none;
   padding: 5px;
   border-radius: 9px;
@@ -16,7 +16,6 @@ li div {
 
 li .issue-summary {
   color: gray;
-  font-size: 1.2em;
 }
 
 span.issue-blocking {
@@ -82,10 +81,6 @@ li a {
   color: inherit;
   font-style: inherit;
   text-decoration: none;
-}
-
-h3 {
-  font-size: 35px;
 }
 
 .no-blockers-message {
