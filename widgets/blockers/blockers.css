@@ -1,6 +1,6 @@
 li {
-  font-size: 1.5em;
-  line-height: 1.3em;
+  font-size: 1.4em;
+  line-height: 1.2em;
   list-style: none outside none;
   padding: 5px;
   border-radius: 9px;
@@ -12,6 +12,10 @@ li div {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+li .issue-data {
+  font-size:0.85em;
 }
 
 li .issue-summary {
