@@ -1,3 +1,21 @@
+/*
+
+  Buildoverview job.
+
+  "buildoverview-UI" : {
+    "bamboo_server" : "https://confluence-bamboo.internal.atlassian.com",
+    "retryOnErrorTimes" : 3,
+    "interval" : 120000,
+    "failBuilds":["CONFUI-QUNITFFESR", "CONFUI-QUNITFFLATEST", "CONFUI-QUNITCHROMEPLUGINS" , 
+                  "CONFUI-QUNITCHROMELATEST", "CONFUI-QUNITQCCHROMELATEST", "CONFUI-QUNITQCFFLATEST", 
+                  "CONFUI-QUNITQEFFLATEST11", "CONFUI-QUNITIE9"],
+    "showBuilds":[],
+    "widgetTitle" : "QUNIT BUILDS",
+    "showResponsibles" : false
+  }
+
+ */
+
 var async = require('async'),
     Bamboo = require('./lib/bamboo.js'),
     cache = require('memory-cache'),
