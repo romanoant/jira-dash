@@ -58,7 +58,11 @@ widget = {
           if (responsible.assigneeCount != 1) {
             buildDiv.addClass("unassigned");
           }
-          $(buildInfo).append(responsible.responsiblesDiv);
+
+          if (data.showResponsibles !== false){
+            $(buildInfo).append(responsible.responsiblesDiv);
+          }
+          
         }
       }
 

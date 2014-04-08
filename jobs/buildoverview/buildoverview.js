@@ -162,7 +162,8 @@ module.exports = function(config, dependencies, job_callback) {
         job_callback(null, {
           showBuilds: results[1].sort(failure_sort),
           failBuilds: results[0].sort(failure_sort),
-          title: config.widgetTitle
+          title: config.widgetTitle,
+          showResponsibles: config.showResponsibles !== false
         });
       }
     });
