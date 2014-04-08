@@ -15,7 +15,15 @@ widget = {
 
     $('.blockers', el).empty();
 
-    $('h2', el).html("<a href='" + data.blockersLink + "'>" + data.blockers.length + " BLOCKER(S)</a>");
+    if (data.blockers.length){
+      var blockerText = (data.blockers.length === 1) ? "BLOCKER" : "BLOCKERS";
+      var severity = (data.blockers.length > 10) ? "veryhigh" : ((data.blockers.length > 5) ? "high" : "normal");
+      $('h2', el).html("<a href='" + data.blockersLink + "'><span class=" + severity + ">" + data.blockers.length + "</span> " + blockerText + "</a>");
+    }
+    else {
+      $('h2', el).html("NO BLOCKERS");
+    }
+    
 
     if (data.blockers.length > 0) {
 

@@ -101,3 +101,18 @@ h2 a {
   color: #454545;
   text-decoration: none;
 }
+
+h2 span.veryhigh { 
+  border-radius: 5px;
+  border: 1px solid red
+  padding: 20px;
+  color: red;
+}
+
+h2 span.high { 
+  color: #A32C22;
+}
+
+h2 span.normal { 
+  
+}
