@@ -108,7 +108,8 @@ Sample configuration:
                     "CONFUI-QUNITCHROMELATEST", "CONFUI-QUNITQCCHROMELATEST", "CONFUI-QUNITQCFFLATEST", 
                     "CONFUI-QUNITQEFFLATEST11", "CONFUI-QUNITIE9"],
       "showBuilds":[],
-      "widgetTitle" : "QUNIT BUILDS"
+      "widgetTitle" : "QUNIT BUILDS",
+      "showResponsibles" : false
     }
 
 ### Issue Count and Issues remaining
