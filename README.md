@@ -187,8 +187,11 @@ Sample configuration:
            { username: "iloire",  "display": "ivan", "email": "iloire@atlassian.com" }, 
            { username: "dwillis", "display": "don", "email": "dwillis@atlassian.com" },
            { usernane: "mreis",   "display": "miter", "email": "mreis@atlassian.com"}
-        ],
+        ]
       }
+
+Requires:
+- md5.js
 
 
 Supported providers:
