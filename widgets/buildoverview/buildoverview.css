@@ -13,10 +13,9 @@ div.build {
   margin-left: auto;
 }
 
-.failed-report {
-  padding: 3px 5px;
-  font-size:1em;
-  color: silver;
+.builds-header {
+    padding: 3px 5px;
+    font-size:90%;
 }
 
 /* status bar */
@@ -140,4 +139,12 @@ div.failed.unassigned {
 .spinnerx {
   margin-left: 10px;
   margin-top: 20px;
+}
+
+.left {
+	float:left;
+}
+
+.right {
+	float:right;
 }

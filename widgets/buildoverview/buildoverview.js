@@ -149,7 +149,16 @@ widget = {
     if (totalDownBuilds > 0){
       bar_text += ' (' + totalDownBuilds + ' DOWN)';
     }
-    $('.failed-report', el).html(bar_text);
+
+    var right_bar_text = '';
+    if (data.showQueueInfo) {
+      if (data.queue.queuedBuilds.size > 0) {
+        right_bar_text += data.queue.queuedBuilds.size + ' Q';
+      }
+    }
+
+    $('.builds-header .left', el).html(bar_text);
+    $('.builds-header .right', el).html(right_bar_text);
 
     $('.content', el).removeClass('hidden').addClass('show');
     $('.spinner', el).remove();

@@ -72,6 +72,34 @@ describe('buildoverview', function () {
             // get project
             callback(null, {statusCode: 200}, '{ "results": { "result" : [] } }');
           }
+          else if (options.url.match(/fake-one\/rest\/api\/latest\/queue\.json\?expand=queuedBuilds/)) {
+              // get queue info
+              callback(null, {statusCode: 200}, JSON.stringify({
+                  expand: "queuedBuilds",
+                  link: {
+                      href: "fake-one/rest/api/latest/queue",
+                      rel: "self"
+                  },
+                  queuedBuilds: {
+                      size: 1,
+                      expand: "queuedBuild",
+                      queuedBuild: [
+                          {
+                              planKey: "PROJECT-PLAN",
+                              buildNumber: 1,
+                              buildResultKey: "PROJECT-PLAN-JOB-1",
+                              triggerReason: "Code has changed",
+                              link: {
+                                  href: "fake-one/rest/api/latest/result/PROJECT-PLAN-JOB-1",
+                                  rel: "self"
+                              }
+                          }
+                      ]
+                  },
+                  "start-index": 0,
+                  "max-result": 1
+              }));
+          }
           else {
             console.log('request: ', options);
             throw 'what?';
@@ -92,6 +120,9 @@ describe('buildoverview', function () {
         assert.ok(data.failBuilds.length);
 
         assert.ok(!data.failBuilds[0].length);
+        assert.ok(data.queue);
+        assert.ok(data.queue.queuedBuilds);
+        assert.equal(data.queue.queuedBuilds.size, 1);
         done();
       };
 

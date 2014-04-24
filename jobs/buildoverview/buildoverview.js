@@ -189,25 +189,48 @@ module.exports = function(config, dependencies, job_callback) {
     }
 
     var planDefinitions = [_.compact(config.failBuilds), _.compact(config.showBuilds)];
-    return async.map(planDefinitions, execute_planDefinitions, function(err, results){
-      if (err){
-        logger.error(err);
-        job_callback(err);
-      }
-      else{
-        var showBuilds = results[1],
-            failBuilds = results[0];
-        if (config.sortBuilds) {
-          showBuilds = showBuilds.sort(failure_sort);
-          failBuilds = failBuilds.sort(failure_sort);
+    // creates callback wrapper that logs error and executes callback
+    var logErrorCallbackWrapper = function (callback) {
+        return function (err, results) {
+            if (err) {
+                logger.error(err);
+            }
+            callback(err, results);
         }
+    };
 
-        job_callback(null, {
-          showBuilds: showBuilds,
-          failBuilds: failBuilds,
-          title: config.widgetTitle,
-          showResponsibles: config.showResponsibles !== false
-        });
-      }
+    async.parallel([
+        function getProjectsDetails(callback) {
+            async.map(planDefinitions, execute_planDefinitions, logErrorCallbackWrapper(callback));
+        },
+        function getQueueInfo(callback) {
+            bamboo.getQueueInfo(logErrorCallbackWrapper(callback));
+        }
+    ], function (err, results) {
+        if (err) {
+            // error was logged in original function, don't log it again
+            job_callback(err);
+        }
+        else {
+
+            var projectsDetailsResult = results[0];
+            var queueInfoResult = results[1];
+
+            var showBuilds = projectsDetailsResult[1],
+                failBuilds = projectsDetailsResult[0];
+            if (config.sortBuilds) {
+                showBuilds = showBuilds.sort(failure_sort);
+                failBuilds = failBuilds.sort(failure_sort);
+            }
+
+            job_callback(null, {
+                showBuilds: showBuilds,
+                failBuilds: failBuilds,
+                title: config.widgetTitle,
+                queue: queueInfoResult,
+                showQueueInfo: config.showQueueInfo || false,
+                showResponsibles: config.showResponsibles !== false
+            });
+        }
     });
 };

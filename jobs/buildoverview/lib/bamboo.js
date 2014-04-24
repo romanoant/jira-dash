@@ -54,6 +54,10 @@
         });
 
       },
+      getQueueInfo: function (callback) {
+        var url = "/rest/api/latest/queue.json?expand=queuedBuilds";
+        bamboo.getJsonResponse(url, callback);
+      },
       getResponse: function(urlPath, callback) {
         if(queue.length() == maxQueueSize) {
           var err_msg = "Could not add request to queue for bamboo [" + bamboo.config.url + "] as it already reached its limit of " + maxQueueSize;
