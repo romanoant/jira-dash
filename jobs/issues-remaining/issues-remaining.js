@@ -31,20 +31,15 @@ module.exports = function(config, dependencies, job_callback) {
 
     options.url = baseUrl + qs.stringify(params);
 
-    dependencies.request(options, function(err, response, blockerJSON) {
-      if (err || !response || response.statusCode != 200) {
-        var error_msg = (err || (response ? ("bad statusCode: " + response.statusCode) : "bad response")) + " from " + options.url;
-        logger.error(error_msg);
-        callback(error_msg);
+    dependencies.easyRequest.JSON(options, function(err, blockerData) {
+      if (err) {
+        logger.error(err);
+        callback(err);
       } else {
-        var blockerData;
-        try {
-          blockerData = JSON.parse(blockerJSON);
-        }
-        catch (e){
-          return callback(err);
-        }
-        callback(null, {count: blockerData.issues.length, url: clickUrl + qs.stringify(params)});
+        callback(null, {
+          count: blockerData.issues.length, 
+          url: clickUrl + qs.stringify(params)
+        });
       }
     });
   }

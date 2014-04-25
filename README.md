@@ -22,6 +22,8 @@ See also: [https://bitbucket.org/atlassian/atlasboard/wiki/Package-Atlassian]()
 
 ### Clock
 
+![Clock widget](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/stfu.png)
+
 Displays current time and optionally shut the f**k up hours.
 
 Sample configuration:
@@ -67,3 +69,137 @@ Sample configuration:
 *teamMemebers* list of usernames from Crucible that you want to list reviews for
 
 *projects* list of Crucible project keys to check for reviews
+
+### Blockers
+
+![Blockers](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/blockers.png)
+
+Displays blocker JIRA issues
+
+Sample configuration:
+
+    "confluence-blockers" : {
+      "timeout": 30000,
+      "retryOnErrorTimes" : 3,
+      "interval" : 120000,
+      "jira_server" : "https://jira.atlassian.com",
+      "useComponentAsTeam" : true,
+      "projectTeams": {
+        "CONFDEV": "Teamless Issue",
+        "CONFVN": "Vietnam"
+      },
+      "jql" : "(project in (\"CONFDEV\",\"CONFVN\") AND resolution = EMPTY AND priority = Blocker) OR (project = \"CONF\" AND resolution = EMPTY AND priority = Blocker AND labels in (\"ondemand\"))"
+    }
+
+
+### Build Overview
+
+![Build overview](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/buildoverview.png)
+
+Displays Bamboo build overview
+
+Sample configuration:
+
+    "buildoverview-UI" : {
+      "bamboo_server" : "https://confluence-bamboo.internal.atlassian.com",
+      "retryOnErrorTimes" : 3,
+      "interval" : 120000,
+      "failBuilds":["CONFUI-QUNITFFESR", "CONFUI-QUNITFFLATEST", "CONFUI-QUNITCHROMEPLUGINS" , 
+                    "CONFUI-QUNITCHROMELATEST", "CONFUI-QUNITQCCHROMELATEST", "CONFUI-QUNITQCFFLATEST", 
+                    "CONFUI-QUNITQEFFLATEST11", "CONFUI-QUNITIE9"],
+      "showBuilds":[],
+      "widgetTitle" : "QUNIT BUILDS",
+      "showResponsibles" : false
+    }
+
+### Issue Count and Issues remaining
+
+![Issues remaining](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/issuecount.png)
+
+Displays JIRA issue count matching a certain filter
+
+Sample configuration:
+
+      "issues-warranty" : {
+        "jira_server": "https://jira.atlassian.com",
+        "retryOnErrorTimes" : 3,
+        "interval" : 120000,
+        "jqlOpen" : "project = CONF AND filter = \"All Editor CONF issues\" AND type = bug AND labels = warranty AND Resolution is EMPTY",
+        "jqlReview" : "project = CONF AND filter = \"All Editor CONF issues\" AND type = bug AND labels = warranty AND Resolution = Fixed and updated > -14d",
+        "widgetTitle" : "Warranty",
+        "openText" : "Unresolved Warranty",
+        "reviewText" : "Resolved Warranty"
+      },
+
+### Days Until
+
+![Days Until](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/daysuntil.png)
+
+Displays days until a certain date
+
+Sample configuration:
+
+    "daysuntil5.4": {
+      "retryOnErrorTimes" : 3,
+      "interval" : 120000,
+      "dueDate": "11/15/2013",
+      "milestone": "5.4 Freeze"
+    }
+
+
+### Pending Pull Requests
+
+![Pending Pull Requests](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/pending-PR.png)
+
+Display pending PR for a list of users (a team)
+
+Sample configuration:
+     
+     { 
+       "repositories": [
+    
+         { 
+           "name" : "confluence",   
+           "provider": "STASH", 
+    
+           "options": {
+              "stashBaseUrl": "https://stash.atlassian.com", 
+              "project": "CONF", 
+              "repository": "confluence" 
+           }
+         },
+    
+         {
+           "name" : "jira",
+           "provider": "STASH", 
+    
+           "options": {
+              "stashBaseUrl": "https://stash.atlassian.com", 
+              "project": "JIRA", 
+              "repository": "jira" 
+           }
+         }
+     
+        ],
+     
+        "team": [
+           // if email, related gravatar will be used. Otherwise, "display" property as a text
+           { username: "iloire",  "display": "ivan", "email": "iloire@atlassian.com" }, 
+           { username: "dwillis", "display": "don", "email": "dwillis@atlassian.com" },
+           { usernane: "mreis",   "display": "miter", "email": "mreis@atlassian.com"}
+        ]
+      }
+
+Requires:
+- md5.js
+
+
+Supported providers:
+
+ - STASH
+
+Planned:
+
+ - Bitbucker provider support
+ - Ability to filter users by repositories.
+ - Ability to change the username by repository.

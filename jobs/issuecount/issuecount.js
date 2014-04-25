@@ -35,22 +35,19 @@ module.exports = function (config, dependencies, job_callback) {
 
       options.url = baseUrl + qs.stringify({jql: count.jql, maxResults: 200});
 
-      dependencies.request(options, function(err, response, body) {
+      dependencies.easyRequest.JSON(options, function(err, issues) {
 
-        if (err || !response || response.statusCode != 200) {
-          var error_msg = (err || (response ? ("bad statusCode: " + response.statusCode) : "bad response")) + " from " + options.url;
-          logger.error(error_msg);
-          issueCountCallback(error_msg);
+        if (err) {
+          logger.error(err);
+          issueCountCallback(err);
         } else {
-          var body;
-          try {
-            issueCountData = JSON.parse(body);
-          }
-          catch (e){
-            return issueCountCallback(err);
-          }
-          issueCountCallback(null, {label: count.label, count: issueCountData.issues.length, url: clickUrl + qs.stringify({jql: count.jql})});
+          issueCountCallback(null, {
+            label: count.label, 
+            count: issues.issues.length, 
+            url: clickUrl + qs.stringify({jql: count.jql})
+          });
         }
+
       });
     }, function(err, issueCounts) {
       sectionCallback(err, {title: section.title, counts: issueCounts});

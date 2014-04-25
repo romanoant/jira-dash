@@ -113,7 +113,7 @@ describe('buildoverview', function () {
       var bamboo = newBambooWithRequest(requestFunctionSuccessful("{\"planName\":\"Main Build\"}"));
 
       var plan = "TEST";
-      bamboo.getPlanInfo(plan, function (err, plan_info) {
+      bamboo.getPlanLatestBuildResult(plan, function (err, plan_info) {
         assert.ok(!err);
         assert.ok(plan_info.planName);
         done();
@@ -127,7 +127,7 @@ describe('buildoverview', function () {
       });
 
       var plan = "TEST";
-      bamboo.getPlanInfo(plan, function (err, plan_info) {
+      bamboo.getPlanLatestBuildResult(plan, function (err, plan_info) {
         assert.ok(err);
         assert.ok(!plan_info);
         done();
@@ -139,7 +139,7 @@ describe('buildoverview', function () {
       var bamboo = newBambooWithRequest(requestFunctionSuccessful("-invalid json-"));
 
       var plan = "TEST";
-      bamboo.getPlanInfo(plan, function (err, plan_info) {
+      bamboo.getPlanLatestBuildResult(plan, function (err, plan_info) {
         assert.ok(err);
         assert.ok(!plan_info);
         done();

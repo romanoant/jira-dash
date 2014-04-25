@@ -1,0 +1,19 @@
+.content {
+  color: silver;
+}
+
+.clock-container {
+  text-align: center;
+}
+
+.clock-time {
+  font-size: 4em;
+  font-weight: bold;
+  opacity: 0.6;
+}
+
+.clock-date {
+  font-size: 1.7em;
+  color: #454545;
+  line-height: 1em;
+}

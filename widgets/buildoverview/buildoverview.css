@@ -1,23 +1,28 @@
-.build-status {
-  padding: 10px 15px;
-  border-radius: 5px;
-  margin-bottom: 10px;
-}
+/* general containers */
 
-.build-status-bar {
-  margin-bottom: 18px;
-  border-radius: 9px;
+div.build {
+  position: relative;
+  padding: 0.3em 0.5em;
+  border-radius: 5px;
+  margin-bottom: 9px;
 }
 
 .progress {
   height: 20px;
-  border-radius: 0 9px 9px 0;
+  border-radius: 0 5px 5px 0;
   margin-left: auto;
 }
 
-.failed-report{
+.failed-report {
   padding: 3px 5px;
-  font-size:90%;
+  font-size:1em;
+  color: silver;
+}
+
+/* status bar */
+.build-status-bar {
+  margin-bottom: 1em;
+  border-radius: 5px;
 }
 
 .build-status-bar .successful {
@@ -26,10 +31,6 @@
 
 .build-status-bar .failed {
   width: 0;
-}
-
-div {
-  font-size: 30px;
 }
 
 .failed {
@@ -46,6 +47,7 @@ div {
 }
 
 .plan-name {
+  font-size:1.3em;
   font-weight: bold;
   display: inline;
   position: relative;
@@ -57,18 +59,11 @@ div {
 }
 
 .completed-time {
-  font-size: 20px;
+  font-size: 1em;
 }
 
 div.failed.unassigned {
   background-color: #ff0000;
-}
-
-div.build {
-  position: relative;
-  padding: 10px 15px;
-  border-radius: 9px;
-  margin-bottom: 9px;
 }
 
 .build-info {
@@ -76,34 +71,36 @@ div.build {
 }
 
 .build-overview-always-show {
-  padding-bottom: 18px;
+  padding-bottom: 1em;
 }
 
+/* responsibles */
 .responsibles{
   display: inline;
-  margin-left: 10px;
+  margin-left: 0.5em;
   position: relative;
 }
 
 .responsibles img {
-  margin-right: 10px;
-  width: 60px;
-  height: 60px;
-  border-radius: 30px;
+  margin-right: 0.2em;
+  width: 2.2em;
+  height: 2.2em;
+  border-radius: 1.1em;
 }
 
 .hidden {
   display: none;
 }
 
+/* stand alone messages */
 .no-broken-builds-message {
-  font-size: 50px;
+  font-size: 3em;
   text-align: center;
   color: #454545;
 }
 
 .all-builds-down-message{
-  font-size: 50px;
+  font-size: 3em;
   text-align: center;
   color: #A32C22;
 }
@@ -123,7 +120,7 @@ div.build {
 }
 
 .time-remaining {
-  font-size: 0.8em;
+  font-size: 1.2em;
   margin-left: 7px;
 }
 
