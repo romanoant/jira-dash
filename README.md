@@ -41,6 +41,8 @@ Sample configuration:
 
 *stfuHours* you can list as many intervals as you wish, 945 means 9:45
 
+Uses image courtesy of [Ignacio Javier Igjav](http://commons.wikimedia.org/wiki/File:Bombilla_verde_-_green_Edison_lamp.svg)
+
 ### Reviews Counter
 
 Displays any reviews associated with team members.
