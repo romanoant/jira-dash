@@ -88,16 +88,16 @@ module.exports = function(config, dependencies, job_callback) {
             result.timeRemaining = runningBuildStatus.progress.prettyTimeRemaining.replace(' remaining', '');
           }
 
+          result.failedTestCount = build.failedTestCount;
+          result.testCount = build.failedTestCount + build.quarantinedTestCount + build.successfulTestCount;
+          result.successfulTestCount = build.successfulTestCount;
+          result.quarantinedTestCount = build.quarantinedTestCount;
+
           if (build.state == "Successful") {
             result.success = "successful";
             return callback(null, result);
           } else {
             // get some more details, which are not included in plan overview
-            result.failedTestCount = build.failedTestCount;
-            result.testCount = build.failedTestCount + build.quarantinedTestCount + build.successfulTestCount;
-            result.successfulTestCount = build.successfulTestCount;
-            result.quarantinedTestCount = build.quarantinedTestCount;
-
             return bamboo.getResponsible(build.key, function(err, users){
               if (err || !users){
                 result.down = true;
