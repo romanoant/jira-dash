@@ -3,41 +3,7 @@
  * Job: pending-PR
  * Description: Display pending PR for a list of users (a team)
  *
- * Expected configuration:
- * 
- * { 
- *   "repositories": [
- *
- *     { 
- *       "name" : "confluence",   
- *       "provider": "STASH", 
- *
- *       "options": {
- *          "stashBaseUrl": "https://stash.atlassian.com", 
- *          "project": "CONF", 
- *          "repository": "confluence" 
- *       }
- *     }.
- *
- *     {
- *       "name" : "jira",
- *       "provider": "STASH", 
- *
- *       "options": {
- *          "stashBaseUrl": "https://stash.atlassian.com", 
- *          "project": "JIRA", 
- *          "repository": "jira" 
- *       }
- *     }
- *
- *   ],
- *
- *   "team": [
- *      { username: "iloire",  "display": "ivan", "email": "iloire@atlassian.com" }, // if email, related gravatar will be used. Otherwise, "display" property as a text
- *      { username: "dwillis", "display": "ivan", "email": "dwillis@atlassian.com" },
- *      { usernane: "mreis",   "display": "ivan", "email": "mreis@atlassian.com"}
- *   ],
- * }
+ * Expected configuration: see README.md.
  *
  *
  * Supported providers:
@@ -65,30 +31,36 @@ var STRATEGIES = {
   }
 }
 
+/**
+ * Parameter sanity check.
+ *
+ * @param config
+ * @returns {string} if there's an error, <code>undefined</code> otherwise
+ */
 function parameterSanityCheck (config) {
-  // parameter sanity check
-  if (!config.globalAuth || !config.globalAuth.stash) {
-    return 'missing credentials';
-  }
-
   if (!config.team || !config.team.length) {
     return 'missing team';
   }
 
-  if (!config.repositories || !config.repositories.length) {
-    return 'missing repositories';
+  if (config.repositories) {
+    return "top-level 'repositories' has been replaced with 'servers'. Check README.md for new configuration format";
   }
 
-  for (var i = 0; i < config.repositories.length; i++) {
-    var repo = config.repositories[i];
-    if (!repo.provider){
-      return 'missing provider field in repository configuration';
-    }
-    if (!repo.options.project){
-      return 'missing project field in repository configuration';
-    }
-    if (!repo.options.repository){
-      return 'missing repository field in repository configuration';
+  if (!config.servers) {
+    return 'missing servers';
+  }
+
+  for (var sourceId in config.servers) {
+    if (config.servers.hasOwnProperty(sourceId)) {
+      var source = config.servers[sourceId];
+
+      if (!source.provider) {
+        return "missing provider for source: " + sourceId
+      }
+
+      if (!source.repositories || !source.repositories.length) {
+        return "missing repositories for source: " + sourceId
+      }
     }
   }
 }
@@ -108,12 +80,30 @@ function compactResults (entries) {
 }
 
 module.exports = function(config, dependencies, job_callback) {
+  var _ = dependencies['underscore'];
 
-  function fetch (repository, callback) {
-    if (STRATEGIES[repository.provider])
-      STRATEGIES[repository.provider](config, dependencies, repository, callback);
-    else 
-      throw 'invalid strategy ' + repository.provider;
+  /**
+   * @param {object} request
+   * @param {string} request.sourceId the name of the provider
+   * @param {string} request.sourceType the type of provider (e.g. "STASH", "BITBUCKET")
+   * @param {object} request.options provider-specific options object (gets passed to the strategy)
+   * @param {object} request.repository provider-specific repository object (gets passed to the strategy)
+   * @param {Function} callback
+   */
+  function fetchSingleRepo (request, callback) {
+    var sourceType = request.sourceType;
+    if (STRATEGIES[sourceType]) {
+      var fetch = {
+        sourceId: request.sourceId,
+        repository: request.repository,
+        options: request.options,
+        auth: config.globalAuth[request.sourceId]
+      };
+
+      STRATEGIES[sourceType](fetch, config.team, dependencies, callback);
+    }
+    else
+      throw 'invalid strategy ' + sourceType;
   }
 
   var inputErrors = parameterSanityCheck(config);
@@ -121,8 +111,21 @@ module.exports = function(config, dependencies, job_callback) {
     return job_callback(inputErrors);
   }
 
+  // "flatMap" the config structure into multiple "strategy request" objects
+  var repos = _.flatten(_.map(config.servers || [], function(sourceConfig, sourceName) {
+    return _.map(sourceConfig.repositories, function(repository) {
+      // a single 'repository' config that will be passed to the provider strategy
+      return {
+        sourceId: sourceName,
+        sourceType: sourceConfig.provider,
+        options: sourceConfig.options,
+        repository: repository
+      };
+    });
+  }), true);
+
   // fetch data and parse results
-  dependencies.async.map(config.repositories, fetch, function (err, users){
+  dependencies.async.map(repos, fetchSingleRepo, function (err, users){
     job_callback(err, err ? null : { title: config.title || '', users: compactResults(dependencies.underscore.flatten(users)) });
   });
 };

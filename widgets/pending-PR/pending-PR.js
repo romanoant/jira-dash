@@ -1,5 +1,5 @@
 widget = {
-  
+
   onData: function(el, data) {
 
     function getAvatarImg(name, email) {
