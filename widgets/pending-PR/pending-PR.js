@@ -4,7 +4,7 @@ widget = {
 
     function getAvatarImg(name, email) {
       return $("<img alt = '" + name + "' title='" + name +
-        "' class='avatar' src='http://www.gravatar.com/avatar/" + md5(email) + "'/>");
+        "' class='avatar' src='https://seccdn.libravatar.org/avatar/" + md5(email) + "?d=identicon'/>");
     }
 
     if (data.title) {
@@ -18,11 +18,12 @@ widget = {
       var user = entry.user;
       var $container = $('<div class=user></div>');
 
+      var displayName = user.display || user.email;
       if (user.email){
-        $container.append(getAvatarImg(user.display, user.email));
+        $container.append(getAvatarImg(displayName, user.email));
       }
       else {
-        $container.append('<span class=name>' + user.display + '</span>');
+        $container.append('<span class=name>' + displayName + '</span>');
       }
 
       $container.append('<span class=number>' + entry.PR + '</span>');
