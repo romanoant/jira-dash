@@ -28,5 +28,6 @@ widget = {
       $container.append('<span class=number>' + entry.PR + '</span>');
       $('.content', el).append($container);
     }
+    $('img.avatar', el).width((1.4 + (2.2 / data.users.length)) +'em');
   }
 };
