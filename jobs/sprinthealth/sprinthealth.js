@@ -11,10 +11,10 @@
  *  }
  */
 
-module.exports = function(config, dependencies, job_callback) {
+ var async = require('async');
+ var _ = require('underscore');
 
-    var async = dependencies.async;
-    var _ = dependencies.underscore;
+module.exports = function(config, dependencies, job_callback) {
 
     var credentials = config.credentials;
 
