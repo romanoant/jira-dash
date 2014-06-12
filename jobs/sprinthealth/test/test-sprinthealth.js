@@ -228,7 +228,7 @@ describe('Sprint Health job', function () {
       });
     });
 
-    it('contains a the server url', function (done) {
+    it('contains the server url', function (done) {
       var job = new SprintHealthJob(config, mockDependencies, function (err, data) {
         assert.ifError(err);
         assert.ok(data.serverUrl);
