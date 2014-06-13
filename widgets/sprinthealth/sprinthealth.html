@@ -1,0 +1,39 @@
+<h2>Sprint Health</h2>
+<div class="content"></div>
+<script type="text/html" class="template">
+	<% _.each(sprints, function (sprint) { %>
+	<div class="sprint">
+		<h3 class="sprint-name"><%= sprint.name %></h3>
+		<div class="countdown">
+			<%= sprint.timeRemaining.days %> days left
+		</div>
+		<div class="sprint-progress">
+			<% _.each(sprint.progress.columns, function (column, index) {
+				if (column.value > 0) { %>
+
+				<div style="width:<%= column.percentage %>%" class="work-column col<%= index %>">
+					<span class="work-column-label">
+						<%= column.value %>
+					</span>
+				</div>
+			<% }}); %>
+		</div>
+		<dl class="sprint-metrics">
+			<% _.each(sprint.sprintMetrics, function (metric) { %>
+				<dt><%= legend[metric.key] %></dt>
+				<dd class="<%= metric.value > 100 ? 'bad' : '' %>">
+					<%= metric.key === 'scope_change_percentage' ? +metric.value - 100 : metric.value %>%
+				</dd>
+			<% });%>
+		</dl>
+		<dl class="issue-metrics">
+			<% _.each(sprint.issueMetrics, function (metric) { %>
+				<dt><%= legend[metric.key] %></dt>
+				<dd class="<%= metric.value > 0 ? 'bad' : '' %>">
+					<%= metric.value %>
+				</dd>
+			<% });%>
+		</dl>
+	</div>
+	<% }); %>
+</script>
