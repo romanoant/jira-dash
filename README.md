@@ -159,7 +159,10 @@ Sample configuration:
      
     {
       "title": "PR workload",
-      "showZeroCounts": false,
+      "widget": {
+        "showZeroCounts": false,
+        "useProportionalAvatars": true,
+      }
       "servers": {
         // server key matches credentials key in globalAuth (optional)
         "stash": {

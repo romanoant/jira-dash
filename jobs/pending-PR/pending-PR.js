@@ -178,8 +178,11 @@ module.exports = function(config, dependencies, job_callback, options) {
   dependencies.async.map(repos, fetchSingleRepo, function (err, users){
     job_callback(err, err ? null : {
       title: config.title || '',
-      showZeroCounts: config.showZeroCounts,
-      users: compactResults(dependencies.underscore.flatten(users))
+      users: compactResults(_.flatten(users)),
+      widget: _.defaults({}, config.widget, {
+        showZeroCounts: false,
+        useProportionalAvatars: true
+      })
     });
   });
 };
