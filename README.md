@@ -212,3 +212,21 @@ Supported providers:
 Planned:
 
  - Ability to filter users by repositories.
+
+### Sprint Health
+
+![Sprint Health widget](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/sprint-health-widget.png)
+
+Shows health and progress of all active sprints from your JIRA Agile Scrum board. 
+
+Sample configuration:
+
+    "sprint-health": {
+        "credentials": "jiraAuth", // username/password config key from your globalAuth file
+        "jiraServer": "https://your.jiraserver.com",
+        "rapidViewId": 561, // ID of your board in JIRA Agile (have a look in your board URL)
+        "widgetTitle": "Sprint Health",
+        "interval": 300000
+    }
+
+The JIRA Agile board estimation statistic is used to draw the progress bars. If your team doesn't estimate stories you can still get the progress bars by switching the board's estimation statistic to 'Issue Count' (Board > Configure > Estimation > Estimation Statistic) or the pretty bars won't show up.

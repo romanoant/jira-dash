@@ -1,3 +1,41 @@
+/*
+  Issue count job
+
+      "issuecount" : {
+          "interval" : 300000,
+          "title": "Open Feedback Issues",
+          "jiraServer": "https://jira.atlassian.com",
+          "sections" : [
+              {
+                  "title": "Global",
+                  "counts": [
+                      {
+                          "label": "General (EAC & PUG)",
+                          "jql": "project = CONFDEV AND issuetype = Feedback AND component NOT IN (\"KL Plugin Dev\",\"Notifications\",\"User Experience\",\"Supersonic Hedgehogs\", \"Editor\", \"ADG\", \"Enterprise\", \"Collaboration Cycle\", \"Blueprints\", \"EAC/PUG Champion\") AND status NOT IN (closed, resolved) ORDER BY created DESC"
+                      }
+                  ]
+              },
+              {
+                  "title": "Themes",
+                  "counts": [
+                      {
+                          "label": "Collab Cycle",
+                          "jql": "project = CONFDEV AND issuetype = Feedback AND component = \"Collaboration Cycle\" AND status NOT IN (closed, resolved) ORDER BY created DESC"
+                      },
+                      {
+                          "label": "Enterprise",
+                          "jql": "project = CONFDEV AND issuetype = Feedback AND component = \"Enterprise\" AND status NOT IN (closed, resolved) ORDER BY created DESC"
+                      },
+                      {
+                          "label": "ADG",
+                          "jql": "project = CONFDEV AND issuetype = Feedback AND component = \"ADG\" AND status NOT IN (closed, resolved) ORDER BY created DESC"
+                      }
+                  ]
+              }
+          ]
+      },
+*/
+
 var async = require('async'),
     qs = require('querystring');
 
@@ -26,33 +64,41 @@ module.exports = function (config, dependencies, job_callback) {
     }
   };
 
-  async.map(config.sections, function(section, sectionCallback) {
-    async.map(section.counts, function(count, issueCountCallback) {
 
-      if (!(count.jql && count.jql.trim().length)) {
-        return issueCountCallback(null, {label: count.label, count: 0});
+  // queries a single item
+  function issueCountProcessor (item, cb) {
+    if (!(item.jql && item.jql.trim().length)) {
+      return cb(null, {label: item.label, item: 0});
+    }
+    options.url = baseUrl + qs.stringify({jql: item.jql, maxResults: 200});
+
+    dependencies.easyRequest.JSON(options, function(err, data) {
+      
+      var ret = {
+        label: item.label, 
+        url: clickUrl + qs.stringify({jql: item.jql})
+      };
+
+      if (err) {
+        logger.error("error processing " + item.label + ": " + err);
+        ret.error = err;
+      } else {
+        ret.count = data.issues.length;
       }
 
-      options.url = baseUrl + qs.stringify({jql: count.jql, maxResults: 200});
+      cb(null, ret);
+    });
+  }
 
-      dependencies.easyRequest.JSON(options, function(err, issues) {
-
-        if (err) {
-          logger.error(err);
-          issueCountCallback(err);
-        } else {
-          issueCountCallback(null, {
-            label: count.label, 
-            count: issues.issues.length, 
-            url: clickUrl + qs.stringify({jql: count.jql})
-          });
-        }
-
-      });
-    }, function(err, issueCounts) {
-      sectionCallback(err, {title: section.title, counts: issueCounts});
+  function sectionProcessor (section, cb) {
+    // process each item
+    async.map(section.counts, issueCountProcessor, function(err, issues) {
+      cb(null, {title: section.title, counts: issues});
     })
-  }, function(err, sections) {
-    job_callback(err, {title: config.title, sections: sections});
+  }
+
+  // process each section
+  async.map(config.sections, sectionProcessor, function(err, sections) {
+    job_callback(null, {title: config.title, sections: sections});
   });
 };
