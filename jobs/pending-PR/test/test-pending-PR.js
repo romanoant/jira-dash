@@ -1,4 +1,6 @@
+var _ = require('underscore');
 var assert = require('assert');
+var sinon = require('sinon');
 var pendingPR = require('../pending-PR');
 var test_util = require('./util/util');
 
@@ -20,7 +22,8 @@ beforeEach(function (done) {
     team: [
       { username: "iloire" },
       { username: "dwillis" },
-      { username: "mreis" }
+      { username: "mreis", aliases: { otherServer: "other-miter" } },
+      { username: "lmiranda", aliases: { confluence: "stash-lmiranda" } }
     ],
 
     servers: {
@@ -122,6 +125,67 @@ describe('pending PR', function () {
     });
   });
 
+  describe('fetch request', function(){
+    it('user aliases are mapped before invoking the strategy', function(done) {
+      // mock stash provider
+      var stash = sinon.stub().callsArg(2);
+      pendingPR(mockedConfig, mockedDependencies, function() {
+        assert.ok(stash.calledOnce, "STASH strategy should be called once, not " + stash.callCount + " times");
+
+        var fetch = stash.firstCall.args[0];
+        assert.equal(fetch.sourceId, 'confluence');
+        assert.deepEqual(fetch.repository, mockedConfig.servers.confluence.repositories[0]);
+        assert.equal(fetch.team.length, mockedConfig.team.length);
+        assert.deepEqual(_.pluck(fetch.team, 'username'), [
+          "iloire",
+          "dwillis",
+          "mreis",
+          "stash-lmiranda" // <- the only override for server='confluence'
+        ]);
+
+        done();
+      }, {
+        strategies: { STASH: stash } // pass in the mock stash provider
+      });
+    });
+
+    it('user aliases are unmapped after invoking the strategy', function(done) {
+      // mock stash provider
+      var stash = function(fetch, dependencies, callback) {
+        var isConfluenceRepo = _.isEqual([fetch.sourceId, fetch.repository], ['confluence', mockedConfig.servers.confluence.repositories[0]]);
+        if (isConfluenceRepo) {
+          callback(null, _.map([ "iloire", "dwillis", "mreis", "stash-lmiranda" ], function (username) {
+            // fake up some PR counts for each user
+            return {
+              user: { username: username },
+              PR: _.size(username)
+            };
+          }));
+        } else {
+          callback('unexpected args: ' + JSON.stringify({
+            fetch: fetch,
+            dependencies: dependencies,
+            callback: callback
+          }));
+        }
+      };
+
+      pendingPR(mockedConfig, mockedDependencies, function(err, data) {
+        assert.ifError(err);
+        assert.deepEqual(_.map(data.users, function(it) { return [ it.user.username, it.PR ] }), [
+          ["iloire", 6],
+          ["dwillis", 7],
+          ["mreis", 5],
+          ["lmiranda", 14] // <- mapped back to the real user
+        ]);
+
+        done();
+      }, {
+        strategies: { STASH: stash } // pass in the mock stash provider
+      });
+    });
+  });
+
   describe('STASH strategy', function () {
 
     describe('required parameters', function () {
@@ -207,7 +271,7 @@ describe('pending PR', function () {
         pendingPR(mockedConfig, mockedDependencies, function(err, data){
           assert.ifError(err);
 
-          assert.equal(data.users.length, 3);
+          assert.equal(data.users.length, mockedConfig.team.length);
 
           assert.equal(data.users[0].user.username, 'iloire');
           assert.equal(data.users[0].PR, 5);
@@ -217,6 +281,9 @@ describe('pending PR', function () {
 
           assert.equal(data.users[2].user.username, 'mreis');
           assert.equal(data.users[2].PR, 22);
+
+          assert.equal(data.users[3].user.username, 'lmiranda');
+          assert.equal(data.users[3].PR, 0);
 
           done();
         });

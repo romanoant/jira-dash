@@ -5,14 +5,14 @@
  * @param {object} fetch a request to fetch information from a source+repo
  * @param {String} fetch.sourceId the id of the source (used for error reporting)
  * @param {object} fetch.repository provider-specific repository object
+ * @param {object} fetch.team the team information
  * @param {object} [fetch.options] provider-specific options
  * @param {object} [fetch.auth] authentication info to use
- * @param {object} team the team information
  * @param {object} dependencies
  * @param {Function} callback
  * @returns {*}
  */
-module.exports = function (fetch, team, dependencies, callback) {
+module.exports = function (fetch, dependencies, callback) {
   var jsonOpts = getJsonOpts();
   if (typeof jsonOpts === 'string') {
     return callback('error in source "' + fetch.sourceId + '": ' + jsonOpts);
@@ -44,14 +44,14 @@ module.exports = function (fetch, team, dependencies, callback) {
       return callback('no data');
 
     var users = [];
-    for (var i = 0; i < team.length; i++) {
+    for (var i = 0; i < fetch.team.length; i++) {
       var prs = 0;
       for (var d = 0; d < data.values.length; d++) {
         prs = prs + data.values[d].reviewers.filter(function (reviewer) {
-          return reviewer.user.name === team[i].username && !reviewer.approved;
+          return reviewer.user.name === fetch.team[i].username && !reviewer.approved;
         }).length
       }
-      users.push({ user: team[i], PR: prs });
+      users.push({ user: fetch.team[i], PR: prs });
     }
     return callback(null, users);
   }

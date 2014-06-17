@@ -178,14 +178,21 @@ Sample configuration:
           "options": {
             "baseUrl": "https://stash-dev.atlassian.com",
           }
+        },
+        "bitbucket.org": {
+            "provider": "BITBUCKET",
+            "repositories": [
+                { "org": "atlassian", "repository": "atlasboard-atlassian-package" }
+            ]
         }
       },
 
       "team": [
         // if email, related gravatar will be used. Otherwise, "display" property as a text
-        { username: "iloire",  "display": "ivan", "email": "iloire@atlassian.com" },
-        { username: "dwillis", "display": "don", "email": "dwillis@atlassian.com" },
-        { usernane: "mreis",   "display": "miter", "email": "mreis@atlassian.com"}
+        { username: "iloire",   "display": "ivan", "email": "iloire@atlassian.com" },
+        { username: "dwillis",  "display": "don", "email": "dwillis@atlassian.com" },
+        { usernane: "mreis",    "display": "miter", "email": "mreis@atlassian.com"},
+        { usernane: "lmiranda", "display": "luis", "email": "lmiranda@atlassian.com", "aliases": { "bitbucket.org": "luuuis" } }
       ]
     }
 
@@ -199,6 +206,4 @@ Supported providers:
 
 Planned:
 
- - Bitbucker provider support
  - Ability to filter users by repositories.
- - Ability to change the username by repository.

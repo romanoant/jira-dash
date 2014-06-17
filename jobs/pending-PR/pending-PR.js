@@ -8,28 +8,29 @@
  *
  * Supported providers:
  * - STASH: Supported
- *
+ * - BITBUCKET: Supported
  *
  * Planned:
- * - Bitbucker provider support
  * - Ability to filter users by repositories.
- * - Ability to change the username by repository.
  *
  */
 
 
 /**
- * Provider strategies
+ * Supported provider strategies.
  */
-var STRATEGIES = {
-  STASH : function (config, dependencies, repository, callback) {
-    require('./providers/stash')(config, dependencies, repository, callback);
-  },
+var STRATEGIES = (function() {
+  return {
+    STASH: requireProvider('stash'),
+    BITBUCKET: requireProvider('bitbucket')
+  };
 
-  BITBUCKET : function (config, dependencies, repository, callback) {
-    throw 'no implemented';
+  function requireProvider(name) {
+    return function () {
+      require('./providers/' + name).apply(this, arguments);
+    };
   }
-}
+})();
 
 /**
  * Parameter sanity check.
@@ -79,8 +80,11 @@ function compactResults (entries) {
   return compactedResult;
 }
 
-module.exports = function(config, dependencies, job_callback) {
+module.exports = function(config, dependencies, job_callback, options) {
   var _ = dependencies['underscore'];
+  options = _.defaults({}, options || {}, {
+    strategies: STRATEGIES
+  });
 
   /**
    * @param {object} request
@@ -91,19 +95,65 @@ module.exports = function(config, dependencies, job_callback) {
    * @param {Function} callback
    */
   function fetchSingleRepo (request, callback) {
+    var strategies = options.strategies;
     var sourceType = request.sourceType;
-    if (STRATEGIES[sourceType]) {
+    if (strategies[sourceType]) {
       var fetch = {
         sourceId: request.sourceId,
         repository: request.repository,
         options: request.options,
-        auth: config.globalAuth[request.sourceId]
+        auth: config.globalAuth[request.sourceId],
+        team: mapUserAliases(request.sourceId)
       };
 
-      STRATEGIES[sourceType](fetch, config.team, dependencies, callback);
+      strategies[sourceType](fetch, dependencies, function(err, users) {
+        // unmap user aliases before showing results
+        callback(err, unmapUserAliases(request.sourceId, users));
+      });
     }
     else
       throw 'invalid strategy ' + sourceType;
+  }
+
+  /**
+   * Applies user aliases specified in the team config. This is done here so that each provider does not have to
+   * worry about applying the aliases (the username they get is already the overridden one).
+   *
+   * @param {string} sourceId a source id
+   * @returns {Array} an array of users with the overridden usernames
+   */
+  function mapUserAliases(sourceId) {
+    return _.map(config.team, function(user) {
+      var hasOverride = user.aliases && user.aliases[sourceId];
+
+      // apply username aliases
+      return _.extend({}, _.omit(user, 'aliases'), {
+        username: hasOverride ? user.aliases[sourceId] : user.username
+      });
+    })
+  }
+
+  /**
+   * Reverses the user aliases specified in the team config.
+   *
+   * @param {string} sourceId
+   * @param {Array} users
+   * @return {Array} an array of users with the original usernames restored
+   */
+  function unmapUserAliases(sourceId, users) {
+    return _.map(users, function (entry) {
+      // restore the original username
+      var override = _.find(config.team, function (u) {
+        return u.aliases && u.aliases[sourceId] && u.aliases[sourceId] && u.aliases[sourceId] === entry.user.username;
+      });
+
+      return !override ? entry : _.extend({}, entry, {
+        user: {
+          username: override.username,
+          email: entry.email
+        }
+      })
+    });
   }
 
   var inputErrors = parameterSanityCheck(config);
