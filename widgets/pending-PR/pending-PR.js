@@ -1,33 +1,57 @@
-widget = {
+widget = (function() {
+  var fontSize = 35;
 
-  onData: function(el, data) {
-
-    function getAvatarImg(name, email) {
-      return $("<img alt = '" + name + "' title='" + name +
-        "' class='avatar' src='https://seccdn.libravatar.org/avatar/" + md5(email) + "?d=identicon'/>");
-    }
-
-    if (data.title) {
-      $('h2', el).text(data.title);
-    }
-
-    $('.content', el).empty();
-
-    for (var i = 0; i < data.users.length; i++) {
-      var entry = data.users[i];
-      var user = entry.user;
-      var $container = $('<div class=user></div>');
-
-      var displayName = user.display || user.email;
-      if (user.email){
-        $container.append(getAvatarImg(displayName, user.email));
-      }
-      else {
-        $container.append('<span class=name>' + displayName + '</span>');
+  return {
+    onData: function(el, data) {
+      if (data.title) {
+        $('h2', el).text(data.title);
       }
 
-      $container.append('<span class=number>' + entry.PR + '</span>');
-      $('.content', el).append($container);
+      var $content = $('.content', el);
+
+      // work out how who to display and what size avatar to use
+      var displayEntries = _.sortBy(_.filter(data.users, shouldDisplayEntry), "PR").reverse();
+      var entrySize = Math.floor($content.innerHeight() / Math.sqrt(displayEntries.length) - fontSize);
+
+      // add these all at once so the browser can render it all in one go
+      $content.empty().append(_.reduce(displayEntries, function($avatars, entry) {
+        $avatars.append(
+          $('<div class=user></div>')
+            .append(renderUserHtml(entry.user, { size: entrySize }))
+            .append('<span class=number>' + entry.PR + '</span>')
+        );
+
+        return $avatars;
+      }, $('<div class="avatar-container">'))); // <- append avatars into this
+
+      // optionally filters out entries with 0 PRs
+      function shouldDisplayEntry(e) {
+        return !(data.showZeroCounts === false) || !!e.PR;
+      }
     }
+  };
+
+  /**
+   * Renders HTML for a single user.
+   *
+   * @param {object} user the user to render
+   * @param {object} user.email user email
+   * @param {object} [user.display] optional display name
+   * @param {object} opts rendering options
+   * @param {number} opts.size avatar size in pixels
+   * @returns {*} a jQuery element or a string
+   */
+  function renderUserHtml(user, opts) {
+    var displayName = user.display || user.email || user.username;
+    if (user.email) {
+      var src = 'https://seccdn.libravatar.org/avatar/' + md5(user.email) + '?d=identicon&s=' + opts.size;
+      return $("<img>")
+        .attr('alt', displayName)
+        .attr('title', displayName)
+        .attr('class', 'avatar')
+        .attr('src', src);
+    }
+
+    return '<span class=name>' + displayName + '</span>';
   }
-};
+})();

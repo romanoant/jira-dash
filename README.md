@@ -158,6 +158,8 @@ Display pending PR for a list of users (a team)
 Sample configuration:
      
     {
+      "title": "PR workload",
+      "showZeroCounts": false,
       "servers": {
         // server key matches credentials key in globalAuth (optional)
         "stash": {

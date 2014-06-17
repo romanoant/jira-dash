@@ -176,6 +176,10 @@ module.exports = function(config, dependencies, job_callback, options) {
 
   // fetch data and parse results
   dependencies.async.map(repos, fetchSingleRepo, function (err, users){
-    job_callback(err, err ? null : { title: config.title || '', users: compactResults(dependencies.underscore.flatten(users)) });
+    job_callback(err, err ? null : {
+      title: config.title || '',
+      showZeroCounts: config.showZeroCounts,
+      users: compactResults(dependencies.underscore.flatten(users))
+    });
   });
 };
