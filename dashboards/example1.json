@@ -85,15 +85,6 @@
         },
         "enabled": false
       }]
-    },
-    "manifesto": {
-      "interval": 120000,
-      "plugins": ["atlassian-connect-plugin", "jwt-plugin"],
-      "products": ["jira", "confluence"],
-      "environments": ["jirastudio-dev", "jirastudio-dog", "jirastudio-prd"],
-      "colors": {
-        "jirastudio-dev": "red"
-      }
     }
   }
 }
