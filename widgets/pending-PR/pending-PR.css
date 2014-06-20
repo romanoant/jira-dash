@@ -1,12 +1,19 @@
+.widget-container {
+    height: 100%;
+    width: 100%;
+}
+
 .content {
   font-size: 35px;
   color: #454545;
   font-weight: bold;
+  height: 100%;
   text-align: center;
+  width: 100%;
 }
 
 .user {
-  padding: 0 5px 0 10px;
+  padding: 0 5px 10px 10px;
   display: inline-block;
   margin-right: 5px;
 }

@@ -1,4 +1,6 @@
+var _ = require('underscore');
 var assert = require('assert');
+var sinon = require('sinon');
 var pendingPR = require('../pending-PR');
 var test_util = require('./util/util');
 
@@ -9,7 +11,7 @@ beforeEach(function (done) {
   mockedConfig = {
 
     globalAuth: {
-      'stash': {
+      confluence: {
         username: "myusername",
         password: "secretpassword"
       }
@@ -18,23 +20,23 @@ beforeEach(function (done) {
     interval: 20000,
 
     team: [
-     { username: "iloire" },
-     { username: "dwillis" },
-     { username: "mreis" }
+      { username: "iloire" },
+      { username: "dwillis" },
+      { username: "mreis", aliases: { otherServer: "other-miter" } },
+      { username: "lmiranda", aliases: { confluence: "stash-lmiranda" } }
     ],
 
-    repositories: [
-      {
-        name: "confluence", 
-        provider: "STASH", 
-
+    servers: {
+      confluence: {
+        provider: "STASH",
+        repositories: [
+          { project: 'CONF', repository: 'confluence' }
+        ],
         options: {
-          stashBaseUrl: "https://stash.atlassian.com",
-          project: "CONF", 
-          repository: "confluence"
+          baseUrl: "https://stash.atlassian.com"
         }
       }
-    ],
+    }
   };
 
   mockedDependencies = {
@@ -93,16 +95,103 @@ describe('pending PR', function () {
         });
       });
 
-      it('requires repositories', function (done) {
-        mockedConfig.repositories = null;
+      it('requires servers', function(done) {
+        mockedConfig.servers = null;
         pendingPR(mockedConfig, mockedDependencies, function(err){
           assert.ok(err);
           done();
         });
       });
 
+      describe('each source', function() {
+
+        it('requires a provider', function(done) {
+          delete mockedConfig.servers.confluence.provider;
+          pendingPR(mockedConfig, mockedDependencies, function(err){
+            assert.ok(err.indexOf('missing provider') > -1);
+            done();
+          });
+        });
+
+        it('requires repositories', function(done) {
+          delete mockedConfig.servers.confluence.repositories;
+          pendingPR(mockedConfig, mockedDependencies, function(err){
+            assert.ok(err.indexOf('missing repositories') > -1);
+            done();
+          });
+        });
+      });
+
+    });
+  });
+
+  describe('fetch request', function(){
+    it('user aliases are mapped before invoking the strategy', function(done) {
+      // mock stash provider
+      var stash = sinon.stub().callsArg(2);
+      pendingPR(mockedConfig, mockedDependencies, function() {
+        assert.ok(stash.calledOnce, "STASH strategy should be called once, not " + stash.callCount + " times");
+
+        var fetch = stash.firstCall.args[0];
+        assert.equal(fetch.sourceId, 'confluence');
+        assert.deepEqual(fetch.repository, mockedConfig.servers.confluence.repositories[0]);
+        assert.equal(fetch.team.length, mockedConfig.team.length);
+        assert.deepEqual(_.pluck(fetch.team, 'username'), [
+          "iloire",
+          "dwillis",
+          "mreis",
+          "stash-lmiranda" // <- the only override for server='confluence'
+        ]);
+
+        done();
+      }, {
+        strategies: { STASH: stash } // pass in the mock stash provider
+      });
+    });
+
+    it('user aliases are unmapped after invoking the strategy', function(done) {
+      // mock stash provider
+      var stash = function(fetch, dependencies, callback) {
+        var isConfluenceRepo = _.isEqual([fetch.sourceId, fetch.repository], ['confluence', mockedConfig.servers.confluence.repositories[0]]);
+        if (isConfluenceRepo) {
+          callback(null, _.map([ "iloire", "dwillis", "mreis", "stash-lmiranda" ], function (username) {
+            // fake up some PR counts for each user
+            return {
+              user: { username: username },
+              PR: _.size(username)
+            };
+          }));
+        } else {
+          callback('unexpected args: ' + JSON.stringify({
+            fetch: fetch,
+            dependencies: dependencies,
+            callback: callback
+          }));
+        }
+      };
+
+      pendingPR(mockedConfig, mockedDependencies, function(err, data) {
+        assert.ifError(err);
+        assert.deepEqual(_.map(data.users, function(it) { return [ it.user.username, it.PR ] }), [
+          ["iloire", 6],
+          ["dwillis", 7],
+          ["mreis", 5],
+          ["lmiranda", 14] // <- mapped back to the real user
+        ]);
+
+        done();
+      }, {
+        strategies: { STASH: stash } // pass in the mock stash provider
+      });
+    });
+  });
+
+  describe('STASH strategy', function () {
+
+    describe('required parameters', function () {
+
       it('requires repositories with at least one item', function (done) {
-        mockedConfig.repositories = [];
+        mockedConfig.servers.confluence.repositories = [];
         pendingPR(mockedConfig, mockedDependencies, function(err){
           assert.ok(err);
           done();
@@ -110,7 +199,7 @@ describe('pending PR', function () {
       });
 
       it('requires repositories project field', function (done) {
-        delete mockedConfig.repositories[0].options.project;
+        delete mockedConfig.servers.confluence.repositories[0].project;
 
         pendingPR(mockedConfig, mockedDependencies, function(err){
           assert.ok(err);
@@ -120,7 +209,7 @@ describe('pending PR', function () {
       });
 
       it('requires repositories repository field', function (done) {
-        delete mockedConfig.repositories[0].options.repository;
+        delete mockedConfig.servers.confluence.repositories[0].repository;
 
         pendingPR(mockedConfig, mockedDependencies, function(err){
           assert.ok(err);
@@ -129,34 +218,28 @@ describe('pending PR', function () {
         });
       });
 
-      it('requires repositories provider field', function (done) {
-        delete mockedConfig.repositories[0].provider;
+      it('requires baseUrl field', function (done) {
+        delete mockedConfig.servers.confluence.options.baseUrl;
 
         pendingPR(mockedConfig, mockedDependencies, function(err){
           assert.ok(err);
-          assert.ok(err.indexOf('missing provider') > -1);
+          assert.ok(err.indexOf('missing baseUrl') > -1);
           done();
         });
       });
 
-    });
-  });
-
-  describe('STASH strategy', function () { 
-
-    describe('required parameters', function () { 
-      it('requires stashBaseUrl field', function (done) {
-        delete mockedConfig.repositories[0].options.stashBaseUrl;
+      it('warns about configuration changes', function(done) {
+        mockedConfig.repositories = [];
 
         pendingPR(mockedConfig, mockedDependencies, function(err){
           assert.ok(err);
-          assert.ok(err.indexOf('missing stashBaseUrl') > -1);
+          assert.ok(err.indexOf('new configuration format') > -1);
           done();
         });
       });
     });
 
-    describe('fetch data', function () { 
+    describe('fetch data', function () {
 
       it('returns data from multiple users and mutiple repositories', function (done) {
         mockedDependencies.easyRequest.JSON = function (options, cb) {
@@ -180,34 +263,27 @@ describe('pending PR', function () {
           cb(null, response);
         };
 
-        mockedConfig.repositories = [
-          {
-            provider : "STASH", 
-            options: {
-              project: 'CONF', repository: 'confluence', stashBaseUrl: 'http://stash.atlassian.com'
-            }
-          },
-          {
-            provider : "STASH", 
-            options: {
-              project: 'JIRA', repository: 'jira', stashBaseUrl: 'http://stash.atlassian.com'
-            }
-          },
+        mockedConfig.servers.confluence.repositories = [
+          { project: 'CONF', repository: 'confluence' },
+          { project: 'JIRA', repository: 'jira' }
         ];
 
         pendingPR(mockedConfig, mockedDependencies, function(err, data){
           assert.ifError(err);
 
-          assert.equal(data.users.length, 3);
+          assert.equal(data.users.length, mockedConfig.team.length);
 
           assert.equal(data.users[0].user.username, 'iloire');
           assert.equal(data.users[0].PR, 5);
-          
+
           assert.equal(data.users[1].user.username, 'dwillis');
           assert.equal(data.users[1].PR, 0);
 
           assert.equal(data.users[2].user.username, 'mreis');
           assert.equal(data.users[2].PR, 22);
+
+          assert.equal(data.users[3].user.username, 'lmiranda');
+          assert.equal(data.users[3].PR, 0);
 
           done();
         });

@@ -3,92 +3,65 @@
  * Job: pending-PR
  * Description: Display pending PR for a list of users (a team)
  *
- * Expected configuration:
- * 
- * { 
- *   "repositories": [
- *
- *     { 
- *       "name" : "confluence",   
- *       "provider": "STASH", 
- *
- *       "options": {
- *          "stashBaseUrl": "https://stash.atlassian.com", 
- *          "project": "CONF", 
- *          "repository": "confluence" 
- *       }
- *     }.
- *
- *     {
- *       "name" : "jira",
- *       "provider": "STASH", 
- *
- *       "options": {
- *          "stashBaseUrl": "https://stash.atlassian.com", 
- *          "project": "JIRA", 
- *          "repository": "jira" 
- *       }
- *     }
- *
- *   ],
- *
- *   "team": [
- *      { username: "iloire",  "display": "ivan", "email": "iloire@atlassian.com" }, // if email, related gravatar will be used. Otherwise, "display" property as a text
- *      { username: "dwillis", "display": "ivan", "email": "dwillis@atlassian.com" },
- *      { usernane: "mreis",   "display": "ivan", "email": "mreis@atlassian.com"}
- *   ],
- * }
+ * Expected configuration: see README.md.
  *
  *
  * Supported providers:
  * - STASH: Supported
- *
+ * - BITBUCKET: Supported
  *
  * Planned:
- * - Bitbucker provider support
  * - Ability to filter users by repositories.
- * - Ability to change the username by repository.
  *
  */
 
 
 /**
- * Provider strategies
+ * Supported provider strategies.
  */
-var STRATEGIES = {
-  STASH : function (config, dependencies, repository, callback) {
-    require('./providers/stash')(config, dependencies, repository, callback);
-  },
+var STRATEGIES = (function() {
+  return {
+    STASH: requireProvider('stash'),
+    BITBUCKET: requireProvider('bitbucket')
+  };
 
-  BITBUCKET : function (config, dependencies, repository, callback) {
-    throw 'no implemented';
+  function requireProvider(name) {
+    return function () {
+      require('./providers/' + name).apply(this, arguments);
+    };
   }
-}
+})();
 
+/**
+ * Parameter sanity check.
+ *
+ * @param config
+ * @returns {string} if there's an error, <code>undefined</code> otherwise
+ */
 function parameterSanityCheck (config) {
-  // parameter sanity check
-  if (!config.globalAuth || !config.globalAuth.stash) {
-    return 'missing credentials';
-  }
-
   if (!config.team || !config.team.length) {
     return 'missing team';
   }
 
-  if (!config.repositories || !config.repositories.length) {
-    return 'missing repositories';
+  if (config.repositories) {
+    return "top-level 'repositories' has been replaced with 'servers'. Check README.md for new configuration format";
   }
 
-  for (var i = 0; i < config.repositories.length; i++) {
-    var repo = config.repositories[i];
-    if (!repo.provider){
-      return 'missing provider field in repository configuration';
-    }
-    if (!repo.options.project){
-      return 'missing project field in repository configuration';
-    }
-    if (!repo.options.repository){
-      return 'missing repository field in repository configuration';
+  if (!config.servers) {
+    return 'missing servers';
+  }
+
+  for (var sourceId in config.servers) {
+    if (config.servers.hasOwnProperty(sourceId)) {
+      var source = config.servers[sourceId];
+
+      if (!source.provider) {
+        return "missing provider for source: " + sourceId
+      }
+
+      if (!source.repositories || !source.repositories.length) {
+        return "missing repositories for source: " + sourceId
+      }
     }
   }
 }
@@ -107,13 +80,80 @@ function compactResults (entries) {
   return compactedResult;
 }
 
-module.exports = function(config, dependencies, job_callback) {
+module.exports = function(config, dependencies, job_callback, options) {
+  var _ = dependencies['underscore'];
+  options = _.defaults({}, options || {}, {
+    strategies: STRATEGIES
+  });
 
-  function fetch (repository, callback) {
-    if (STRATEGIES[repository.provider])
-      STRATEGIES[repository.provider](config, dependencies, repository, callback);
-    else 
-      throw 'invalid strategy ' + repository.provider;
+  /**
+   * @param {object} request
+   * @param {string} request.sourceId the name of the provider
+   * @param {string} request.sourceType the type of provider (e.g. "STASH", "BITBUCKET")
+   * @param {object} request.options provider-specific options object (gets passed to the strategy)
+   * @param {object} request.repository provider-specific repository object (gets passed to the strategy)
+   * @param {Function} callback
+   */
+  function fetchSingleRepo (request, callback) {
+    var strategies = options.strategies;
+    var sourceType = request.sourceType;
+    if (strategies[sourceType]) {
+      var fetch = {
+        sourceId: request.sourceId,
+        repository: request.repository,
+        options: request.options,
+        auth: config.globalAuth[request.sourceId],
+        team: mapUserAliases(request.sourceId)
+      };
+
+      strategies[sourceType](fetch, dependencies, function(err, users) {
+        // unmap user aliases before showing results
+        callback(err, unmapUserAliases(request.sourceId, users));
+      });
+    }
+    else
+      throw 'invalid strategy ' + sourceType;
+  }
+
+  /**
+   * Applies user aliases specified in the team config. This is done here so that each provider does not have to
+   * worry about applying the aliases (the username they get is already the overridden one).
+   *
+   * @param {string} sourceId a source id
+   * @returns {Array} an array of users with the overridden usernames
+   */
+  function mapUserAliases(sourceId) {
+    return _.map(config.team, function(user) {
+      var hasOverride = user.aliases && user.aliases[sourceId];
+
+      // apply username aliases
+      return _.extend({}, _.omit(user, 'aliases'), {
+        username: hasOverride ? user.aliases[sourceId] : user.username
+      });
+    })
+  }
+
+  /**
+   * Reverses the user aliases specified in the team config.
+   *
+   * @param {string} sourceId
+   * @param {Array} users
+   * @return {Array} an array of users with the original usernames restored
+   */
+  function unmapUserAliases(sourceId, users) {
+    return _.map(users, function (entry) {
+      // restore the original username
+      var override = _.find(config.team, function (u) {
+        return u.aliases && u.aliases[sourceId] && u.aliases[sourceId] && u.aliases[sourceId] === entry.user.username;
+      });
+
+      return !override ? entry : _.extend({}, entry, {
+        user: {
+          username: override.username,
+          email: entry.email
+        }
+      })
+    });
   }
 
   var inputErrors = parameterSanityCheck(config);
@@ -121,8 +161,28 @@ module.exports = function(config, dependencies, job_callback) {
     return job_callback(inputErrors);
   }
 
+  // "flatMap" the config structure into multiple "strategy request" objects
+  var repos = _.flatten(_.map(config.servers || [], function(sourceConfig, sourceName) {
+    return _.map(sourceConfig.repositories, function(repository) {
+      // a single 'repository' config that will be passed to the provider strategy
+      return {
+        sourceId: sourceName,
+        sourceType: sourceConfig.provider,
+        options: sourceConfig.options,
+        repository: repository
+      };
+    });
+  }), true);
+
   // fetch data and parse results
-  dependencies.async.map(config.repositories, fetch, function (err, users){
-    job_callback(err, err ? null : { title: config.title || '', users: compactResults(dependencies.underscore.flatten(users)) });
+  dependencies.async.map(repos, fetchSingleRepo, function (err, users){
+    job_callback(err, err ? null : {
+      title: config.title || '',
+      users: compactResults(_.flatten(users)),
+      widget: _.defaults({}, config.widget, {
+        showZeroCounts: false,
+        useProportionalAvatars: true
+      })
+    });
   });
 };

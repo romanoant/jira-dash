@@ -157,40 +157,49 @@ Display pending PR for a list of users (a team)
 
 Sample configuration:
      
-     { 
-       "repositories": [
-    
-         { 
-           "name" : "confluence",   
-           "provider": "STASH", 
-    
-           "options": {
-              "stashBaseUrl": "https://stash.atlassian.com", 
-              "project": "CONF", 
-              "repository": "confluence" 
-           }
-         },
-    
-         {
-           "name" : "jira",
-           "provider": "STASH", 
-    
-           "options": {
-              "stashBaseUrl": "https://stash.atlassian.com", 
-              "project": "JIRA", 
-              "repository": "jira" 
-           }
-         }
-     
-        ],
-     
-        "team": [
-           // if email, related gravatar will be used. Otherwise, "display" property as a text
-           { username: "iloire",  "display": "ivan", "email": "iloire@atlassian.com" }, 
-           { username: "dwillis", "display": "don", "email": "dwillis@atlassian.com" },
-           { usernane: "mreis",   "display": "miter", "email": "mreis@atlassian.com"}
-        ]
+    {
+      "title": "PR workload",
+      "widget": {
+        "showZeroCounts": false,
+        "useProportionalAvatars": true,
       }
+      "servers": {
+        // server key matches credentials key in globalAuth (optional)
+        "stash": {
+          "provider": "STASH",
+          "repositories": [
+              { "project": "CONF", "repository": "confluence" },
+              { "project": "JIRA", "repository": "jira" }
+          ],
+          "options": {
+            "baseUrl": "https://stash.atlassian.com",
+          }
+        }
+        "stashdev": {
+          "provider": "STASH",
+          "repositories": [
+              { "project": "STASH", "repository": "stash" }
+          ],
+          "options": {
+            "baseUrl": "https://stash-dev.atlassian.com",
+          }
+        },
+        "bitbucket.org": {
+            "provider": "BITBUCKET",
+            "repositories": [
+                { "org": "atlassian", "repository": "atlasboard-atlassian-package" }
+            ]
+        }
+      },
+
+      "team": [
+        // if email, related gravatar will be used. Otherwise, "display" property as a text
+        { username: "iloire",   "display": "ivan", "email": "iloire@atlassian.com" },
+        { username: "dwillis",  "display": "don", "email": "dwillis@atlassian.com" },
+        { usernane: "mreis",    "display": "miter", "email": "mreis@atlassian.com"},
+        { usernane: "lmiranda", "display": "luis", "email": "lmiranda@atlassian.com", "aliases": { "bitbucket.org": "luuuis" } }
+      ]
+    }
 
 Requires:
 - md5.js
@@ -202,9 +211,7 @@ Supported providers:
 
 Planned:
 
- - Bitbucker provider support
  - Ability to filter users by repositories.
- - Ability to change the username by repository.
 
 ### Sprint Health
 
