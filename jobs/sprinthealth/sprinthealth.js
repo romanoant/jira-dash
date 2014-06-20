@@ -7,7 +7,8 @@
  *      "credentials": "jiraAuth", // username/password config key from your globalAuth file
  *      "jiraServer": "https://your.jiraserver.com",
  *      "rapidViewId": 561, // ID of your board in JIRA Agile (have a look in your board URL)
- *      "widgetTitle": "Sprint Health"
+ *      "widgetTitle": "Sprint Health",
+ *      "compactDisplay": true // optional, defaults to false. For teams with many parallel sprints
  *  }
  */
 
@@ -73,6 +74,7 @@ module.exports = function(config, dependencies, job_callback) {
                 title: config.widgetTitle,
                 sprints: calculateColumnDistribution(sprints),
                 serverUrl: config.jiraServer,
+                compactDisplay: config.compactDisplay || false,
                 legend: {
                     duration_completion_percentage: 'Time elapsed',
                     work_completion_percentage: 'Work complete',

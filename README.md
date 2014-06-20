@@ -217,7 +217,11 @@ Planned:
 
 ![Sprint Health widget](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/sprint-health-widget.png)
 
-Shows health and progress of all active sprints from your JIRA Agile Scrum board. 
+Shows health and progress of all active sprints from your JIRA Agile Scrum board.
+
+![Compact Sprint Health widget](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/sprint-health-widget-compact.png)
+
+Also available with a compact display option for teams with lots of parallel sprints.
 
 Sample configuration:
 
@@ -226,6 +230,7 @@ Sample configuration:
         "jiraServer": "https://your.jiraserver.com",
         "rapidViewId": 561, // ID of your board in JIRA Agile (have a look in your board URL)
         "widgetTitle": "Sprint Health",
+        "compactDisplay": true // optional, defaults to false. For teams with many parallel sprints
         "interval": 300000
     }
 

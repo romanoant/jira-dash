@@ -18,22 +18,33 @@
 				</div>
 			<% }}); %>
 		</div>
-		<dl class="sprint-metrics">
-			<% _.each(sprint.sprintMetrics, function (metric) { %>
-				<dt><%= legend[metric.key] %></dt>
-				<dd class="<%= metric.value > 100 ? 'bad' : '' %>">
-					<%= metric.key === 'scope_change_percentage' ? +metric.value - 100 : metric.value %>%
-				</dd>
-			<% });%>
-		</dl>
-		<dl class="issue-metrics">
-			<% _.each(sprint.issueMetrics, function (metric) { %>
-				<dt><%= legend[metric.key] %></dt>
-				<dd class="<%= metric.value > 0 ? 'bad' : '' %>">
-					<%= metric.value %>
-				</dd>
-			<% });%>
-		</dl>
+		<% if (compactDisplay) { %>
+			<div class="sprint-velocity">
+				<%
+					var timeLapsed = +sprint.sprintMetrics[0].value || 1;
+					var workComplete = +sprint.sprintMetrics[1].value || 1;
+				%>
+				<div class="progress-bar time-lapsed" style="width:<%= timeLapsed %>%"></div>
+				<div class="progress-bar work-complete <%= workComplete < timeLapsed ? 'bad' : 'good' %>" style="width:<%= workComplete %>%"></div>
+			</div>
+		<% } else { %>
+			<dl class="sprint-metrics">
+				<% _.each(sprint.sprintMetrics, function (metric) { %>
+					<dt><%= legend[metric.key] %></dt>
+					<dd class="<%= metric.value > 100 ? 'bad' : '' %>">
+						<%= metric.key === 'scope_change_percentage' ? +metric.value - 100 : metric.value %>%
+					</dd>
+				<% });%>
+			</dl>
+			<dl class="issue-metrics">
+				<% _.each(sprint.issueMetrics, function (metric) { %>
+					<dt><%= legend[metric.key] %></dt>
+					<dd class="<%= metric.value > 0 ? 'bad' : '' %>">
+						<%= metric.value %>
+					</dd>
+				<% });%>
+			</dl>
+		<% } %>
 	</div>
 	<% }); %>
 </script>
