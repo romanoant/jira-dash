@@ -173,6 +173,25 @@ describe('Sprint Health job', function () {
       });
     });
 
+    it('should default compactDisplay to false if not configured', function (done) {
+
+      var job = new SprintHealthJob(config, mockDependencies, function (err, data) {
+        assert.ifError(err);
+        assert.equal(data.compactDisplay, false);
+        done();
+      });
+    });
+
+    it('should pass through the configured compactDisplay option', function (done) {
+      config.compactDisplay = true;
+
+      var job = new SprintHealthJob(config, mockDependencies, function (err, data) {
+        assert.ifError(err);
+        assert.equal(data.compactDisplay, true);
+        done();
+      });
+    });
+
   });
 
   // Test for correct sprint data retrieval

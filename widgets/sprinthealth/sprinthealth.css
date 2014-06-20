@@ -1,84 +1,115 @@
 .content {
-    font-size: 30px;
     color: #454545;
+    font-size: 30px;
     font-weight: bold;
 }
 
 .sprint {
-	clear: both;
+    clear: both;
 }
 
 .sprint + .sprint {
-	padding-top: 1em;
+    padding-top: 1em;
 }
+
 .sprint-name {
-	color: #ffffff;
-	display: inline-block;
-	font-size: 1em;
-	line-height: 2;
-	margin: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	width: 70%;
+    color: #ffffff;
+    display: inline-block;
+    font-size: 1em;
+    line-height: 2;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 70%;
 }
+
 .countdown {
-	display: inline-block;
-	line-height: 2.2;
-	vertical-align: top;
+    display: inline-block;
+    line-height: 2.2;
+    vertical-align: top;
 }
+
 .sprint-progress {
-	border-radius: .25em;
-	overflow: hidden;
-	margin-bottom: .5em;
+    border-radius: .25em;
+    margin-bottom: .5em;
+    overflow: hidden;
 }
+
 .bad {
-	color: #B72F28;
+    color: #B72F28;
 }
+
 .work-column {
-	text-align: left;
-	float: left;
+    float: left;
+    text-align: left;
 }
+
 .work-column-label {
-	display: inline-block;
-	padding: 0.25em;
+    display: inline-block;
+    padding: 0.25em;
 }
+
 .col0 {
-	background: #4a6785;
-	color: #cccccc;
+    background: #4a6785;
+    color: #cccccc;
 }
+
 .col1 {
-	background: #f6c342;
+    background: #f6c342;
 }
+
 .col2 {
-	background: #14892c;
-	color: #ffffff;
+    background: #14892c;
+    color: #ffffff;
 }
 
 dl {
-	float: left;
-	margin: 0 0 .5em 0;
-	width: 50%;
+    float: left;
+    margin: 0 0 .5em 0;
+    width: 50%;
 }
 
 dd {
-	color: #999999;
-	float: left;
-	margin: 0;
-	text-align: right;
-	width: 30%;
+    color: #999999;
+    float: left;
+    margin: 0;
+    text-align: right;
+    width: 30%;
 }
+
 dt {
-	float: right;
-	width: 67%;
+    float: right;
+    width: 67%;
 }
 
-.team {
-	clear: both;
-	overflow: hidden;
+/* Compact sprint velocity display */
+.sprint-velocity {
+    background: #454545;
+    border-radius: .25em;
+    height: 1em;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
 }
 
-.team img {
-	border-radius: 50%;
-	margin-right: .25em;
+.sprint-velocity .progress-bar {
+    height: 1em;
+    left: 0;
+    position: absolute;
+    top: 0;
+}
+
+.sprint-velocity .time-lapsed {
+    background: #999999;
+}
+
+.sprint-velocity .work-complete {
+    background: #1C842F;
+    height: .5em;
+    top: .25em;
+}
+
+.sprint-velocity .work-complete.bad {
+    background: #A32C22;
 }
