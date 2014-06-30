@@ -132,7 +132,7 @@ describe('pending PR', function () {
       pendingPR(mockedConfig, mockedDependencies, function() {
         assert.ok(stash.calledOnce, "STASH strategy should be called once, not " + stash.callCount + " times");
 
-        var fetch = stash.firstCall.args[0];
+        var fetch = stash.getCall(0).args[0];
         assert.equal(fetch.sourceId, 'confluence');
         assert.deepEqual(fetch.repository, mockedConfig.servers.confluence.repositories[0]);
         assert.equal(fetch.team.length, mockedConfig.team.length);
