@@ -75,7 +75,7 @@ describe('Bitbucket provider', function () {
     it('should pass username and password in authentication headers', function (done) {
       bitbucket(mockFetchRequest, mockedDependencies, function () {
         assert.ok(mockedDependencies.easyRequest.JSON.called);
-        assert.deepEqual(mockedDependencies.easyRequest.JSON.firstCall.args[0].headers, {
+        assert.deepEqual(mockedDependencies.easyRequest.JSON.getCall(0).args[0].headers, {
           "authorization": "Basic bXl1c2VybmFtZTpzZWNyZXRwYXNzd29yZA=="
         });
 
@@ -86,7 +86,7 @@ describe('Bitbucket provider', function () {
     it('should ask for OPEN pull requests only', function (done) {
       bitbucket(mockFetchRequest, mockedDependencies, function () {
         assert.ok(mockedDependencies.easyRequest.JSON.called);
-        assert.equal(mockedDependencies.easyRequest.JSON.firstCall.args[0].url, page1);
+        assert.equal(mockedDependencies.easyRequest.JSON.getCall(0).args[0].url, page1);
         done();
       });
     });
@@ -96,7 +96,7 @@ describe('Bitbucket provider', function () {
       mockFetchRequest.repository.repository = "re pository";
       bitbucket(mockFetchRequest, mockedDependencies, function () {
         assert.ok(mockedDependencies.easyRequest.JSON.called);
-        assert.equal(mockedDependencies.easyRequest.JSON.firstCall.args[0].url, prListUrlFor("at%20lassian", "re%20pository"));
+        assert.equal(mockedDependencies.easyRequest.JSON.getCall(0).args[0].url, prListUrlFor("at%20lassian", "re%20pository"));
         done();
       });
     });
