@@ -124,6 +124,7 @@ Sample configuration:
 
       "issues-warranty" : {
         "jira_server": "https://jira.atlassian.com",
+        "authName": "atlaseye",
         "retryOnErrorTimes" : 3,
         "interval" : 120000,
         "jqlOpen" : "project = CONF AND filter = \"All Editor CONF issues\" AND type = bug AND labels = warranty AND Resolution is EMPTY",
@@ -132,6 +133,8 @@ Sample configuration:
         "openText" : "Unresolved Warranty",
         "reviewText" : "Resolved Warranty"
       },
+
+*authName* authorization entry defined in globalAuth.json to be used by the widget and job
 
 ### Days Until
 
