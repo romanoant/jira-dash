@@ -3,12 +3,15 @@ var async = require('async'),
 
 module.exports = function(config, dependencies, job_callback) {
 
+  // fallback to for configuration compatibility
+  var authName = config.authName || 'jac';
+
   if (!config.jira_server){
     return job_callback("jira_server config key not found");
   }
 
-  if (!config.globalAuth || !config.globalAuth.jac ||
-    !config.globalAuth.jac.username || !config.globalAuth.jac.password){
+  if (!config.globalAuth || !config.globalAuth[authName] ||
+    !config.globalAuth[authName].username || !config.globalAuth[authName].password){
     return job_callback('non credentials found in "issues-remaining" job. Please check config.globalAuth');
   }
 
@@ -18,7 +21,7 @@ module.exports = function(config, dependencies, job_callback) {
   var clickUrl = config.jira_server + "/issues/?";
   var options = {
     headers: {
-      "authorization": "Basic " + new Buffer(config.globalAuth.jac.username + ":" + config.globalAuth.jac.password).toString("base64")
+      "authorization": "Basic " + new Buffer(config.globalAuth[authName].username + ":" + config.globalAuth[authName].password).toString("base64")
     }
   };
 
