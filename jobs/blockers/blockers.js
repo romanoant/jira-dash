@@ -77,9 +77,12 @@ function fillIssueWithTeamInfo(config, issue){
 
 module.exports = function(config, dependencies, job_callback) {
 
-  if (!config.globalAuth || !config.globalAuth.jac ||
-    !config.globalAuth.jac.username || !config.globalAuth.jac.password){
-    return job_callback('non credentials found in blockers job. Please check config.globalAuth');
+  // fallback to for configuration compatibility
+  var authName = config.authName || 'jac';
+
+  if (!config.globalAuth || !config.globalAuth[authName] ||
+    !config.globalAuth[authName].username || !config.globalAuth[authName].password){
+    return job_callback('no credentials found in blockers job. Please check global authentication file (usually config.globalAuth)');
   }
 
   if (!config.jql || !config.jira_server){

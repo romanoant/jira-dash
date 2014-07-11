@@ -82,6 +82,7 @@ Sample configuration:
 
     "confluence-blockers" : {
       "timeout": 30000,
+      "authName": "myAuthJIRAkeyInTheGlobalAuthFile",
       "retryOnErrorTimes" : 3,
       "interval" : 120000,
       "jira_server" : "https://jira.atlassian.com",
