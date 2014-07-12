@@ -125,6 +125,7 @@ Sample configuration:
 
       "issues-warranty" : {
         "jira_server": "https://jira.atlassian.com",
+        "authName": "jac",
         "retryOnErrorTimes" : 3,
         "interval" : 120000,
         "jqlOpen" : "project = CONF AND filter = \"All Editor CONF issues\" AND type = bug AND labels = warranty AND Resolution is EMPTY",
