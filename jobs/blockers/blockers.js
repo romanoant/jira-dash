@@ -101,8 +101,8 @@ module.exports = function(config, dependencies, job_callback) {
     timeout: config.timeout || 15000,
     url: config.jira_server + '/rest/api/2/search?' + querystring.stringify(params),
     headers: {
-      "authorization": "Basic " + new Buffer(config.globalAuth.jac.username + ":" +
-          config.globalAuth.jac.password).toString("base64")
+      "authorization": "Basic " + new Buffer(config.globalAuth[authName].username + ":" +
+          config.globalAuth[authName].password).toString("base64")
     }
   };
 
