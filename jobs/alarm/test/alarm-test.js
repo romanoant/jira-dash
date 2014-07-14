@@ -61,7 +61,7 @@ describe('alarm test', function () {
         callback: function(err, data){
           assert.ifError(err);
           if (!firstCall)
-            assert.ok(data.alarm);
+            assert.ok(data.alarm); // the second call contains the actuall alarm data
 
           if (firstCall)
             firstCall = false;
@@ -90,6 +90,7 @@ describe('alarm test', function () {
       var mock = {
         callback: function(err, data){
           assert.ifError(err);
+          assert.ok(data.alarm === undefined);
         }
       };
 
@@ -98,7 +99,7 @@ describe('alarm test', function () {
       alarms = alarm(config, dependencies, mock.callback);
       sinonClock.tick(10000); // tick 10 sec
 
-      assert.ok(spy.calledOnce, spy);
+      assert.equal(1, spy.callCount, "expected only the initial callback call but got " + spy.callCount);
       done();
     });
 
