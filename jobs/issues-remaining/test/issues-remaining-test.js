@@ -85,7 +85,7 @@ describe('issues-remaining', function() {
       		delete mockedConfig.globalAuth;
 
 			issuesRemaining(mockedConfig, mockedDependencies, function(err) {
-				assert.ok(err == 'non credentials found in "issues-remaining" job. Please check config.globalAuth');
+				assert.ok(err == 'Authentication problems found in "issues-remaining" job. Please check config.globalAuth and authName attribute in widget configuration');
 				done();
 			});
 
@@ -96,7 +96,7 @@ describe('issues-remaining', function() {
       		mockedConfig.globalAuth = {};
 
 			issuesRemaining(mockedConfig, mockedDependencies, function(err) {
-				assert.ok(err == 'non credentials found in "issues-remaining" job. Please check config.globalAuth');
+				assert.ok(err == 'Authentication problems found in "issues-remaining" job. Please check config.globalAuth and authName attribute in widget configuration');
 				done();
 			});
 
@@ -111,7 +111,7 @@ describe('issues-remaining', function() {
 		    };
 
 			issuesRemaining(mockedConfig, mockedDependencies, function(err) {
-				assert.ok(err == 'non credentials found in "issues-remaining" job. Please check config.globalAuth');
+				assert.ok(err == 'Authentication problems found in "issues-remaining" job. Please check config.globalAuth and authName attribute in widget configuration');
 				done();
 			});
 
@@ -126,7 +126,7 @@ describe('issues-remaining', function() {
 		    };
 
 			issuesRemaining(mockedConfig, mockedDependencies, function(err) {
-				assert.ok(err == 'non credentials found in "issues-remaining" job. Please check config.globalAuth');
+				assert.ok(err == 'Authentication problems found in "issues-remaining" job. Please check config.globalAuth and authName attribute in widget configuration');
 				done();
 			});	
 

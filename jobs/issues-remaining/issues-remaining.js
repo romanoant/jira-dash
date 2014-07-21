@@ -12,7 +12,7 @@ module.exports = function(config, dependencies, job_callback) {
 
   if (!config.globalAuth || !config.globalAuth[authName] ||
     !config.globalAuth[authName].username || !config.globalAuth[authName].password){
-    return job_callback('non credentials found in "issues-remaining" job. Please check config.globalAuth');
+    return job_callback('Authentication problems found in "issues-remaining" job. Please check config.globalAuth and authName attribute in widget configuration');
   }
 
   var logger = dependencies.logger;
