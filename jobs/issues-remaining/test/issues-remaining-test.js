@@ -47,15 +47,28 @@ beforeEach(function(done){
 
 describe('issues-remaining', function() {
 
-	describe('auth config', function() {
+	describe('happy path', function() {
 
-		it('should pass if globalAuth is present and authName refers to it', function (done) {
+		it('should pass if config and globalAuth are present, correct and coordinated', function (done) {
 
       		//This is the default case under the general config provided above
 
 			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
 				assert.ok(data.open.count == mockedData.issues.length);
 				assert.ok(data.review.count == mockedData.issues.length);
+				done();
+			});
+
+    	});
+
+    });
+
+	describe('auth config', function() {
+
+		it('should pass if globalAuth is present and authName refers to it', function (done) {
+
+			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
+		        assert.ifError(err);
 				done();
 			});
 
@@ -73,8 +86,7 @@ describe('issues-remaining', function() {
 			};	
 
 			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
-				assert.ok(data.open.count == mockedData.issues.length);
-				assert.ok(data.review.count == mockedData.issues.length);
+				assert.ifError(err);
 				done();
 			});
 
@@ -104,12 +116,8 @@ describe('issues-remaining', function() {
 
 		it('should fail if globalAuth has no username', function (done) {
 
-      		mockedConfig.globalAuth = {
-		    	"confluence" : {
-		        	"username" : null,
-		        }
-		    };
-
+      		delete mockedConfig.globalAuth.confluence.username
+      		
 			issuesRemaining(mockedConfig, mockedDependencies, function(err) {
 				assert.ok(err == 'Authentication problems found in "issues-remaining" job. Please check config.globalAuth and authName attribute in widget configuration');
 				done();
@@ -119,11 +127,7 @@ describe('issues-remaining', function() {
 
 		it('should fail if globalAuth has no password', function (done) {
 
-      		mockedConfig.globalAuth = {
-		    	"confluence" : {
-		        	"password" : null,
-		        }
-		    };
+      		delete mockedConfig.globalAuth.confluence.password
 
 			issuesRemaining(mockedConfig, mockedDependencies, function(err) {
 				assert.ok(err == 'Authentication problems found in "issues-remaining" job. Please check config.globalAuth and authName attribute in widget configuration');
@@ -161,8 +165,7 @@ describe('issues-remaining', function() {
    			delete mockedConfig.widgetTitle;
 
 			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
-				assert.ok(data.open.count == mockedData.issues.length);
-				assert.ok(data.review.count == mockedData.issues.length);
+				assert.ifError(err);
 				done();
 			});
 
@@ -182,8 +185,7 @@ describe('issues-remaining', function() {
    			delete mockedConfig.openText;
 
 			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
-				assert.ok(data.open.count == mockedData.issues.length);
-				assert.ok(data.review.count == mockedData.issues.length);
+				assert.ifError(err);
 				done();
 			});
 
@@ -203,8 +205,7 @@ describe('issues-remaining', function() {
    			delete mockedConfig.reviewText;
 
 			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
-				assert.ok(data.open.count == mockedData.issues.length);
-				assert.ok(data.review.count == mockedData.issues.length);
+				assert.ifError(err);
 				done();
 			});
 
@@ -215,8 +216,7 @@ describe('issues-remaining', function() {
    			delete mockedConfig.retryOnErrorTimes;
 
 			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
-				assert.ok(data.open.count == mockedData.issues.length);
-				assert.ok(data.review.count == mockedData.issues.length);
+				assert.ifError(err);
 				done();
 			});
 
@@ -227,28 +227,27 @@ describe('issues-remaining', function() {
    			delete mockedConfig.interval;
 
 			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
-				assert.ok(data.open.count == mockedData.issues.length);
-				assert.ok(data.review.count == mockedData.issues.length);
+				assert.ifError(err);
 				done();
 			});
 
     	});
 
-		it('should pass if jqlOpen is missing', function (done) {
+		it('should pass if jqlOpen is missing, without affecting review results', function (done) {
 
 			//Default JIRA API behaviour, no jql passed means return all issues in the server
 
    			delete mockedConfig.jqlOpen;
 
 			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
-				assert.ok(data.open.count);
 				assert.ok(data.review.count == mockedData.issues.length);
+				assert.ifError(err);
 				done();
 			});
 
     	});
 
-		it('should pass if jqlReview is missing', function (done) {
+		it('should pass if jqlReview is missing, without affecting open results', function (done) {
 
 			//Default JIRA API behaviour, no jql passed means return all issues in the server
 
@@ -256,7 +255,7 @@ describe('issues-remaining', function() {
 
 			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
 				assert.ok(data.open.count == mockedData.issues.length);
-				assert.ok(data.review.count);
+				assert.ifError(err);
 				done();
 			});
 
