@@ -1,8 +1,9 @@
 var assert = require('assert');
 var issuesRemaining = require('../issues-remaining');
+var qs = require('querystring');
 
 // mocks
-var mockedConfig, mockedDependencies, mockedData;
+var mockedConfig, mockedDependencies, mockedOpenData, mockedReviewData, mockedAllData;
 
 beforeEach(function(done){
 
@@ -31,14 +32,42 @@ beforeEach(function(done){
 
   	mockedDependencies = {
     	easyRequest: {
-      		JSON : function (options, callback) {
-        		callback (null, mockedData);
+      		JSON : function (options, callback) {				
+      			
+      			var openParams = {
+      				jql: mockedConfig.jqlOpen
+      			};	
+      			var reviewParams = {
+      				jql: mockedConfig.jqlReview
+      			};	
+
+      			var jqlOpenUrl = qs.stringify(openParams)
+      			var jqlReviewUrl = qs.stringify(reviewParams)
+			
+  				if (mockedConfig.jqlOpen && options.url.indexOf(jqlOpenUrl) > -1) {
+  					return callback (null, mockedOpenData);
+  				} 
+
+        		if (mockedConfig.jqlReview && options.url.indexOf(jqlReviewUrl) > -1) {
+        			return callback (null, mockedReviewData);
+        		}
+
+        		return callback (null, mockedAllData);
+
       		}
     	}
     };
 
-    mockedData = {
-       	"issues": ["A-1", "A-2"]
+    mockedOpenData = {
+       	"issues": ["O-1", "O-2", "O-3"]
+    };
+
+    mockedReviewData = {
+       	"issues": ["R-1", "R-2"]
+    };
+
+    mockedAllData = {
+    	"issues": ["O-1", "O-2", "O-3", "R-1", "R-2"]	
     };
 
 	done();
@@ -54,8 +83,8 @@ describe('issues-remaining', function() {
       		//This is the default case under the general config provided above
 
 			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
-				assert.ok(data.open.count == mockedData.issues.length);
-				assert.ok(data.review.count == mockedData.issues.length);
+				assert.ok(data.open.count == mockedOpenData.issues.length);
+				assert.ok(data.review.count == mockedReviewData.issues.length);
 				done();
 			});
 
@@ -138,7 +167,7 @@ describe('issues-remaining', function() {
 
 	});
 
-	describe('general config', function() {
+	describe('mandatory / optional config', function() {
 
 		it('should fail if jira_server is missing', function (done) {
 
@@ -233,28 +262,30 @@ describe('issues-remaining', function() {
 
     	});
 
-		it('should pass if jqlOpen is missing, without affecting review results', function (done) {
+		it('should pass if jqlOpen is missing, returning all issues, without affecting review results', function (done) {
 
 			//Default JIRA API behaviour, no jql passed means return all issues in the server
 
    			delete mockedConfig.jqlOpen;
 
 			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
-				assert.ok(data.review.count == mockedData.issues.length);
+				assert.ok(data.open.count == mockedAllData.issues.length);
+				assert.ok(data.review.count == mockedReviewData.issues.length);
 				assert.ifError(err);
 				done();
 			});
 
     	});
 
-		it('should pass if jqlReview is missing, without affecting open results', function (done) {
+		it('should pass if jqlReview is missing, returning all issues, without affecting open results', function (done) {
 
 			//Default JIRA API behaviour, no jql passed means return all issues in the server
 
    			delete mockedConfig.jqlReview;
 
 			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
-				assert.ok(data.open.count == mockedData.issues.length);
+				assert.ok(data.open.count == mockedOpenData.issues.length);
+				assert.ok(data.review.count == mockedAllData.issues.length);
 				assert.ifError(err);
 				done();
 			});
