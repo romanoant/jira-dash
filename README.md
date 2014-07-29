@@ -232,7 +232,7 @@ Sample configuration:
         "jiraServer": "https://your.jiraserver.com",
         "rapidViewId": 561, // ID of your board in JIRA Agile (have a look in your board URL)
         "widgetTitle": "Sprint Health",
-        "compactDisplay": true // optional, defaults to false. For teams with many parallel sprints
+        "compactDisplay": true, // optional, defaults to false. For teams with many parallel sprints
         "interval": 300000
     }
 
