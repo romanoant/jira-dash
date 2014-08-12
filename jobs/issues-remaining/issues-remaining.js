@@ -34,13 +34,13 @@ module.exports = function(config, dependencies, job_callback) {
 
     options.url = baseUrl + qs.stringify(params);
 
-    dependencies.easyRequest.JSON(options, function(err, blockerData) {
+    dependencies.easyRequest.JSON(options, function(err, issueData) {
       if (err) {
         logger.error(err);
         callback(err);
       } else {
         callback(null, {
-          count: blockerData.issues.length, 
+          count: issueData.issues.length, 
           url: clickUrl + qs.stringify(params)
         });
       }
@@ -49,7 +49,7 @@ module.exports = function(config, dependencies, job_callback) {
 
   async.parallel(
     {
-      open :function (callback) {
+      open: function (callback) {
         query (config.jqlOpen, callback);
       },
 
