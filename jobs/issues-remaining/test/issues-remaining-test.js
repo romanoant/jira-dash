@@ -55,7 +55,13 @@ beforeEach(function(done){
         		return callback (null, mockedAllData);
 
       		}
-    	}
+    	},
+
+        logger: {
+	      log : function(input) {},
+	      error : function(input) {}
+	    }
+  
     };
 
     mockedOpenData = {
@@ -293,5 +299,136 @@ describe('issues-remaining', function() {
     	});
 
 	});
+
+	describe('wrong config', function() {
+
+		it('should fail if jira_server is present but empty', function (done) {
+
+   			mockedConfig.jira_server = "";
+
+			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
+				assert.ok(err);
+				done();
+			});
+
+    	});  
+
+		it('should pass if retryOnErrorTimes has the wrong type', function (done) {
+
+   			mockedConfig.retryOnErrorTimes = "string";
+
+			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
+				assert.ifError(err);
+				done();
+			});
+
+    	});
+
+		it('should pass if interval has the wrong type', function (done) {
+
+   			mockedConfig.interval = "string";
+
+			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
+				assert.ifError(err);
+				done();
+			});
+
+    	});      	
+
+		it('should pass if the custom title provided in the config has the wrong type', function (done) {
+
+			mockedConfig.widgetTitle = 1;
+
+			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
+				assert.ifError(err);
+				done();
+			});
+
+    	});
+
+   		it('should pass if the custom title for the open section has the wrong type', function (done) {
+
+   			mockedConfig.openText = 1;
+
+			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
+				assert.ifError(err);
+				done();
+			});
+
+    	});    	 	
+
+   		it('should pass if the custom title for the review section has the wrong type', function (done) {
+
+   			mockedConfig.reviewText = 1;
+
+			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
+				assert.ifError(err);
+				done();
+			});
+
+    	});    	
+
+    });
+
+	describe('unhappy paths', function() {
+
+		it('should pass if it gets 0 issues from queries', function (done) {
+
+			mockedOpenData.issues = [];
+		    mockedReviewData.issues = [];
+
+			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
+				assert.ok(data.open.count == mockedOpenData.issues.length);
+				assert.ok(data.review.count == mockedReviewData.issues.length);
+				done();
+			});
+
+    	}); 
+
+		it('should fail if the query for open data returns nothing', function (done) {
+
+			delete mockedOpenData.issues;
+		    
+			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
+				assert.ok(err == 'jira_server returned a malformed JSON response');
+				done();
+			});
+
+    	}); 
+
+		it('should fail if the query for review data returns nothing', function (done) {
+
+			delete mockedReviewData.issues;
+		    
+			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
+				assert.ok(err == 'jira_server returned a malformed JSON response');
+				done();
+			});
+
+    	}); 
+		
+		it('should fail if the query for open data returns null', function (done) {
+
+			mockedOpenData.issues = null;
+		    
+			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
+				assert.ok(err == 'jira_server returned a malformed JSON response');
+				done();
+			});
+
+    	}); 
+
+		it('should fail if the query for review data returns nothing', function (done) {
+
+			mockedReviewData.issues = null;
+		    
+			issuesRemaining(mockedConfig, mockedDependencies, function(err, data) {
+				assert.ok(err == 'jira_server returned a malformed JSON response');
+				done();
+			});
+
+    	}); 
+
+    });	
 
 });
