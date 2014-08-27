@@ -1,6 +1,13 @@
 widget = (function() {
   var fontSize = 35;
 
+  /**
+   * In most cases there will be some free space within the container
+   * that is not taken up by avatars. Enlarge the avatars by a few pixels
+   * to take up the free space.
+   */
+  var ENLARGE_AVATARS_BY = 30;
+
   return {
     /**
      * @param el
@@ -70,7 +77,7 @@ widget = (function() {
         var percentOfMax = entry.PR / maxPR;
 
         // make the display size proportional to the workload
-        return entrySize * percentOfMax + 30;
+        return entrySize * percentOfMax + ENLARGE_AVATARS_BY;
       }
 
       /**
