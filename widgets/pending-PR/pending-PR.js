@@ -16,7 +16,7 @@ widget = (function() {
 
       // work out how who to display and what size avatar to use
       var displayEntries = _.sortBy(_.filter(data.users, shouldDisplayEntry), "PR").reverse();
-      var entrySize = $content.innerHeight() / Math.sqrt(displayEntries.length) - fontSize;
+      var entrySize = $content.innerHeight() / Math.ceil(Math.sqrt(displayEntries.length)) - fontSize;
 
       // fix the vertical alignment once all images have loaded. this callback will only fix
       var onDisplayCallback = _.after(displayEntries.length, fixVerticalAlignment);
@@ -69,8 +69,8 @@ widget = (function() {
 
         var percentOfMax = entry.PR / maxPR;
 
-        // make the display size  proportional to the workload
-        return entrySize * percentOfMax + Math.max(30, (maxPR - entry.PR) / maxPR);
+        // make the display size proportional to the workload
+        return entrySize * percentOfMax + 30;
       }
 
       /**
@@ -102,3 +102,4 @@ widget = (function() {
     }
   };
 })();
+
