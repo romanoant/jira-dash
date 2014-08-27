@@ -1,6 +1,13 @@
 widget = (function() {
   var fontSize = 35;
 
+  /**
+   * In most cases there will be some free space within the container
+   * that is not taken up by avatars. Enlarge the avatars by a few pixels
+   * to take up the free space.
+   */
+  var ENLARGE_AVATARS_BY = 30;
+
   return {
     /**
      * @param el
@@ -16,7 +23,7 @@ widget = (function() {
 
       // work out how who to display and what size avatar to use
       var displayEntries = _.sortBy(_.filter(data.users, shouldDisplayEntry), "PR").reverse();
-      var entrySize = $content.innerHeight() / Math.sqrt(displayEntries.length) - fontSize;
+      var entrySize = $content.innerHeight() / Math.ceil(Math.sqrt(displayEntries.length)) - fontSize;
 
       // fix the vertical alignment once all images have loaded. this callback will only fix
       var onDisplayCallback = _.after(displayEntries.length, fixVerticalAlignment);
@@ -69,8 +76,8 @@ widget = (function() {
 
         var percentOfMax = entry.PR / maxPR;
 
-        // make the display size  proportional to the workload
-        return entrySize * percentOfMax + Math.max(30, (maxPR - entry.PR) / maxPR);
+        // make the display size proportional to the workload
+        return entrySize * percentOfMax + ENLARGE_AVATARS_BY;
       }
 
       /**
@@ -102,3 +109,4 @@ widget = (function() {
     }
   };
 })();
+
