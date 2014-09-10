@@ -72,6 +72,9 @@ module.exports = function(config, dependencies, job_callback) {
         }
 
         result.planName = build.planName;
+	if (build.plan && build.plan.type === 'chain_branch') {
+          result.planName = build.plan.name;
+        }
 
         // Find if there is next build in-progress
         var possiblyInProgressBuild = build.key.replace('-' + build.number, '-' + (build.number + 1));
