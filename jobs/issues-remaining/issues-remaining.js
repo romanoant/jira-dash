@@ -3,13 +3,16 @@ var async = require('async'),
 
 module.exports = function(config, dependencies, job_callback) {
 
+  // fallback to for configuration compatibility
+  var authName = config.authName || 'jac';
+
   if (!config.jira_server){
-    return job_callback("jira_server config key not found");
+    return job_callback('jira_server config key not found');
   }
 
-  if (!config.globalAuth || !config.globalAuth.jac ||
-    !config.globalAuth.jac.username || !config.globalAuth.jac.password){
-    return job_callback('non credentials found in "issues-remaining" job. Please check config.globalAuth');
+  if (!config.globalAuth || !config.globalAuth[authName] ||
+    !config.globalAuth[authName].username || !config.globalAuth[authName].password){
+    return job_callback('Authentication problems found in "issues-remaining" job. Please check config.globalAuth and authName attribute in widget configuration');
   }
 
   var logger = dependencies.logger;
@@ -18,7 +21,7 @@ module.exports = function(config, dependencies, job_callback) {
   var clickUrl = config.jira_server + "/issues/?";
   var options = {
     headers: {
-      "authorization": "Basic " + new Buffer(config.globalAuth.jac.username + ":" + config.globalAuth.jac.password).toString("base64")
+      "authorization": "Basic " + new Buffer(config.globalAuth[authName].username + ":" + config.globalAuth[authName].password).toString("base64")
     }
   };
 
@@ -31,22 +34,26 @@ module.exports = function(config, dependencies, job_callback) {
 
     options.url = baseUrl + qs.stringify(params);
 
-    dependencies.easyRequest.JSON(options, function(err, blockerData) {
+    dependencies.easyRequest.JSON(options, function(err, issueData) {
       if (err) {
-        logger.error(err);
-        callback(err);
-      } else {
-        callback(null, {
-          count: blockerData.issues.length, 
-          url: clickUrl + qs.stringify(params)
-        });
+        return callback(err);
       }
+
+      if (issueData.issues == null || issueData.issues == undefined) {
+        return callback('jira_server returned a malformed JSON response');
+      }
+      
+      callback(null, {
+        count: issueData.issues.length, 
+        url: clickUrl + qs.stringify(params)
+      });
+      
     });
   }
 
   async.parallel(
     {
-      open :function (callback) {
+      open: function (callback) {
         query (config.jqlOpen, callback);
       },
 
@@ -57,16 +64,14 @@ module.exports = function(config, dependencies, job_callback) {
     function(err, results) {
       if (err){
         logger.error(err);
-        job_callback(err);
-        return;
+        return job_callback(err);
       }
-      else{
-        results.title = config.widgetTitle;
-        results.openText = config.openText;
-        results.reviewText = config.reviewText;
-        results.maxResults = maxResults;
-        job_callback(null, results);
-      }
+      
+      results.title = config.widgetTitle;
+      results.openText = config.openText;
+      results.reviewText = config.reviewText;
+      results.maxResults = maxResults;
+      job_callback(null, results);      
     }
   );
 };

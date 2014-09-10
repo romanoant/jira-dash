@@ -82,6 +82,7 @@ Sample configuration:
 
     "confluence-blockers" : {
       "timeout": 30000,
+      "authName": "myAuthJIRAkeyInTheGlobalAuthFile",
       "retryOnErrorTimes" : 3,
       "interval" : 120000,
       "jira_server" : "https://jira.atlassian.com",
@@ -124,6 +125,7 @@ Sample configuration:
 
       "issues-warranty" : {
         "jira_server": "https://jira.atlassian.com",
+        "authName": "jac",
         "retryOnErrorTimes" : 3,
         "interval" : 120000,
         "jqlOpen" : "project = CONF AND filter = \"All Editor CONF issues\" AND type = bug AND labels = warranty AND Resolution is EMPTY",
@@ -230,7 +232,7 @@ Sample configuration:
         "jiraServer": "https://your.jiraserver.com",
         "rapidViewId": 561, // ID of your board in JIRA Agile (have a look in your board URL)
         "widgetTitle": "Sprint Health",
-        "compactDisplay": true // optional, defaults to false. For teams with many parallel sprints
+        "compactDisplay": true, // optional, defaults to false. For teams with many parallel sprints
         "interval": 300000
     }
 

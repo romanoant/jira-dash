@@ -46,7 +46,7 @@ module.exports = function (config, dependencies, job_callback) {
 
   if (!config.globalAuth || !config.globalAuth[authName] ||
     !config.globalAuth[authName].username || !config.globalAuth[authName].password) {
-    return job_callback('no JIRA credentials found in buildoverview job. Please check global authentication file');
+    return job_callback('no JIRA credentials found in issuecount job. Please check global authentication file');
   }
 
   if (!config.jiraServer) {
