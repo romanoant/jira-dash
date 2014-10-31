@@ -150,7 +150,8 @@ module.exports = function(config, dependencies, job_callback, options) {
       return !override ? entry : _.extend({}, entry, {
         user: {
           username: override.username,
-          email: entry.email
+          display: override.display,
+          email: override.email
         }
       })
     });
