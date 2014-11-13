@@ -147,13 +147,7 @@ module.exports = function(config, dependencies, job_callback, options) {
         return u.aliases && u.aliases[sourceId] && u.aliases[sourceId] === entry.user.username;
       });
 
-      return !override ? entry : _.extend({}, entry, {
-        user: {
-          username: override.username,
-          display: override.display,
-          email: override.email
-        }
-      })
+      return _.extend({}, entry, { user: override || entry.user });
     });
   }
 
