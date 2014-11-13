@@ -23,7 +23,7 @@ beforeEach(function (done) {
       { username: "iloire" },
       { username: "dwillis" },
       { username: "mreis", aliases: { otherServer: "other-miter" } },
-      { username: "lmiranda", aliases: { confluence: "stash-lmiranda" } }
+      { username: "lmiranda", email: "lmiranda@example.com", display: "Luis", aliases: { confluence: "stash-lmiranda" } }
     ],
 
     servers: {
@@ -172,11 +172,11 @@ describe('pending PR', function () {
 
       pendingPR(mockedConfig, mockedDependencies, function(err, data) {
         assert.ifError(err);
-        assert.deepEqual(_.map(data.users, function(it) { return [ it.user.username, it.PR ] }), [
-          ["iloire", 6],
-          ["dwillis", 7],
-          ["mreis", 5],
-          ["lmiranda", 14] // <- mapped back to the real user
+        assert.deepEqual(_.map(data.users, function(it) { return [ it.user.username, it.user.display, it.user.email, it.PR ] }), [
+          ["iloire", undefined, undefined, 6],
+          ["dwillis", undefined, undefined, 7],
+          ["mreis", undefined, undefined, 5],
+          ["lmiranda", "Luis", "lmiranda@example.com", 14] // <- mapped back to the real user
         ]);
 
         done();
