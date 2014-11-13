@@ -144,7 +144,7 @@ module.exports = function(config, dependencies, job_callback, options) {
     return _.map(users, function (entry) {
       // restore the original username
       var override = _.find(config.team, function (u) {
-        return u.aliases && u.aliases[sourceId] && u.aliases[sourceId] && u.aliases[sourceId] === entry.user.username;
+        return u.aliases && u.aliases[sourceId] && u.aliases[sourceId] === entry.user.username;
       });
 
       return !override ? entry : _.extend({}, entry, {
