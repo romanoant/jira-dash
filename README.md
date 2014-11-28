@@ -163,7 +163,7 @@ Sample configuration:
             "title": "PR workload",
             "widget": {
               "showZeroCounts": false,
-              "useProportionalAvatars": true,
+              "useProportionalAvatars": true
             },
             "servers": {
               // server key matches credentials key in globalAuth (optional)
@@ -174,7 +174,7 @@ Sample configuration:
                     { "project": "JIRA", "repository": "jira" }
                 ],
                 "options": {
-                  "baseUrl": "https://stash.atlassian.com",
+                  "baseUrl": "https://stash.atlassian.com"
                 }
               },
               "stashdev": {
@@ -183,7 +183,7 @@ Sample configuration:
                     { "project": "STASH", "repository": "stash" }
                 ],
                 "options": {
-                  "baseUrl": "https://stash-dev.atlassian.com",
+                  "baseUrl": "https://stash-dev.atlassian.com"
                 }
               },
               "bitbucket.org": {
