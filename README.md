@@ -159,12 +159,12 @@ Display pending PR for a list of users (a team)
 
 Sample configuration:
      
-    {
+   "pullrequests" : {
       "title": "PR workload",
       "widget": {
         "showZeroCounts": false,
         "useProportionalAvatars": true,
-      }
+      },
       "servers": {
         // server key matches credentials key in globalAuth (optional)
         "stash": {
@@ -176,7 +176,7 @@ Sample configuration:
           "options": {
             "baseUrl": "https://stash.atlassian.com",
           }
-        }
+        },
         "stashdev": {
           "provider": "STASH",
           "repositories": [
@@ -196,10 +196,10 @@ Sample configuration:
 
       "team": [
         // if email, related gravatar will be used. Otherwise, "display" property as a text
-        { username: "iloire",   "display": "ivan", "email": "iloire@atlassian.com" },
-        { username: "dwillis",  "display": "don", "email": "dwillis@atlassian.com" },
-        { usernane: "mreis",    "display": "miter", "email": "mreis@atlassian.com"},
-        { usernane: "lmiranda", "display": "luis", "email": "lmiranda@atlassian.com", "aliases": { "bitbucket.org": "luuuis" } }
+        { "username": "iloire",   "display": "ivan", "email": "iloire@atlassian.com" },
+        { "username": "dwillis",  "display": "don", "email": "dwillis@atlassian.com" },
+        { "username": "mreis",    "display": "miter", "email": "mreis@atlassian.com"},
+        { "username": "lmiranda", "display": "luis", "email": "lmiranda@atlassian.com", "aliases": { "bitbucket.org": "luuuis" } }
       ]
     }
 
@@ -237,4 +237,3 @@ Sample configuration:
     }
 
 The JIRA Agile board estimation statistic is used to draw the progress bars. If your team doesn't estimate stories you can still get the progress bars by switching the board's estimation statistic to 'Issue Count' (Board > Configure > Estimation > Estimation Statistic) or the pretty bars won't show up.
-
