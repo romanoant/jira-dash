@@ -1,31 +1,11 @@
-.content {
-    color: #454545;
-}
-
-.content a {
-    color: #454545;
+a {
     text-decoration: none;
 }
 
-h3 {
-    margin-top: 0.2em;
-    font-size: 1.5em;
-    text-transform: uppercase;
-    margin-bottom: 0.1em;
-}
-
-h3:first-child {
-    margin-top: 0;
-}
-
-.counts {
-    margin-bottom: 0.3em;
-}
-
 .count {
+    display:inline-block;
     font-size: 1.6em;
-    padding-right: 0.4em;
-    display: inline-block;
+    padding-right: 0.5em;
 }
 
 .count > * {
@@ -37,8 +17,12 @@ h3:first-child {
     font-weight: bold;
 }
 
+.label a {
+    color: #999;
+}
+
 .result {
-    padding-right: 10px;
+    padding-right: 0.2em;
     font-weight: bold;
     text-align: right;
 }

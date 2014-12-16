@@ -10,7 +10,7 @@ widget = {
 
       data.sections.forEach(function(section) {
         if (section.title) {
-          $('.content', el).append($("<h3>" + section.title + "</h3>"));
+          $('.content', el).append($("<h2>" + section.title + "</h2>"));
         }
 
         section.counts.sort(function(a, b) {
