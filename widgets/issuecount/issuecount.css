@@ -2,6 +2,10 @@ a {
     text-decoration: none;
 }
 
+.counts {
+    margin-bottom: 1em;
+}
+
 .count {
     display:inline-block;
     font-size: 1.6em;
