@@ -14,7 +14,7 @@ widget = {
         }
 
         section.counts.sort(function(a, b) {
-          return a.count < b.count;
+          return b.count - a.count;
         });
 
         var $counts = $("<div class='counts'></div>");
