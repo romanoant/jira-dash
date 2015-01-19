@@ -163,6 +163,16 @@ describe('Sprint Health job', function () {
       });
     });
 
+    it('should return an error if includeSprintPattern is specified but not a string', function (done) {
+      config.includeSprintPattern = 123;
+
+      var job = new SprintHealthJob(config, {}, function (err) {
+        assert.ok(err);
+        assert.equal(err, 'includeSprintPattern must be a string.');
+        done();
+      });
+    });
+
     it('should return an error if no JIRA Agile board id is configured', function (done) {
       delete config.rapidViewId;
 
@@ -259,6 +269,14 @@ describe('Sprint Health job', function () {
       var job = new SprintHealthJob(config, mockDependencies, function (err, data) {
         assert.ifError(err);
         assert.equal(data.sprints.length, 2);
+        done();
+      });
+    });
+
+    it('contains an array of sprints, one for each active sprint which matches the specified pattern', function (done) {
+      var job = new SprintHealthJob(_.extend({}, config, {includeSprintPattern: 'Two'}), mockDependencies, function (err, data) {
+        assert.ifError(err);
+        assert.equal(data.sprints.length, 1);
         done();
       });
     });
