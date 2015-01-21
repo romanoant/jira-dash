@@ -233,6 +233,7 @@ Sample configuration:
         "rapidViewId": 561, // ID of your board in JIRA Agile (have a look in your board URL)
         "widgetTitle": "Sprint Health",
         "compactDisplay": true, // optional, defaults to false. For teams with many parallel sprints
+        "includeSprintPattern": 'Blue Team', // optional, RegExp string for matching sprint names to include
         "interval": 300000
     }
 
