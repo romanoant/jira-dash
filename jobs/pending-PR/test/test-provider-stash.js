@@ -30,7 +30,7 @@ beforeEach(function (done) {
       }
     },
     async : require('async'),
-    _ : require('underscore')
+    underscore : require('underscore')
   };
 
   done();

@@ -344,7 +344,7 @@ describe('pending PR', function () {
           assert.equal(data.users[3].PR, 0);
 
           done();
-          
+
         });
       });
     });

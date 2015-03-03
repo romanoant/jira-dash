@@ -14,8 +14,12 @@
  */
 module.exports = function (fetch, dependencies, callback) {
 
+  var _ = dependencies.underscore;
   var q = require('q');
-  var users = [];
+
+  var users = _.object(_.map(fetch.team, function (user) {
+      return [ user.username, { "PRs": 0, "display": user.display, "email": user.email } ];
+  }));
 
   var validationError = validateParams();
   if(validationError) {
@@ -24,9 +28,18 @@ module.exports = function (fetch, dependencies, callback) {
 
   getRepoSlugNames()
     .then(function(repositories) {  return getAllRepoPullRequests(repositories); })
-    .then(function() { callback(null, users); } )
-    .fail(function(err) { callback(err, users); } )
+    .then(function() { callback(null, formatResponse(users)); } )
+    .fail(function(err) { callback(err); } )
     .done();
+
+  function formatResponse(users) {
+    return _.map(users, function(value, key) {
+        var tuple = { user: { username: key}, PR: value.PRs };
+        if(value.display) tuple.user.display = value.display;
+        if(value.email) tuple.user.email = value.email;
+        return tuple;
+    });
+  }
 
   function getRepoPullRequests(jsonOpts) {
 
@@ -47,7 +60,7 @@ module.exports = function (fetch, dependencies, callback) {
             return reviewer.user.name === fetch.team[i].username && !reviewer.approved;
           }).length
         }
-        users.push({ user: fetch.team[i], PR: prs });
+        users[fetch.team[i].username].PRs += prs;
       }
       return deferred.resolve();
     };
@@ -95,8 +108,7 @@ module.exports = function (fetch, dependencies, callback) {
 
   }
 
-  function getAuthHeader()
-  {
+  function getAuthHeader() {
     if(fetch.auth) {
       return { "authorization": "Basic " + new Buffer(fetch.auth.username + ":" + fetch.auth.password).toString("base64") };
     } 
@@ -124,10 +136,7 @@ module.exports = function (fetch, dependencies, callback) {
     if (!fetch.options) { return 'missing options'; }
     if (!fetch.options.baseUrl) { return 'missing baseUrl in options: ' + JSON.stringify(fetch.options); }
     if (!fetch.repository.project) { return 'missing project field in repository: ' + JSON.stringify(fetch.repository); }
-    
-    return;
   }
-
 
   function getAllRepoPullRequests(repositories) {
   
