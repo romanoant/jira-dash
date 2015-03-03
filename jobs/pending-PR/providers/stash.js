@@ -18,7 +18,7 @@ module.exports = function (fetch, dependencies, callback) {
   var q = require('q');
 
   var users = _.object(_.map(fetch.team, function (user) {
-      return [ user.username, { "PRs": 0, "display": user.display, "email": user.email } ];
+      return [ user.username, { 'PRs': 0, 'display': user.display, 'email': user.email } ];
   }));
 
   var validationError = validateParams();
@@ -27,7 +27,7 @@ module.exports = function (fetch, dependencies, callback) {
   }
 
   getRepoSlugNames()
-    .then(function(repositories) {  return getAllRepoPullRequests(repositories); })
+    .then(function(repositories) { return getAllRepoPullRequests(repositories); })
     .then(function() { callback(null, formatResponse(users)); } )
     .fail(function(err) { callback(err); } )
     .done();
@@ -35,8 +35,12 @@ module.exports = function (fetch, dependencies, callback) {
   function formatResponse(users) {
     return _.map(users, function(value, key) {
         var tuple = { user: { username: key}, PR: value.PRs };
-        if(value.display) tuple.user.display = value.display;
-        if(value.email) tuple.user.email = value.email;
+        if(value.display) { 
+          tuple.user.display = value.display; 
+        }
+        if(value.email) {
+          tuple.user.email = value.email;
+        }
         return tuple;
     });
   }
@@ -47,18 +51,20 @@ module.exports = function (fetch, dependencies, callback) {
 
     var onJsonResponse = function(err, data) {
 
-      if (err)
+      if (err) {
         return deferred.reject(err);
+      }
 
-      if (!data || !data.values)
+      if (!data || !data.values) {
         return deferred.reject('no data');
+      }
 
       for (var i = 0; i < fetch.team.length; i++) {
         var prs = 0;
         for (var d = 0; d < data.values.length; d++) {
           prs = prs + data.values[d].reviewers.filter(function (reviewer) {
             return reviewer.user.name === fetch.team[i].username && !reviewer.approved;
-          }).length
+          }).length;
         }
         users[fetch.team[i].username].PRs += prs;
       }
@@ -69,7 +75,7 @@ module.exports = function (fetch, dependencies, callback) {
 
     return deferred.promise;
 
-  };
+  }
 
   function getRepoSlugNames() {
 
@@ -87,11 +93,13 @@ module.exports = function (fetch, dependencies, callback) {
 
       var onJsonResponse = function(err, data) {
 
-        if (err)
+        if (err) {
           return deferred.reject(err);
+        }
 
-        if (!data || !data.values)
+        if (!data || !data.values) {
           return deferred.reject('no data');
+        }
 
         for (var d = 0; d < data.values.length; d++) {
           repositories.push(data.values[d].slug);
@@ -110,27 +118,27 @@ module.exports = function (fetch, dependencies, callback) {
 
   function getAuthHeader() {
     if(fetch.auth) {
-      return { "authorization": "Basic " + new Buffer(fetch.auth.username + ":" + fetch.auth.password).toString("base64") };
+      return { 'authorization': 'Basic ' + new Buffer(fetch.auth.username + ':' + fetch.auth.password).toString('base64') };
     } 
-  };
+  }
 
 // @returns {*} an option object for use with <code>easyRequest.JSON</code> on each request to the STASH repositories API
   function getJsonOptsForRepositoriesApi() {
     // url and optional auth header
     return {
-      url: fetch.options.baseUrl + "/rest/api/1.0/projects/" + fetch.repository.project + "/repos?limit=100",
+      url: fetch.options.baseUrl + '/rest/api/1.0/projects/' + fetch.repository.project + '/repos?limit=100',
       headers: getAuthHeader()
     };
-  };
+  }
 
   // @returns {*} an option object for use with <code>easyRequest.JSON</code> on each request to the STASH pull-request API
   function getJsonOptsForPullRequestApi(repositorySlug) {
     // url and optional auth header
     return {
-      url: fetch.options.baseUrl + "/rest/api/1.0/projects/" + fetch.repository.project + "/repos/" + repositorySlug + "/pull-requests?order=NEWEST&limit=100",
+      url: fetch.options.baseUrl + '/rest/api/1.0/projects/' + fetch.repository.project + '/repos/' + repositorySlug + '/pull-requests?order=NEWEST&limit=100',
       headers: getAuthHeader()
     };
-  };
+  }
 
   function validateParams() {
     if (!fetch.options) { return 'missing options'; }

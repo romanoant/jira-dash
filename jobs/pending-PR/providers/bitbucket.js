@@ -16,7 +16,7 @@ module.exports = function (fetch, dependencies, callback) {
   var q = require('q');
 
   var users = _.object(_.map(fetch.team, function (user) {
-      return [ user.username, { "PRs": 0, "display": user.display, "email": user.email } ];
+      return [ user.username, { 'PRs': 0, 'display': user.display, 'email': user.email } ];
   }));
 
   var validationError = validateParams();
@@ -33,8 +33,12 @@ module.exports = function (fetch, dependencies, callback) {
   function formatResponse(users) {
     return _.map(users, function(value, key) {
         var tuple = { user: { username: key}, PR: value.PRs };
-        if(value.display) tuple.user.display = value.display;
-        if(value.email) tuple.user.email = value.email;
+        if(value.display) {
+         tuple.user.display = value.display;
+        }
+        if(value.email) {
+          tuple.user.email = value.email;
+        }
         return tuple;
     });
   }
@@ -54,12 +58,12 @@ module.exports = function (fetch, dependencies, callback) {
 
       var onJsonResponse = function(err, data) {
 
-        if (err)
+        if (err){
           return deferred.reject(err);
-
-        if (!data || !data.values)
+        }
+        if (!data || !data.values){
           return deferred.reject('no data');
-
+        }
         for (var d = 0; d < data.values.length; d++) {
           repositories.push(data.values[d].name);
         }
@@ -68,7 +72,7 @@ module.exports = function (fetch, dependencies, callback) {
 
       };
 
-      var repoUrl = "https://bitbucket.org/api/2.0/repositories/" + encodeURIComponent(fetch.repository.org) + "?pagelen=100";
+      var repoUrl = 'https://bitbucket.org/api/2.0/repositories/' + encodeURIComponent(fetch.repository.org) + '?pagelen=100';
       dependencies.easyRequest.JSON({ url: repoUrl, headers: getAuthHeader() }, onJsonResponse);
 
     }
@@ -94,16 +98,16 @@ module.exports = function (fetch, dependencies, callback) {
   function parseOptions(repositorySlug) {
     // url and optional auth header
     return {
-      page1: "https://bitbucket.org/api/2.0/repositories/" + encodeURIComponent(fetch.repository.org) + "/" + encodeURIComponent(repositorySlug) + "/pullrequests?state=OPEN",
+      page1: 'https://bitbucket.org/api/2.0/repositories/' + encodeURIComponent(fetch.repository.org) + '/' + encodeURIComponent(repositorySlug) + '/pullrequests?state=OPEN',
       headers: getAuthHeader()
-    }
+    };
   }
 
   function getAuthHeader() {
     if(fetch.auth) {
-      return { "authorization": "Basic " + new Buffer(fetch.auth.username + ":" + fetch.auth.password).toString("base64") };
+      return { 'authorization': 'Basic ' + new Buffer(fetch.auth.username + ':' + fetch.auth.password).toString('base64') };
     } 
-  };
+  }
 
   /**
    * Fetches list of pull requests and processes each one, counting the pending PRs.
@@ -122,13 +126,14 @@ module.exports = function (fetch, dependencies, callback) {
     pullRequests = pullRequests || [];
     getJSON(opts, nextPageUrl, function (err, data) {
 
-      if (err) 
+      if (err) {
         return deferred.reject(err);
+      }
       if (!data || !data.values) {
         return deferred.reject('no PRs in list: ' + nextPageUrl);
       } 
 
-      if(data.values.length == 0) {
+      if(data.values.length === 0) {
         return deferred.resolve();
       } else {
         // otherwise recurse until we have built up a list of all PRs
@@ -155,8 +160,12 @@ module.exports = function (fetch, dependencies, callback) {
     // otherwise fetch a single PR at a time
     var pullRequestUrl = remainingPRs[0].links.self.href;
     getJSON(opts, pullRequestUrl, function (err, data) {
-      if (err) return deferred.reject(err);
-      if (!data) return deferred.reject('no PR in: ' + pullRequestUrl);
+      if (err) {
+        return deferred.reject(err);
+      }
+      if (!data) {
+        return deferred.reject('no PR in: ' + pullRequestUrl);
+      }
 
       _.each(data.participants, function (participant) {
         var username = participant.user.username;
@@ -178,7 +187,7 @@ module.exports = function (fetch, dependencies, callback) {
     for (var r = 0; r < repositories.length; r++) {
       var opts = parseOptions(repositories[r]);
       var deferred = q.defer();
-      processPrList(opts, opts.page1, deferred)
+      processPrList(opts, opts.page1, deferred);
       requestPromises.push(deferred.promise);
     }
 
