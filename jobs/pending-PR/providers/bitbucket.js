@@ -25,7 +25,7 @@ module.exports = function (fetch, dependencies, callback) {
   }
 
   getRepoNames()
-    .then(function(repositories) {  return getAllRepoPullRequests(repositories); })
+    .then(function(repositories) { return getAllRepoPullRequests(repositories); })
     .then(function() { callback(null, formatResponse(users)); } )
     .fail(function(err) { callback(err); } )
     .done();
@@ -93,12 +93,13 @@ module.exports = function (fetch, dependencies, callback) {
   }
 
   /**
-   * @returns {*} an option object for use with <code>easyRequest.JSON</code> or a <code>string<code> if there's an error
+   * @param {string} repositoryName Name of the repository to evaluate
+   * @returns {*} an option object for use with <code>easyRequest.JSON</code> on each request to the Bitbucket pull-request API
    */
-  function parseOptions(repositorySlug) {
+  function parseOptions(repositoryName) {
     // url and optional auth header
     return {
-      page1: 'https://bitbucket.org/api/2.0/repositories/' + encodeURIComponent(fetch.repository.org) + '/' + encodeURIComponent(repositorySlug) + '/pullrequests?state=OPEN',
+      page1: 'https://bitbucket.org/api/2.0/repositories/' + encodeURIComponent(fetch.repository.org) + '/' + encodeURIComponent(repositoryName) + '/pullrequests?state=OPEN',
       headers: getAuthHeader()
     };
   }
@@ -112,7 +113,9 @@ module.exports = function (fetch, dependencies, callback) {
   /**
    * Fetches list of pull requests and processes each one, counting the pending PRs.
    *
+   * @param {Object} opts options for easyRequest
    * @param {string} nextPageUrl
+   * @param {Object} deferred deferred promise to resolve on recursion completion
    * @param {Array} [pullRequests]
    * @returns {*}
    */
@@ -147,7 +150,9 @@ module.exports = function (fetch, dependencies, callback) {
    * Recursively fetches PR reviewers, accumulating the results in <code>users</code>, and calls <code>callback</code>
    * when done.
    *
+   * @param {Object} opts options for easyRequest
    * @param {Array} remainingPRs an array of pull requests
+   * @param {Object} deferred deferred promise to resolve on recursion completion
    * @returns {*}
    */
   function processRemainingPrs(opts, remainingPRs, deferred) {

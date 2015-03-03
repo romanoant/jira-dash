@@ -131,11 +131,14 @@ module.exports = function (fetch, dependencies, callback) {
     };
   }
 
-  // @returns {*} an option object for use with <code>easyRequest.JSON</code> on each request to the STASH pull-request API
-  function getJsonOptsForPullRequestApi(repositorySlug) {
+  /**
+   * @param {string} repositoryName Name of the repository to evaluate
+   * @returns {*} an option object for use with <code>easyRequest.JSON</code> on each request to the STASH pull-request API
+   */
+  function getJsonOptsForPullRequestApi(repositoryName) {
     // url and optional auth header
     return {
-      url: fetch.options.baseUrl + '/rest/api/1.0/projects/' + fetch.repository.project + '/repos/' + repositorySlug + '/pull-requests?order=NEWEST&limit=100',
+      url: fetch.options.baseUrl + '/rest/api/1.0/projects/' + fetch.repository.project + '/repos/' + repositoryName + '/pull-requests?order=NEWEST&limit=100',
       headers: getAuthHeader()
     };
   }
