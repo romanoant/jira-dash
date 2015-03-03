@@ -62,10 +62,10 @@ describe('Bitbucket provider', function () {
       });
     });
 
-    it('should return error when repository name is missing', function (done) {
+    it('should not return error when repository name is missing', function (done) {
       delete mockFetchRequest.repository.repository;
       bitbucket(mockFetchRequest, mockedDependencies, function (err) {
-        assert.ok(err && err.indexOf('missing repository') > -1);
+        assert.ok(err && err.indexOf('no data') > -1);
         done();
       });
     });
