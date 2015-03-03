@@ -71,13 +71,6 @@ describe('pending PR', function () {
     });
 
     describe('required parameters', function () {
-      it('returns error if credential object is not found', function (done) {
-        mockedConfig.globalAuth = {};
-        pendingPR(mockedConfig, mockedDependencies, function(err){
-          assert.ok(err);
-          done();
-        });
-      });
 
       it('requires team', function (done) {
         mockedConfig.team = null;
