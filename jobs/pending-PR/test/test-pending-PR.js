@@ -201,12 +201,12 @@ describe('pending PR', function () {
         });
       });
 
-      it('requires repositories repository field', function (done) {
+      it('does not require repositories repository field', function (done) {
         delete mockedConfig.servers.confluence.repositories[0].repository;
 
         pendingPR(mockedConfig, mockedDependencies, function(err){
           assert.ok(err);
-          assert.ok(err.indexOf('missing repository') > -1);
+          assert.ok(err.indexOf('no data') > -1);
           done();
         });
       });
@@ -282,6 +282,71 @@ describe('pending PR', function () {
         });
       });
 
+      it('returns data from all repositories in the project when no repository is specified', function (done) {
+        mockedDependencies.easyRequest.JSON = function (options, cb) {
+          var response;
+
+          if (options.url.match("repos\\?limit=100$")) {
+
+            var repositories = [];
+            repositories.push({slug: "confluence"});
+            repositories.push({slug: "jira"});
+
+            response = {
+              size: 15,
+              limit: 25,
+              isLastPage: true,
+              values: repositories
+            };
+            
+          } else {
+
+            if (options.url.indexOf('repos/confluence') > -1) {
+              response = {
+                size: 15,
+                limit: 15,
+                isLastPage: false,
+                values: test_util.getFakeStashPR (10, 'iloire', ['mreis']).concat(test_util.getFakeStashPR (5, 'dwillis', ['iloire', 'mreis']))
+              };
+            } else {
+              response = {
+                size: 29,
+                limit: 30,
+                isLastPage: false,
+                values: test_util.getFakeStashPR (22, 'iloire').concat(test_util.getFakeStashPR (7, 'dwillis', ['mreis']))
+              };
+            }
+          }
+
+          cb(null, response);
+
+        };
+
+        mockedConfig.servers.confluence.repositories = [
+          { project: 'CONF' }
+        ];
+
+        pendingPR(mockedConfig, mockedDependencies, function(err, data){
+          assert.ifError(err);
+
+          assert.equal(data.users.length, mockedConfig.team.length);
+
+          assert.equal(data.users[0].user.username, 'iloire');
+          assert.equal(data.users[0].PR, 5);
+
+          assert.equal(data.users[1].user.username, 'dwillis');
+          assert.equal(data.users[1].PR, 0);
+
+          assert.equal(data.users[2].user.username, 'mreis');
+          assert.equal(data.users[2].PR, 22);
+
+          assert.equal(data.users[3].user.username, 'lmiranda');
+          assert.equal(data.users[3].PR, 0);
+
+          done();
+          
+        });
+      });
     });
   });
 });
