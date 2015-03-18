@@ -8,8 +8,6 @@ module.exports = function(config, dependencies, job_callback) {
   // days between today and dueDate and then add one to include today
   var days = dueDate.diff(today, 'days') + 1;
 
-  console.log("DATESDATESDATES: ", today.format(), dueDate.format(), days);
-
   var currentDay = today.clone();
   for(i = 0; i < days; i++) {
     // exclude Sundays (0) and Saturdays (6). Not accounting for public holidays ATM
