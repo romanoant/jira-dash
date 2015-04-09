@@ -96,17 +96,16 @@ module.exports = function (fetch, dependencies, callback) {
   /**
    * Fetches list of pull requests and processes each one, counting the pending PRs.
    *
-   * @param {Object} opts options for easyRequest
    * @param {string} nextPageUrl
    * @param {Object} deferred deferred promise to resolve on recursion completion
    * @param {Array} [pullRequests]
    * @returns {*}
    */
-  function processPrList(opts, nextPageUrl, deferred, pullRequests) {
+  function processPrList(nextPageUrl, deferred, pullRequests) {
 
     if (!nextPageUrl) {
       // if there are no more pages then proceed to process each PR
-      return processRemainingPrs(opts, pullRequests, deferred);
+      return processRemainingPrs(pullRequests, deferred);
     }
 
     pullRequests = pullRequests || [];
@@ -121,7 +120,7 @@ module.exports = function (fetch, dependencies, callback) {
         return deferred.resolve();
       } else {
         // otherwise recurse until we have built up a list of all PRs
-        processPrList(opts, data.next, deferred, _.union(pullRequests, data.values));
+        processPrList(data.next, deferred, _.union(pullRequests, data.values));
       }    
     })
     .fail(function(err) {
@@ -134,12 +133,11 @@ module.exports = function (fetch, dependencies, callback) {
    * Recursively fetches PR reviewers, accumulating the results in <code>users</code>, and calls <code>callback</code>
    * when done.
    *
-   * @param {Object} opts options for easyRequest
    * @param {Array} remainingPRs an array of pull requests
    * @param {Object} deferred deferred promise to resolve on recursion completion
    * @returns {*}
    */
-  function processRemainingPrs(opts, remainingPRs, deferred) {
+  function processRemainingPrs(remainingPRs, deferred) {
 
     // return once all PRs have been processed
     if (remainingPRs.length === 0) {
@@ -163,7 +161,7 @@ module.exports = function (fetch, dependencies, callback) {
       })
 
       // recurse until all PRs have been processed
-      processRemainingPrs(opts, remainingPRs.slice(1), deferred);
+      processRemainingPrs(remainingPRs.slice(1), deferred);
 
     })      
     .fail(function(err) {
@@ -177,13 +175,12 @@ module.exports = function (fetch, dependencies, callback) {
     var requestPromises = [];
 
     for (var r = 0; r < repositories.length; r++) {
-      var opts = {};
-      opts.page1 = 'https://bitbucket.org/api/2.0/repositories/'
+      var page1 = 'https://bitbucket.org/api/2.0/repositories/'
                        + encodeURIComponent(fetch.repository.org)
                        + '/' + encodeURIComponent(repositories[r])
                        + '/pullrequests?state=OPEN';
       var deferred = q.defer();
-      processPrList(opts, opts.page1, deferred);
+      processPrList(page1, deferred);
       requestPromises.push(deferred.promise);
     }
 
