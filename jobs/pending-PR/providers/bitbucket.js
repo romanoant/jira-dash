@@ -15,6 +15,8 @@ module.exports = function (fetch, dependencies, callback) {
   var _ = dependencies.underscore;
   var q = require('q');
 
+  var bitbucketBaseUrl = 'https://bitbucket.org/api/2.0/repositories/' + encodeURIComponent(fetch.repository.org);
+
   var getJSON = q.nbind(dependencies.easyRequest.JSON, dependencies.easyRequest);
 
   var users = _.object(_.map(fetch.team, function (user) {
@@ -54,7 +56,7 @@ module.exports = function (fetch, dependencies, callback) {
       return q.when([fetch.repository.repository]);
     } else {
 
-      var repoUrl = 'https://bitbucket.org/api/2.0/repositories/' + encodeURIComponent(fetch.repository.org) + '?pagelen=100';
+      var repoUrl = bitbucketBaseUrl + '?pagelen=100';
       getJSON({ url: repoUrl, headers: getAuthHeader() })
         .then(function(data) {
           if (!(data && data.values)){
@@ -166,10 +168,9 @@ module.exports = function (fetch, dependencies, callback) {
     var requestPromises = [];
 
     for (var r = 0; r < repositories.length; r++) {
-      var page1 = 'https://bitbucket.org/api/2.0/repositories/'
-                       + encodeURIComponent(fetch.repository.org)
-                       + '/' + encodeURIComponent(repositories[r])
-                       + '/pullrequests?state=OPEN';
+      var page1 = bitbucketBaseUrl
+                 + '/' + encodeURIComponent(repositories[r])
+                 + '/pullrequests?state=OPEN';
       var deferred = q.defer();
       processPrList(page1, deferred);
       requestPromises.push(deferred.promise);
