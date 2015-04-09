@@ -48,31 +48,22 @@ module.exports = function (fetch, dependencies, callback) {
   function getRepoNames() {
 
     var deferred = q.defer();
-    var repositories = [];
 
     // If repo name is supplied, use that, otherwise get all from the project
-    if (fetch.repository.repository) { 
-
-      repositories.push(fetch.repository.repository);
-      deferred.resolve(repositories);
-
+    if (fetch.repository.repository) {
+      return q.when([fetch.repository.repository]);
     } else {
 
-      var onJsonResponse = function(data) {
-
-        if (!data || !data.values){
-          return deferred.reject('no data');
-        }
-        for (var d = 0; d < data.values.length; d++) {
-          repositories.push(data.values[d].name);
-        }
-
-        return deferred.resolve(repositories);
-
-      };
-
       var repoUrl = 'https://bitbucket.org/api/2.0/repositories/' + encodeURIComponent(fetch.repository.org) + '?pagelen=100';
-      getJSON({ url: repoUrl, headers: getAuthHeader() }).then(onJsonResponse)
+      getJSON({ url: repoUrl, headers: getAuthHeader() })
+        .then(function(data) {
+          if (!(data && data.values)){
+            return deferred.reject('no data');
+          }
+          return deferred.resolve(_.map(data.values, function (datavalues) {
+           return datavalues.name;
+          }));
+        })
         .fail(function(err) {
           return deferred.reject(err);
         });
