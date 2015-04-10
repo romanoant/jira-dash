@@ -17,14 +17,16 @@ module.exports = function (fetch, dependencies, callback) {
   var _ = dependencies.underscore;
   var q = require('q');
 
-  var users = _.object(_.map(fetch.team, function (user) {
-      return [ user.username, { 'PRs': 0, 'display': user.display, 'email': user.email } ];
-  }));
-
   var validationError = validateParams();
   if(validationError) {
     return callback('error in source "' + fetch.sourceId + '": ' + validationError);
   }
+
+  var stashBaseUrl = fetch.options.baseUrl + '/rest/api/1.0/projects/' + fetch.repository.project + '/repos';
+
+  var users = _.object(_.map(fetch.team, function (user) {
+      return [ user.username, { 'PRs': 0, 'display': user.display, 'email': user.email } ];
+  }));
 
   getRepoSlugNames()
     .then(function(repositories) { return getAllRepoPullRequests(repositories); })
@@ -126,7 +128,7 @@ module.exports = function (fetch, dependencies, callback) {
   function getJsonOptsForRepositoriesApi() {
     // url and optional auth header
     return {
-      url: fetch.options.baseUrl + '/rest/api/1.0/projects/' + fetch.repository.project + '/repos?limit=100',
+      url: stashBaseUrl + '?limit=100',
       headers: getAuthHeader()
     };
   }
@@ -138,7 +140,7 @@ module.exports = function (fetch, dependencies, callback) {
   function getJsonOptsForPullRequestApi(repositoryName) {
     // url and optional auth header
     return {
-      url: fetch.options.baseUrl + '/rest/api/1.0/projects/' + fetch.repository.project + '/repos/' + repositoryName + '/pull-requests?order=NEWEST&limit=100',
+      url: stashBaseUrl + '/' + repositoryName + '/pull-requests?order=NEWEST&limit=100',
       headers: getAuthHeader()
     };
   }
