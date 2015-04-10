@@ -30,13 +30,12 @@ module.exports = function (fetch, dependencies, callback) {
   }));
 
   getRepoSlugNames()
-    .then(function(repositories) { return getAllRepoPullRequests(repositories); })
-    .then(function() { callback(null, formatResponse(users)); } )
-    .fail(function(err) { callback(err); } )
-    .done();
+    .then(getAllRepoPullRequests)
+    .then(formatResponse)
+    .nodeify(callback);
 
-  function formatResponse(users) {
-    return _.map(users, function(value, key) {
+  function formatResponse() {
+    return q.when(_.map(users, function(value, key) {
         var tuple = { user: { username: key}, PR: value.PRs };
         if(value.display) { 
           tuple.user.display = value.display; 
@@ -45,7 +44,13 @@ module.exports = function (fetch, dependencies, callback) {
           tuple.user.email = value.email;
         }
         return tuple;
-    });
+    }));
+  }
+
+  function getAllRepoPullRequests(repositories) {
+    return q.all(_.map(repositories, function(repository) {
+      return getRepoPullRequests(stashBaseUrl + '/' + repository + '/pull-requests?order=NEWEST&limit=100' );
+    }));
   }
 
   function getRepoPullRequests(pullRequestsUrl) {
@@ -113,18 +118,6 @@ module.exports = function (fetch, dependencies, callback) {
     if (!fetch.options) { return 'missing options'; }
     if (!fetch.options.baseUrl) { return 'missing baseUrl in options: ' + JSON.stringify(fetch.options); }
     if (!fetch.repository.project) { return 'missing project field in repository: ' + JSON.stringify(fetch.repository); }
-  }
-
-  function getAllRepoPullRequests(repositories) {
-  
-    var requestPromises = [];
-
-    for (var r = 0; r < repositories.length; r++) {
-      requestPromises.push( getRepoPullRequests(stashBaseUrl + '/' + repositories[r] + '/pull-requests?order=NEWEST&limit=100' ) );
-    }
-
-    return q.all(requestPromises);
-
   }
 
 };
