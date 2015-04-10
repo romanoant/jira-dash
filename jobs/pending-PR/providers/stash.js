@@ -16,6 +16,7 @@ module.exports = function (fetch, dependencies, callback) {
 
   var _ = dependencies.underscore;
   var q = require('q');
+  var getJSON = q.nbind(dependencies.easyRequest.JSON, dependencies.easyRequest);
 
   var validationError = validateParams();
   if(validationError) {
@@ -47,36 +48,28 @@ module.exports = function (fetch, dependencies, callback) {
     });
   }
 
-  function getRepoPullRequests(jsonOpts) {
+  function getRepoPullRequests(pullRequestsUrl) {
 
-    var deferred = q.defer();
-
-    var onJsonResponse = function(err, data) {
-
-      if (err) {
-        return deferred.reject(err);
-      }
-
-      if (!data || !data.values) {
-        return deferred.reject('no data');
-      }
-
-      for (var i = 0; i < fetch.team.length; i++) {
-        var prs = 0;
-        for (var d = 0; d < data.values.length; d++) {
-          prs = prs + data.values[d].reviewers.filter(function (reviewer) {
-            return reviewer.user.name === fetch.team[i].username && !reviewer.approved;
-          }).length;
+    return getJSON({ url: pullRequestsUrl, headers: getAuthHeader() })
+      .then(function(data) {
+        if (!(data && data.values)){
+          return q.reject('no data');
         }
-        users[fetch.team[i].username].PRs += prs;
-      }
-      return deferred.resolve();
-    };
 
-    dependencies.easyRequest.JSON(jsonOpts, onJsonResponse);
-
-    return deferred.promise;
-
+        for (var i = 0; i < fetch.team.length; i++) {
+          var prs = 0;
+          for (var d = 0; d < data.values.length; d++) {
+            prs = prs + data.values[d].reviewers.filter(function (reviewer) {
+              return reviewer.user.name === fetch.team[i].username && !reviewer.approved;
+            }).length;
+          }
+          users[fetch.team[i].username].PRs += prs;
+        }
+        return q.resolve();
+      })
+      .fail(function(err) {
+        return q.reject(err);
+      });
   }
 
   function getRepoSlugNames() {
@@ -156,7 +149,7 @@ module.exports = function (fetch, dependencies, callback) {
     var requestPromises = [];
 
     for (var r = 0; r < repositories.length; r++) {
-      requestPromises.push( getRepoPullRequests(getJsonOptsForPullRequestApi(repositories[r])) );
+      requestPromises.push( getRepoPullRequests(stashBaseUrl + '/' + repositories[r] + '/pull-requests?order=NEWEST&limit=100' ) );
     }
 
     return q.all(requestPromises);
