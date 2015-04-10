@@ -31,7 +31,8 @@ beforeEach(function (done) {
     },
 
     team: [
-      { username: "iloire" },
+      { username: "iloire", display: "ivan", email: "test@example.com" },
+      { username: "abrainwood", display: "brainwood" },
       { username: "luuuis" }
     ]
   };
@@ -150,9 +151,11 @@ describe('Bitbucket provider', function () {
       bitbucket(mockFetchRequest, mockedDependencies, function (err, users) {
         assert.ifError(err);
         assert.deepEqual(users, [
-          {"user": {"username": "iloire"}, "PR": 1},
+          {"user": {"username": "iloire", "display": "ivan", email: "test@example.com" }, "PR": 1},
+          {"user": {"username": "abrainwood", "display": "brainwood"}, "PR": 0},
           {"user": {"username": "luuuis"}, "PR": 1}
         ]);
+
 
         done();
       });
@@ -178,8 +181,9 @@ describe('Bitbucket provider', function () {
       bitbucket(mockFetchRequest, mockedDependencies, function (err, users) {
         assert.ifError(err);
         assert.deepEqual(users, [
-          { "user": {"username": "iloire"}, "PR": 1 },
-          { "user": {"username": "luuuis"}, "PR": 1 }
+          {"user": {"username": "iloire", "display": "ivan", email: "test@example.com" }, "PR": 1},
+          {"user": {"username": "abrainwood", "display": "brainwood"}, "PR": 0},
+          {"user": {"username": "luuuis"}, "PR": 1}
         ]);
 
         done();
@@ -202,8 +206,9 @@ describe('Bitbucket provider', function () {
       bitbucket(mockFetchRequest, mockedDependencies, function (err, users) {
         assert.ifError(err);
         assert.deepEqual(users, [
-          { "user": {"username": "iloire"}, "PR": 1 },
-          { "user": {"username": "luuuis"}, "PR": 0 }
+          {"user": {"username": "iloire", "display": "ivan", email: "test@example.com" }, "PR": 1},
+          {"user": {"username": "abrainwood", "display": "brainwood"}, "PR": 0},
+          {"user": {"username": "luuuis"}, "PR": 0}
         ]);
 
         done();
