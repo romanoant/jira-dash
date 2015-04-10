@@ -16,7 +16,6 @@ module.exports = function (fetch, dependencies, callback) {
   var q = require('q');
 
   var bitbucketBaseUrl = 'https://bitbucket.org/api/2.0/repositories/' + encodeURIComponent(fetch.repository.org);
-
   var getJSON = q.nbind(dependencies.easyRequest.JSON, dependencies.easyRequest);
 
   var users = _.object(_.map(fetch.team, function (user) {
@@ -29,12 +28,27 @@ module.exports = function (fetch, dependencies, callback) {
   }
 
   getRepoNames()
-    .then(function(repositories) { return getAllRepoPullRequests(repositories); })
-    .then(function() { callback(null, formatResponse(users)); } )
-    .fail(function(err) { callback(err); } )
-    .done();
+    .then(getAllRepoPullRequests)
+    .then(processPullRequestArray)
+    .then(formatResponse)
+    .nodeify(callback);
 
-  function formatResponse(users) {
+
+  function getAllRepoPullRequests(repositories) {
+    return q.all(_.map(repositories, function(repository) {
+            var page1Url = bitbucketBaseUrl + '/' 
+                           + encodeURIComponent(repository)
+                           + '/pullrequests?state=OPEN';
+
+            return getPrList(page1Url);
+    })); 
+  }
+
+  function processPullRequestArray(pullRequestArray) {
+    return q.all(_.map(pullRequestArray, processRemainingPrs));
+  }
+
+  function formatResponse() {
     return _.map(users, function(value, key) {
         var tuple = { user: { username: key}, PR: value.PRs };
         if(value.display) {
@@ -55,7 +69,6 @@ module.exports = function (fetch, dependencies, callback) {
     if (fetch.repository.repository) {
       return q.when([fetch.repository.repository]);
     } else {
-
       var repoUrl = bitbucketBaseUrl + '?pagelen=100';
       getJSON({ url: repoUrl, headers: getAuthHeader() })
         .then(function(data) {
@@ -69,11 +82,8 @@ module.exports = function (fetch, dependencies, callback) {
         .fail(function(err) {
           return deferred.reject(err);
         });
-
     }
-
     return deferred.promise;
-
   }
 
   function validateParams(){
@@ -90,34 +100,29 @@ module.exports = function (fetch, dependencies, callback) {
    * Fetches list of pull requests and processes each one, counting the pending PRs.
    *
    * @param {string} nextPageUrl
-   * @param {Object} deferred deferred promise to resolve on recursion completion
    * @param {Array} [pullRequests]
-   * @returns {*}
+   * @returns {Array} [pullRequests]
    */
-  function processPrList(nextPageUrl, deferred, pullRequests) {
+  function getPrList() {
+    
+    var nextPageUrl = arguments[0];
+    var pullRequests = arguments[1] || [];
 
     if (!nextPageUrl) {
       // if there are no more pages then proceed to process each PR
-      return processRemainingPrs(pullRequests, deferred);
+      return q.when(pullRequests);
     }
 
-    pullRequests = pullRequests || [];
-    
-    getJSON({ url: nextPageUrl, headers: getAuthHeader() }).then(function (data) {
-
-      if (!data || !data.values) {
-        return deferred.reject('no PRs in list: ' + nextPageUrl);
-      } 
-
-      if(data.values.length === 0) {
-        return deferred.resolve();
+    return getJSON({ url: nextPageUrl, headers: getAuthHeader() }).then(function (data) {
+      if (!(data && data.values)) {
+        return q.reject('no PRs in list: ' + nextPageUrl);
       } else {
-        // otherwise recurse until we have built up a list of all PRs
-        processPrList(data.next, deferred, _.union(pullRequests, data.values));
+        // Recurse until we have built up a list of all PRs
+        return getPrList(data.next, _.union(pullRequests, data.values));
       }    
     })
     .fail(function(err) {
-        return deferred.reject(err);
+        return q.reject(err);
     });
 
   }
@@ -127,57 +132,41 @@ module.exports = function (fetch, dependencies, callback) {
    * when done.
    *
    * @param {Array} remainingPRs an array of pull requests
-   * @param {Object} deferred deferred promise to resolve on recursion completion
    * @returns {*}
    */
-  function processRemainingPrs(remainingPRs, deferred) {
+  function processRemainingPrs(remainingPRs) {
 
     // return once all PRs have been processed
     if (remainingPRs.length === 0) {
-      return deferred.resolve();
+      return q.when();
     }
-
     // otherwise fetch a single PR at a time
-    var pullRequestUrl = remainingPRs[0].links.self.href;
-    getJSON({ url: pullRequestUrl, headers: getAuthHeader() }).then(function(data) {
+    if(remainingPRs[0].length === 0) {
+      return processRemainingPrs(remainingPRs.slice(1));
+    } else {
+      var pullRequestUrl = remainingPRs[0].links.self.href;
+      return getJSON({ url: pullRequestUrl, headers: getAuthHeader() }).then(function(data) {
 
-      if (!data) {
-        return deferred.reject('no PR in: ' + pullRequestUrl);
-      }
-
-      _.each(data.participants, function (participant) {
-        var username = participant.user.username;
-        if (!participant.approved && !_.isUndefined(users[username]) && username !== data.author.username) {
-          // +1 for each unapproved PR
-          users[username].PRs += 1;
+        if (!data) {
+          return q.reject('no PR in: ' + pullRequestUrl);
         }
-      })
 
-      // recurse until all PRs have been processed
-      processRemainingPrs(remainingPRs.slice(1), deferred);
+        _.each(data.participants, function (participant) {
+          var username = participant.user.username;
+          if (!participant.approved && !_.isUndefined(users[username]) && username !== data.author.username) {
+            // +1 for each unapproved PR
+            users[username].PRs += 1;
+          }
+        })
 
-    })      
-    .fail(function(err) {
-        return deferred.reject(err);
-    });
+        // recurse until all PRs have been processed
+        return processRemainingPrs(remainingPRs.slice(1));
 
-  }
-
-  function getAllRepoPullRequests(repositories) {
-  
-    var requestPromises = [];
-
-    for (var r = 0; r < repositories.length; r++) {
-      var page1 = bitbucketBaseUrl
-                 + '/' + encodeURIComponent(repositories[r])
-                 + '/pullrequests?state=OPEN';
-      var deferred = q.defer();
-      processPrList(page1, deferred);
-      requestPromises.push(deferred.promise);
+      })      
+      .fail(function(err) {
+          return q.reject(err);
+      });
     }
-
-    return q.all(requestPromises);
-
   }
 
 };
