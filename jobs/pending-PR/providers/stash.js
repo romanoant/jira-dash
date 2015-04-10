@@ -24,26 +24,35 @@ module.exports = function (fetch, dependencies, callback) {
 
   var stashBaseUrl = fetch.options.baseUrl + '/rest/api/1.0/projects/' + fetch.repository.project + '/repos';
 
-  var users = _.object(_.map(fetch.team, function (user) {
-      return [ user.username, { 'PRs': 0, 'display': user.display, 'email': user.email } ];
-  }));
-
   getRepoSlugNames()
     .then(getAllRepoPullRequests)
     .then(formatResponse)
     .nodeify(callback);
 
-  function formatResponse() {
-    return q.when(_.map(users, function(value, key) {
-        var tuple = { user: { username: key}, PR: value.PRs };
-        if(value.display) { 
-          tuple.user.display = value.display; 
-        }
-        if(value.email) {
-          tuple.user.email = value.email;
-        }
-        return tuple;
-    }));
+  function formatResponse(approversArray) {
+
+    var userResult = _.map(fetch.team, function (user) {
+      return { user: user.username, PR: 0 };
+    });
+
+    approversArray.forEach(function(approvers) {
+      _.keys(approvers).forEach(function(approver) {
+        userResult[_.findIndex(userResult,{user: approver})].PR+=approvers[approver];
+      });
+    });
+
+    return _.map(userResult,function(userTuple) {
+      var newUserTuple = {user: { username: userTuple.user}, PR: userTuple.PR};
+      var originalUserTuple = fetch.team[_.findIndex(fetch.team,{ username: userTuple.user })];
+      if(originalUserTuple.display) {
+        newUserTuple.user.display = originalUserTuple.display;
+      }
+      if(originalUserTuple.email) {
+        newUserTuple.user.email = originalUserTuple.email;
+      }
+      return newUserTuple;
+    });
+
   }
 
   function getAllRepoPullRequests(repositories) {
@@ -53,6 +62,10 @@ module.exports = function (fetch, dependencies, callback) {
   }
 
   function getRepoPullRequests(pullRequestsUrl) {
+
+    var approvers = arguments[1] || _.object(_.map(fetch.team, function (user) {
+      return [ user.username, 0 ];
+    }));
 
     return getJSON({ url: pullRequestsUrl, headers: getAuthHeader() })
       .then(function(data) {
@@ -67,9 +80,9 @@ module.exports = function (fetch, dependencies, callback) {
               return reviewer.user.name === fetch.team[i].username && !reviewer.approved;
             }).length;
           }
-          users[fetch.team[i].username].PRs += prs;
+          approvers[fetch.team[i].username] += prs;
         }
-        return q.resolve();
+        return q.when(approvers);
       })
       .fail(function(err) {
         return q.reject(err);
