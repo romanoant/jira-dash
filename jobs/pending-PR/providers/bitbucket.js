@@ -63,27 +63,25 @@ module.exports = function (fetch, dependencies, callback) {
 
   function getRepoNames() {
 
-    var deferred = q.defer();
-
     // If repo name is supplied, use that, otherwise get all from the project
     if (fetch.repository.repository) {
       return q.when([fetch.repository.repository]);
     } else {
       var repoUrl = bitbucketBaseUrl + '?pagelen=100';
-      getJSON({ url: repoUrl, headers: getAuthHeader() })
+      return getJSON({ url: repoUrl, headers: getAuthHeader() })
         .then(function(data) {
           if (!(data && data.values)){
-            return deferred.reject('no data');
+            return q.reject('no data');
           }
-          return deferred.resolve(_.map(data.values, function (datavalues) {
+          return q.resolve(_.map(data.values, function (datavalues) {
            return datavalues.name;
           }));
         })
         .fail(function(err) {
-          return deferred.reject(err);
+          return q.reject(err);
         });
     }
-    return deferred.promise;
+
   }
 
   function validateParams(){
