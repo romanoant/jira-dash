@@ -81,7 +81,7 @@ function compactResults (entries) {
 }
 
 module.exports = function(config, dependencies, job_callback, options) {
-  var _ = dependencies['underscore'];
+  var _ = dependencies.underscore;
   options = _.defaults({}, options || {}, {
     strategies: STRATEGIES
   });

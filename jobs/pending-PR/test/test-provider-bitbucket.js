@@ -1,6 +1,6 @@
 var assert = require('assert');
 var sinon = require('sinon');
-var _ = require('underscore');
+var _ = require('lodash');
 var bitbucket = require('../providers/bitbucket');
 
 var mockFetchRequest, mockedDependencies, page1, JSON;
@@ -41,9 +41,7 @@ beforeEach(function (done) {
     logger: console,
     easyRequest: {
       JSON: JSON = extendJsonMock(sinon.stub().callsArgWith(1, null, null))
-    },
-    async: require('async'),
-    underscore: require('underscore')
+    }
   };
 
   page1 = prListUrlFor(mockFetchRequest.repository.org, mockFetchRequest.repository.repository);

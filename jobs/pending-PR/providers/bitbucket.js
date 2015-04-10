@@ -12,11 +12,11 @@
  * @returns {*}
  */
 module.exports = function (fetch, dependencies, callback) {
-  var _ = dependencies.underscore;
+  var _ = require('lodash');
   var q = require('q');
+  var getJSON = q.nbind(dependencies.easyRequest.JSON, dependencies.easyRequest);
 
   var bitbucketBaseUrl = 'https://bitbucket.org/api/2.0/repositories/' + encodeURIComponent(fetch.repository.org);
-  var getJSON = q.nbind(dependencies.easyRequest.JSON, dependencies.easyRequest);
 
   var validationError = validateParams();
   if(validationError) {

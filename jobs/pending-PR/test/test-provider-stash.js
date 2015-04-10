@@ -28,9 +28,7 @@ beforeEach(function (done) {
       JSON : function (options, cb) {
         cb(null, {});
       }
-    },
-    async : require('async'),
-    underscore : require('underscore')
+    }
   };
 
   done();

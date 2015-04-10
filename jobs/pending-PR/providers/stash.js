@@ -13,8 +13,7 @@
  * @returns {*}
  */
 module.exports = function (fetch, dependencies, callback) {
-
-  var _ = dependencies.underscore;
+  var _ = require('lodash');
   var q = require('q');
   var getJSON = q.nbind(dependencies.easyRequest.JSON, dependencies.easyRequest);
 
