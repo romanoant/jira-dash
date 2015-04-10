@@ -18,10 +18,6 @@ module.exports = function (fetch, dependencies, callback) {
   var bitbucketBaseUrl = 'https://bitbucket.org/api/2.0/repositories/' + encodeURIComponent(fetch.repository.org);
   var getJSON = q.nbind(dependencies.easyRequest.JSON, dependencies.easyRequest);
 
-  var users = _.object(_.map(fetch.team, function (user) {
-      return [ user.username, { 'PRs': 0, 'display': user.display, 'email': user.email } ];
-  }));
-
   var validationError = validateParams();
   if(validationError) {
     return callback('error in source "' + fetch.sourceId + '": ' + validationError);
@@ -30,7 +26,7 @@ module.exports = function (fetch, dependencies, callback) {
   getRepoNames()
     .then(getAllRepoPullRequests)
     .then(processPullRequestArray)
-    .then(formatResponse)
+    .then(transformResponse)
     .nodeify(callback);
 
 
@@ -45,20 +41,35 @@ module.exports = function (fetch, dependencies, callback) {
   }
 
   function processPullRequestArray(pullRequestArray) {
-    return q.all(_.map(pullRequestArray, processRemainingPrs));
+    return q.all(_.map(pullRequestArray,function(pullRequests) {
+     return processRemainingPrs(pullRequests);
+    }));
   }
 
-  function formatResponse() {
-    return _.map(users, function(value, key) {
-        var tuple = { user: { username: key}, PR: value.PRs };
-        if(value.display) {
-         tuple.user.display = value.display;
-        }
-        if(value.email) {
-          tuple.user.email = value.email;
-        }
-        return tuple;
+  function transformResponse(approversArray) {
+
+    var userResult = _.map(fetch.team, function (user) {
+      return { user: user.username, PR: 0 };
     });
+
+    approversArray.forEach(function(approvers) {
+      _.keys(approvers).forEach(function(approver) {
+        userResult[_.findIndex(userResult,{user: approver})].PR+=approvers[approver];
+      });
+    });
+
+    return _.map(userResult,function(userTuple) {
+      var newUserTuple = {user: { username: userTuple.user}, PR: userTuple.PR};
+      var originalUserTuple = fetch.team[_.findIndex(fetch.team,{ username: userTuple.user })];
+      if(originalUserTuple.display) {
+        newUserTuple.user.display = originalUserTuple.display;
+      }
+      if(originalUserTuple.email) {
+        newUserTuple.user.email = originalUserTuple.email;
+      }
+      return newUserTuple;
+    });
+
   }
 
   function getRepoNames() {
@@ -132,15 +143,21 @@ module.exports = function (fetch, dependencies, callback) {
    * @param {Array} remainingPRs an array of pull requests
    * @returns {*}
    */
-  function processRemainingPrs(remainingPRs) {
+  function processRemainingPrs() {
+
+    var remainingPRs = arguments[0];
+    var approvers = arguments[1] || _.object(_.map(fetch.team, function (user) {
+      return [ user.username, 0 ];
+    }));
+
 
     // return once all PRs have been processed
     if (remainingPRs.length === 0) {
-      return q.when();
+      return q.when(approvers);
     }
     // otherwise fetch a single PR at a time
     if(remainingPRs[0].length === 0) {
-      return processRemainingPrs(remainingPRs.slice(1));
+      return processRemainingPrs(remainingPRs.slice(1),approvers);
     } else {
       var pullRequestUrl = remainingPRs[0].links.self.href;
       return getJSON({ url: pullRequestUrl, headers: getAuthHeader() }).then(function(data) {
@@ -151,14 +168,14 @@ module.exports = function (fetch, dependencies, callback) {
 
         _.each(data.participants, function (participant) {
           var username = participant.user.username;
-          if (!participant.approved && !_.isUndefined(users[username]) && username !== data.author.username) {
+          if (!participant.approved && !_.isUndefined(approvers[username]) && username !== data.author.username) {
             // +1 for each unapproved PR
-            users[username].PRs += 1;
+            approvers[username]++;
           }
         })
 
         // recurse until all PRs have been processed
-        return processRemainingPrs(remainingPRs.slice(1));
+        return processRemainingPrs(remainingPRs.slice(1),approvers);
 
       })      
       .fail(function(err) {
