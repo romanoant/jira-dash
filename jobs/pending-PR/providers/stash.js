@@ -74,40 +74,32 @@ module.exports = function (fetch, dependencies, callback) {
 
   function getRepoSlugNames() {
 
-    var deferred = q.defer();
     var repositories = [];
 
     // If repo name is supplied, use that, otherwise get all from the project
     if (fetch.repository.repository) { 
-
       repositories.push(fetch.repository.repository);
-
-      deferred.resolve(repositories);
-
+      return q.resolve(repositories);
     } else {
 
-      var onJsonResponse = function(err, data) {
+      return getJSON({ url: stashBaseUrl + '?limit=100', headers: getAuthHeader() })
+        .then(function(data) {
+          if (!(data && data.values)){
+            return q.reject('no data');
+          }
 
-        if (err) {
-          return deferred.reject(err);
-        }
+          for (var d = 0; d < data.values.length; d++) {
+            repositories.push(data.values[d].slug);
+          }
 
-        if (!data || !data.values) {
-          return deferred.reject('no data');
-        }
+          return q.resolve(repositories);
 
-        for (var d = 0; d < data.values.length; d++) {
-          repositories.push(data.values[d].slug);
-        }
+        })
+        .fail(function(err) {
+          return q.reject(err);
+        });
 
-        return deferred.resolve(repositories);
-      };
-
-      dependencies.easyRequest.JSON(getJsonOptsForRepositoriesApi(), onJsonResponse);
-
-    }
-
-    return deferred.promise;
+    };
 
   }
 
@@ -115,27 +107,6 @@ module.exports = function (fetch, dependencies, callback) {
     if(fetch.auth) {
       return { 'authorization': 'Basic ' + new Buffer(fetch.auth.username + ':' + fetch.auth.password).toString('base64') };
     } 
-  }
-
-// @returns {*} an option object for use with <code>easyRequest.JSON</code> on each request to the STASH repositories API
-  function getJsonOptsForRepositoriesApi() {
-    // url and optional auth header
-    return {
-      url: stashBaseUrl + '?limit=100',
-      headers: getAuthHeader()
-    };
-  }
-
-  /**
-   * @param {string} repositoryName Name of the repository to evaluate
-   * @returns {*} an option object for use with <code>easyRequest.JSON</code> on each request to the STASH pull-request API
-   */
-  function getJsonOptsForPullRequestApi(repositoryName) {
-    // url and optional auth header
-    return {
-      url: stashBaseUrl + '/' + repositoryName + '/pull-requests?order=NEWEST&limit=100',
-      headers: getAuthHeader()
-    };
   }
 
   function validateParams() {
