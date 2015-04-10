@@ -214,6 +214,38 @@ describe('Bitbucket provider', function () {
         done();
       });
     });
+
+
+    it('should aggregate when there are multiple PRs', function (done) {
+       JSON.returnsJson(page1, {
+        pagelen: 10,
+        page: 1,
+        size: 2,
+        values: [
+          { links: { self: { href: 'pr1-href' }} },
+          { links: { self: { href: 'pr2-href' }} }
+        ]
+      }).returnsJson("pr1-href", {
+        author: user('iloire'),
+        participants: [ participant('luuuis') ]
+      }).returnsJson("pr2-href", {
+        author: user('iloire'),
+        participants: [ participant('luuuis'), participant('iloire') ]
+      });
+
+
+      bitbucket(mockFetchRequest, mockedDependencies, function (err, users) {
+        assert.ifError(err);
+        assert.deepEqual(users, [
+          {"user": {"username": "iloire", "display": "ivan", email: "test@example.com" }, "PR": 0},
+          {"user": {"username": "abrainwood", "display": "brainwood"}, "PR": 0},
+          {"user": {"username": "luuuis"}, "PR": 2}
+        ]);
+
+        done();
+      });
+    });
+
   });
 
   function user(username) {
