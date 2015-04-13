@@ -1,6 +1,6 @@
 var assert = require('assert');
 var sinon = require('sinon');
-var _ = require('underscore');
+var _ = require('lodash');
 var bitbucket = require('../providers/bitbucket');
 
 var mockFetchRequest, mockedDependencies, page1, JSON;
@@ -31,7 +31,8 @@ beforeEach(function (done) {
     },
 
     team: [
-      { username: "iloire" },
+      { username: "iloire", display: "ivan", email: "test@example.com" },
+      { username: "abrainwood", display: "brainwood" },
       { username: "luuuis" }
     ]
   };
@@ -40,9 +41,7 @@ beforeEach(function (done) {
     logger: console,
     easyRequest: {
       JSON: JSON = extendJsonMock(sinon.stub().callsArgWith(1, null, null))
-    },
-    async: require('async'),
-    underscore: require('underscore')
+    }
   };
 
   page1 = prListUrlFor(mockFetchRequest.repository.org, mockFetchRequest.repository.repository);
@@ -62,10 +61,10 @@ describe('Bitbucket provider', function () {
       });
     });
 
-    it('should return error when repository name is missing', function (done) {
+    it('should not return error when repository name is missing', function (done) {
       delete mockFetchRequest.repository.repository;
       bitbucket(mockFetchRequest, mockedDependencies, function (err) {
-        assert.ok(err && err.indexOf('missing repository') > -1);
+        assert.ok(err && err.indexOf('no data') > -1);
         done();
       });
     });
@@ -150,9 +149,11 @@ describe('Bitbucket provider', function () {
       bitbucket(mockFetchRequest, mockedDependencies, function (err, users) {
         assert.ifError(err);
         assert.deepEqual(users, [
-          {"user": {"username": "iloire"}, "PR": 1},
+          {"user": {"username": "iloire", "display": "ivan", email: "test@example.com" }, "PR": 1},
+          {"user": {"username": "abrainwood", "display": "brainwood"}, "PR": 0},
           {"user": {"username": "luuuis"}, "PR": 1}
         ]);
+
 
         done();
       });
@@ -178,8 +179,9 @@ describe('Bitbucket provider', function () {
       bitbucket(mockFetchRequest, mockedDependencies, function (err, users) {
         assert.ifError(err);
         assert.deepEqual(users, [
-          { "user": {"username": "iloire"}, "PR": 1 },
-          { "user": {"username": "luuuis"}, "PR": 1 }
+          {"user": {"username": "iloire", "display": "ivan", email: "test@example.com" }, "PR": 1},
+          {"user": {"username": "abrainwood", "display": "brainwood"}, "PR": 0},
+          {"user": {"username": "luuuis"}, "PR": 1}
         ]);
 
         done();
@@ -202,13 +204,46 @@ describe('Bitbucket provider', function () {
       bitbucket(mockFetchRequest, mockedDependencies, function (err, users) {
         assert.ifError(err);
         assert.deepEqual(users, [
-          { "user": {"username": "iloire"}, "PR": 1 },
-          { "user": {"username": "luuuis"}, "PR": 0 }
+          {"user": {"username": "iloire", "display": "ivan", email: "test@example.com" }, "PR": 1},
+          {"user": {"username": "abrainwood", "display": "brainwood"}, "PR": 0},
+          {"user": {"username": "luuuis"}, "PR": 0}
         ]);
 
         done();
       });
     });
+
+
+    it('should aggregate when there are multiple PRs', function (done) {
+       JSON.returnsJson(page1, {
+        pagelen: 10,
+        page: 1,
+        size: 2,
+        values: [
+          { links: { self: { href: 'pr1-href' }} },
+          { links: { self: { href: 'pr2-href' }} }
+        ]
+      }).returnsJson("pr1-href", {
+        author: user('iloire'),
+        participants: [ participant('luuuis') ]
+      }).returnsJson("pr2-href", {
+        author: user('iloire'),
+        participants: [ participant('luuuis'), participant('iloire') ]
+      });
+
+
+      bitbucket(mockFetchRequest, mockedDependencies, function (err, users) {
+        assert.ifError(err);
+        assert.deepEqual(users, [
+          {"user": {"username": "iloire", "display": "ivan", email: "test@example.com" }, "PR": 0},
+          {"user": {"username": "abrainwood", "display": "brainwood"}, "PR": 0},
+          {"user": {"username": "luuuis"}, "PR": 2}
+        ]);
+
+        done();
+      });
+    });
+
   });
 
   function user(username) {

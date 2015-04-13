@@ -155,7 +155,7 @@ Sample configuration:
 
 ![Pending Pull Requests](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/pending-PR.png)
 
-Display pending PR for a list of users (a team)
+Display pending PRs in a repo, or all repos in a project for a list of users (a team)
 
 Sample configuration:
      
@@ -180,7 +180,7 @@ Sample configuration:
               "stashdev": {
                 "provider": "STASH",
                 "repositories": [
-                    { "project": "STASH", "repository": "stash" }
+                    { "project": "STASH" }
                 ],
                 "options": {
                   "baseUrl": "https://stash-dev.atlassian.com"

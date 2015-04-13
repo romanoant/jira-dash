@@ -10,12 +10,14 @@
   },
   "dependencies": {
     "async": "0.2.6",
-    "cron": "1.0.1",
     "cheerio": "0.13.1",
-    "underscore": "1.4.2",
+    "cron": "1.0.1",
     "memory-cache": "0.0.5",
+    "moment": "2.5.1",
     "node.extend": "~1.0.9",
-    "moment": "2.5.1"
+    "q": "^1.2.0",
+    "underscore": "~1.5",
+    "lodash": "3.6.0"
   },
   "devDependencies": {
     "mocha": "1.21.4",
