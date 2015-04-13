@@ -87,9 +87,6 @@ module.exports = function (fetch, dependencies, callback) {
           return q.resolve(_.map(data.values, function (datavalues) {
            return datavalues.name;
           }));
-        })
-        .fail(function(err) {
-          return q.reject(err);
         });
     }
 
@@ -129,11 +126,7 @@ module.exports = function (fetch, dependencies, callback) {
         // Recurse until we have built up a list of all PRs
         return getPrList(data.next, _.union(pullRequests, data.values));
       }    
-    })
-    .fail(function(err) {
-        return q.reject(err);
     });
-
   }
 
   /**
@@ -177,9 +170,6 @@ module.exports = function (fetch, dependencies, callback) {
         // recurse until all PRs have been processed
         return processRemainingPrs(remainingPRs.slice(1),approvers);
 
-      })      
-      .fail(function(err) {
-          return q.reject(err);
       });
     }
   }

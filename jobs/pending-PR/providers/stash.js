@@ -82,10 +82,7 @@ module.exports = function (fetch, dependencies, callback) {
           }
           approvers[fetch.team[i].username] += prs;
         }
-        return q.when(approvers);
-      })
-      .fail(function(err) {
-        return q.reject(err);
+        return approvers;
       });
   }
 
@@ -108,14 +105,8 @@ module.exports = function (fetch, dependencies, callback) {
           for (var d = 0; d < data.values.length; d++) {
             repositories.push(data.values[d].slug);
           }
-
-          return q.resolve(repositories);
-
+          return repositories;
         })
-        .fail(function(err) {
-          return q.reject(err);
-        });
-
     };
 
   }
