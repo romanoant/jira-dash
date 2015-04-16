@@ -1,0 +1,27 @@
+<h2>ga-results-table</h2>
+<div class="content auto-font-resize"></div>
+
+<script type="text/html" class="template">
+    <table>
+        <thead>
+            <% _.each(columnHeaders, function (column) { %>
+                <td>
+                    <%=column.name %>
+                </td>
+            <% }); %>
+        </thead>
+        <tbody>
+            <% _.each(rows, function (row) { %>
+            <tr>
+                <% var c = 0; %>
+                <% _.each(columnHeaders, function (column) { %>
+                    <td>
+                        <%= row[c] %>
+                    </td>
+                    <% c++; %>
+                <% }); %>
+            </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</script>
