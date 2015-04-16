@@ -244,3 +244,8 @@ The JIRA Agile board estimation statistic is used to draw the progress bars. If 
 Just that:)
 
 ![Compact Sprint Health widget](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/empty-placeholder.png)
+
+      "empty-placeholder": {
+        "title": "EMPTY",
+        "description": "Placeholder"
+      },
