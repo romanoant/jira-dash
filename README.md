@@ -238,3 +238,9 @@ Sample configuration:
     }
 
 The JIRA Agile board estimation statistic is used to draw the progress bars. If your team doesn't estimate stories you can still get the progress bars by switching the board's estimation statistic to 'Issue Count' (Board > Configure > Estimation > Estimation Statistic) or the pretty bars won't show up.
+
+### Empty placeholder
+
+Just that:)
+
+![Compact Sprint Health widget](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/empty-placeholder.png)
