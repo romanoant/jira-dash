@@ -10,6 +10,7 @@
  *      viewID: '232323', // without the 'ga:' prefix
  *      startDate: '12/12/12',
  *      endDate: '12/12/12',
+ *      daysAgo: 30, // will override startDate
  *      metrics: ["ga:sessions","ga:pageviews"], // or ["rt:activeUsers"] if using the realtime API
  *      dimensions: ["ga:deviceCategory"],
  *      realTime: true
@@ -68,6 +69,9 @@ module.exports = function(config, dependencies, job_callback) {
 
 
     var startDate = config.startDate || '7daysAgo';
+    if (config.daysAgo) {
+        startDate = config.daysAgo + "daysAgo";
+    }
     var endDate =  config.endDate || 'yesterday';
 
     authClient.authorize(function(err, tokens) {
@@ -80,7 +84,6 @@ module.exports = function(config, dependencies, job_callback) {
             "end-date":endDate,
             "metrics":config.metrics.join(','),
             "dimensions":config.dimensions.join(',')
-
         };
 
         if (config.filters) {
