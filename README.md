@@ -249,3 +249,26 @@ Just that:)
         "title": "EMPTY",
         "description": "Placeholder"
       },
+
+### Google analytics real-time widgets
+
+#### Table with results
+
+![Compact Sprint Health widget](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/ga-results-table.png)
+
+#### Single metric
+
+![Compact Sprint Health widget](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/ga-metric.png)
+
+Use the following configuration example to feed both:
+
+      "form-completion-now": {
+        "interval": 60000,
+        "title": "Last 30'",
+        "viewID": "1009XXXXX",
+        "authEmail": "335287341572-bbcqXXXXXXXXXXXXXXXX@developer.gserviceaccount.com",
+        "metrics": ["rt:goal16Completions"],
+        "dimensions": ["rt:minutesAgo", "rt:browser", "rt:browserVersion"],
+        "captions": ["min. ago", "browser", "version", "Conversions"],
+        "realTime": true
+      },
