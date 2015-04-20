@@ -10,7 +10,7 @@
  *      viewID: '232323', // without the 'ga:' prefix
  *      startDate: '12/12/12',
  *      endDate: '12/12/12',
- *      daysAgo: 30, // will override startDate
+ *      daysAgo: 30, // optional, will override startDate
  *      metrics: ["ga:sessions","ga:pageviews"], // or ["rt:activeUsers"] if using the realtime API
  *      dimensions: ["ga:deviceCategory"],
  *      realTime: true
