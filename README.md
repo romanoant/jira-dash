@@ -254,11 +254,11 @@ Just that:)
 
 #### Table with results
 
-![Compact Sprint Health widget](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/ga-results-table.png)
+![Google analytics table results widget](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/ga-results-table.png)
 
 #### Single metric
 
-![Compact Sprint Health widget](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/ga-metric.png)
+![Google analytics single metric widget](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/ga-metric.png)
 
 Use the following configuration example to feed both:
 
