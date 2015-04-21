@@ -270,5 +270,6 @@ Use the following configuration example to feed both:
         "metrics": ["rt:goal16Completions"],
         "dimensions": ["rt:minutesAgo", "rt:browser", "rt:browserVersion"],
         "captions": ["min. ago", "browser", "version", "Conversions"],
-        "realTime": true
+        "realTime": true,
+        "gaKeyLocation": 'mykey.p12' // file must be located inside the wallboard directory
       },

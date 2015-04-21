@@ -13,7 +13,8 @@
  *      daysAgo: 30, // optional, will override startDate
  *      metrics: ["ga:sessions","ga:pageviews"], // or ["rt:activeUsers"] if using the realtime API
  *      dimensions: ["ga:deviceCategory"],
- *      realTime: true
+ *      realTime: true,
+ *      gaKeyLocation: 'mykey.p12' // file must be located inside the wallboard directory
  *     }
  *   ]
  * }
@@ -48,7 +49,13 @@ module.exports = function(config, dependencies, job_callback) {
     //Get config.viewID in Google Analytics Console : Admin -> View -> View Parameters -> View ID
     //Add GOOGLE_API_EMAIL in the Google Analytics account users
 
-    var keyPath = path.resolve(__dirname, '../../../../ga-analytics-key.p12'); // wallboard root
+    var wallboardExpectedRoot = path.resolve(__dirname, '../../../../');
+    var keyPath = path.resolve(wallboardExpectedRoot, config.gaKeyLocation || 'ga-analytics-key.p12'); // wallboard root
+    // prevent path traversal
+    if (keyPath.indexOf(wallboardExpectedRoot) !== 0) {
+        return job_callback('path traversal detected!');
+    }
+
     var authClient = new google.auth.JWT(
         config.authEmail,
         keyPath, //path to .pem
