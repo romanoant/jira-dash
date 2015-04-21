@@ -24,15 +24,7 @@ var path = require('path');
 
 module.exports = function(config, dependencies, job_callback) {
 
-    function safeConfig(config) { // this will be eventually done by Atlasboard?
-        var c = {};
-        for (var key in config) {
-            if (key !== "globalAuth") {
-                c[key] = config[key];
-            }
-        }
-        return c;
-    }
+    var _ = dependencies.underscore;
 
     if (!config.authEmail) {
         return job_callback('authEmail not found in configuration');
@@ -93,7 +85,7 @@ module.exports = function(config, dependencies, job_callback) {
         analytics.data[config.realTime ? 'realtime' : 'ga'].get(options, function(err, data){
             job_callback(err, {
                 data: data,
-                safeConfig: safeConfig(config),
+                safeConfig: _.omit(config, 'globalAuth'),
                 title: config.title
             });
         });
