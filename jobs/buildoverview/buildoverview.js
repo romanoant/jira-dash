@@ -3,7 +3,7 @@
   Buildoverview job.
 
   "buildoverview-UI" : {
-    "bamboo_server" : "https://confluence-bamboo.internal.atlassian.com",
+    "bamboo_server" : "https://collaboration-bamboo.internal.atlassian.com",
     "retryOnErrorTimes" : 3,
     "interval" : 120000,
     "failBuilds":["CONFUI-QUNITFFESR", "CONFUI-QUNITFFLATEST", "CONFUI-QUNITCHROMEPLUGINS" , 
