@@ -11,7 +11,8 @@
                   "CONFUI-QUNITQEFFLATEST11", "CONFUI-QUNITIE9"],
     "showBuilds":[],
     "widgetTitle" : "QUNIT BUILDS",
-    "showResponsibles" : false
+    "showResponsibles" : false,
+    "sortBuilds" : true // this is the default if the config option is not specified
   }
 
  */
@@ -173,6 +174,10 @@ module.exports = function(config, dependencies, job_callback) {
       return score(a) > score(b);
     };
 
+    if (typeof config.sortBuilds == "undefined") {
+      config.sortBuilds = true;
+    }
+
     var planDefinitions = [_.compact(config.failBuilds), _.compact(config.showBuilds)];
     return async.map(planDefinitions, execute_planDefinitions, function(err, results){
       if (err){
@@ -180,9 +185,16 @@ module.exports = function(config, dependencies, job_callback) {
         job_callback(err);
       }
       else{
+        var showBuilds = results[1],
+            failBuilds = results[0];
+        if (config.sortBuilds) {
+          showBuilds = showBuilds.sort(failure_sort);
+          failBuilds = failBuilds.sort(failure_sort);
+        }
+
         job_callback(null, {
-          showBuilds: results[1].sort(failure_sort),
-          failBuilds: results[0].sort(failure_sort),
+          showBuilds: showBuilds,
+          failBuilds: failBuilds,
           title: config.widgetTitle,
           showResponsibles: config.showResponsibles !== false
         });
