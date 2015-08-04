@@ -264,7 +264,8 @@ Use the following configuration example to feed both:
 
       "form-completion-now": {
         "interval": 60000,
-        "title": "Last 30'",
+        "title": "Signups",
+        "subtitle": "Last 30'",
         "viewID": "1009XXXXX",
         "authEmail": "335287341572-bbcqXXXXXXXXXXXXXXXX@developer.gserviceaccount.com",
         "metrics": ["rt:goal16Completions"],

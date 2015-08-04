@@ -5,5 +5,12 @@
 }
 
 .metric {
-    font-size:20em;
+    font-size:15em;
+    line-height: 1.3em;
+}
+
+.subtitle {
+    display: none;
+    font-size:3em;
+    line-height: 1.3em;
 }
