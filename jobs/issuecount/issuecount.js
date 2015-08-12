@@ -70,7 +70,7 @@ module.exports = function (config, dependencies, job_callback) {
     if (!(item.jql && item.jql.trim().length)) {
       return cb(null, {label: item.label, item: 0});
     }
-    options.url = baseUrl + qs.stringify({jql: item.jql, maxResults: 200});
+    options.url = baseUrl + qs.stringify({jql: item.jql, maxResults: 0});
 
     dependencies.easyRequest.JSON(options, function(err, data) {
       
@@ -83,7 +83,7 @@ module.exports = function (config, dependencies, job_callback) {
         logger.error("error processing " + item.label + ": " + err);
         ret.error = err;
       } else {
-        ret.count = data.issues.length;
+        ret.count = data.total;
       }
 
       cb(null, ret);
