@@ -1,6 +1,6 @@
 #Atlasboard Atlassian package#
 
-![Atlasboard Atlassian Package](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/screenshot1.jpeg)
+![Atlasboard Atlassian Package](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/jag-screenshot.png)
 
 ##Build status##
 
