@@ -239,6 +239,49 @@ Sample configuration:
 
 The JIRA Agile board estimation statistic is used to draw the progress bars. If your team doesn't estimate stories you can still get the progress bars by switching the board's estimation statistic to 'Issue Count' (Board > Configure > Estimation > Estimation Statistic) or the pretty bars won't show up.
 
+### Fitness
+
+![Fitness](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/fitness.png)
+
+Get in shape with your personal trainer!
+
+    "fitness": {
+      "media": ["dQw4w9WgXcQ", "z8f2mW1GFSI", "DP3MFBzMH2o", "CH1XGdu-hzQ", "sRYNYb30nxU", "3YOYlgvI1uE", "otCpCn0l4Wo", "vCadcBR95oU", "9EcjWd-O4jI", "5WLdLZnZQbQ", "CDl9ZMfj6aE", "BfOdWSiyWoc", "btPJPFnesV4", "lYlkYkHkZxs", "8NjbGr2nk2c"],
+      "widgetTitle": "Daily Fitness",
+      "activities": [{
+        "name": "pushups",
+        "cron": "00 30 10 * * 1-5",
+        "title": "Pushup Time!",
+        "announcement": "Time for morning push ups! With music presented by {0}",
+        "hipchat": {
+          "roomId": "00000",
+          "from": "Sergeant",
+          "message": "Time for some pushups!"
+        }
+      }, {
+        "name": "planks",
+        "cron": "00 00 15 * * 1-5",
+        "title": "Planks",
+        "announcement": "Get down for some serious planking! {0}",
+        "hipchat": {
+          "roomId": "00000",
+          "from": "Sergeant",
+          "message": "Time for some planks!"
+        }
+      }, {
+        "name": "debug",
+        "cron": "30 * * * * *",
+        "title": "lets debug",
+        "announcement": "yoyo debug {0}",
+        "hipchat": {
+          "roomId": "00000",
+          "from": "Sergeant",
+          "message": "Time for some pushups!"
+        },
+        "enabled": false
+      }]
+    }
+
 ### Empty placeholder
 
 Just that:)
