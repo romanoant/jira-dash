@@ -3,10 +3,10 @@
   "name": "atlasboard-atlassian-package",
   "description": "Atlassian package for Atlasboard",
   "version": "0.0.1",
-  "homepage": "",
+  "homepage": "https://bitbucket.org/atlassian/atlasboard-atlassian-package",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git@bitbucket.org:atlassian/atlasboard-atlassian-package.git"
   },
   "dependencies": {
     "async": "0.2.6",
