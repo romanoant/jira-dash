@@ -2,7 +2,7 @@
   "author": "Atlassian",
   "name": "atlasboard-atlassian-package",
   "description": "Atlassian package for Atlasboard",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "homepage": "https://bitbucket.org/atlassian/atlasboard-atlassian-package",
   "repository": {
     "type": "git",
