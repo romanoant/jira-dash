@@ -317,3 +317,58 @@ Use the following configuration example to feed both:
         "realTime": true,
         "gaKeyLocation": 'mykey.p12' // file must be located inside the wallboard directory
       },
+
+### Elasticsearch time series job and widget
+
+![Elasticsearch time series](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/elasticsearch.png)
+
+Create time series charts form Elasticsearch
+
+Features:
+
+  - Multi series
+  - Custom ES index per serie
+  - Custom chart renderer per serie
+
+Example configuration:
+
+    "reactivations-trend": {
+      "interval": 600000,
+      "widgetTitle": "Reactivations / pass. for inactivity / pass. never logged in",
+      "authName": "laas",
+      "port": 9200,
+      "host": "queries.prod-west.laas.atl-inf.io",
+      "series": [
+        {
+          "name": "Reactivations",
+          "color": "green",
+          "renderer": "line",
+          "index": "logs_ntt_hal-prod_prod*",
+          "query": {
+            "filtered": {
+              "query": {
+                "match_phrase": {
+                  "path": "atlassian.net/activate"
+                }
+              },
+              "filter": {
+                "range": {
+                  "@timestamp": {
+                    "gt": "now-30d"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "groupBy": "1d",
+      "chartConfig": {
+        "xFormatter": "%e/%m"
+      }
+    },
+
+### Elasticsearch
+
+A simple job to query Elasticsearch with a custom query.
+You can plug your own widget to handle the result. For time series charts, see the "Elasticsearch time series" widget and job.
