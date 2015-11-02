@@ -96,6 +96,9 @@ module.exports = {
           var msg = err ? err : 'status code: ' + httpResponse.statusCode + ' body: ' + JSON.stringify(body);
           return cb(msg);
         }
+        if (!body.aggregations || !body.aggregations.results) {
+          return cb('Unexpected data received');
+        }
         cb(null, {
           data: massageDataset(body.aggregations.results.buckets),
           options: _.omit(serie, ['query', 'index'])
