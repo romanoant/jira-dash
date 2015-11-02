@@ -42,6 +42,7 @@
  */
 
 var queryBuilder = require('./query-builder');
+var url = require('url');
 
 module.exports = {
 
@@ -61,7 +62,7 @@ module.exports = {
     var async = dependencies.async;
     var _ = dependencies.underscore;
 
-    function masageDataset(buckets) {
+    function massageDataset(buckets) {
       return buckets.map(function(bucket){
         return {
           time: bucket.key,
@@ -74,14 +75,19 @@ module.exports = {
       if (!serie.index || !serie.query) {
         return cb('invalid config parameters for serie');
       }
+      var queryUrl = url.format({
+        protocol: 'https',
+        host: config.host + ':'  + (config.port || 9200),
+        pathname: serie.index + '/_search'
+      });
       var options = {
         method: 'POST',
-        url: 'https://' + config.host + ':' + config.port + '/' + serie.index + '/_search',
+        url : queryUrl,
         json: true,
         body: queryBuilder.buildHistogramQuery(serie.query, config.groupBy),
         headers: {
           "authorization": "Basic " + new Buffer(config.globalAuth[config.authName].username + ":" +
-          config.globalAuth[config.authName].password).toString("base64")
+              config.globalAuth[config.authName].password).toString("base64")
         }
       };
 
@@ -91,7 +97,7 @@ module.exports = {
           return cb(msg);
         }
         cb(null, {
-          data: masageDataset(body.aggregations.results.buckets),
+          data: massageDataset(body.aggregations.results.buckets),
           options: _.omit(serie, ['query', 'index'])
         });
       });
