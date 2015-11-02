@@ -12,17 +12,18 @@
     "async": "0.2.6",
     "cheerio": "0.13.1",
     "cron": "1.0.1",
+    "googleapis": "^2.0.2",
+    "lodash": "3.6.0",
     "memory-cache": "0.0.5",
     "moment": "2.5.1",
     "node.extend": "~1.0.9",
     "q": "^1.2.0",
-    "underscore": "~1.5",
-    "lodash": "3.6.0",
-    "googleapis": "^2.0.2"
+    "underscore": "~1.5"
   },
   "devDependencies": {
-    "mocha": "1.21.4",
-    "sinon": "1.9.0"
+    "sinon": "1.9.0",
+    "chai": "^3.4.0",
+    "mocha": "^2.3.2"
   },
   "scripts": {
     "test": "mocha --recursive jobs"
