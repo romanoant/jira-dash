@@ -61,12 +61,14 @@ widget = {
             y: row.value
           });
         });
-        series.push({
-          data: rows,
-          color: rawSerie.options.color || DEFAULT_COLOURS[index],
-          name: rawSerie.options.name,
-          renderer: rawSerie.options.renderer || 'line'
-        });
+        if (rows.length) {
+          series.push({
+            data: rows,
+            color: rawSerie.options.color || DEFAULT_COLOURS[index],
+            name: rawSerie.options.name,
+            renderer: rawSerie.options.renderer || 'line'
+          });
+        }
       });
       return series;
     }
