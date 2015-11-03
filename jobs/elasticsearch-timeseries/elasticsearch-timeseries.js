@@ -105,8 +105,9 @@ module.exports = {
         });
       });
     }
-    
-    async.map(config.series, doQuery, function (err, data) {
+
+    var enabledSeries = config.series.filter(function(serie){ return serie.enabled !== false});
+    async.map(enabledSeries, doQuery, function (err, data) {
       jobCallback(err, {
         data: data,
         jobConfig: _.omit(config, ['globalAuth'])
