@@ -4,32 +4,39 @@ widget = {
 
     var DEFAULT_COLOURS = ["#2ecc71", "#3498db", "#9b59b6", "#f1c40f", "#e74c3c", "#bdc3c7"];
 
+    var chartConfig = data.jobConfig.chartConfig || {};
+
     var format = function (d) {
       d = new Date(d);
-      return d3.time.format(data.jobConfig.chartConfig.xFormatter || '%e/%m %H:%M')(d);
+      return d3.time.format(chartConfig.xFormatter || '%e/%m %H:%M')(d);
     };
 
     function paintChart(width, height, series) {
-      var graph = new Rickshaw.Graph({
+      var DEFAULT_OPTIONS = {
         element: $('.graph', $el)[0],
         width: width,
         height: height,
         renderer: 'multi',
         series: series,
         padding: {top: 0.25, left: 0.08, right: 0.02, bottom: 0.3}
-      });
+      };
 
-      var xAxis = new Rickshaw.Graph.Axis.X({
-        graph: graph,
-        tickFormat: format,
-        ticksTreatment: 'white-tick-treatment',
-        element: $('.x_axis', $el)[0]
-      });
+      var graph = new Rickshaw.Graph($.extend({}, DEFAULT_OPTIONS, chartConfig.graphOptions));
 
-      var yAxis = new Rickshaw.Graph.Axis.Y({
-        graph: graph,
-        ticksTreatment: 'white-tick-treatment'
-      });
+      if (chartConfig.hideAxisX !== true) {
+        new Rickshaw.Graph.Axis.X({
+          graph: graph,
+          tickFormat: format,
+          ticksTreatment: 'white-tick-treatment',
+          element: $('.x_axis', $el)[0]
+        }).render();
+      }
+      if (chartConfig.hideAxisY !== true) {
+        new Rickshaw.Graph.Axis.Y({
+          graph: graph,
+          ticksTreatment: 'white-tick-treatment'
+        }).render();
+      }
 
       var legend = new Rickshaw.Graph.Legend({
         graph: graph,
@@ -46,8 +53,6 @@ widget = {
         }
       });
 
-      xAxis.render();
-      yAxis.render();
       graph.render();
     }
 
