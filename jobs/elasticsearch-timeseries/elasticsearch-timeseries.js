@@ -68,7 +68,7 @@ module.exports = {
           time: bucket.key,
           value: bucket.doc_count
         };
-      })
+      });
     }
 
     function doQuery(serie, cb) {
@@ -80,11 +80,12 @@ module.exports = {
         host: config.host + ':'  + (config.port || 9200),
         pathname: serie.index + '/_search'
       });
+
       var options = {
         method: 'POST',
         url : queryUrl,
         json: true,
-        body: queryBuilder.buildHistogramQuery(serie.query, config.groupBy),
+        body: queryBuilder.buildHistogramQuery(serie.query, config.groupBy, config.queryOptions),
         headers: {
           "authorization": "Basic " + new Buffer(config.globalAuth[config.authName].username + ":" +
               config.globalAuth[config.authName].password).toString("base64")

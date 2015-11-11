@@ -338,6 +338,9 @@ Example configuration:
       "authName": "laas",
       "port": 9200,
       "host": "queries.prod-west.laas.atl-inf.io",
+      "queryOptions": {
+        "time_zone": "+10:00"
+      },
       "series": [
         {
           "name": "Reactivations",

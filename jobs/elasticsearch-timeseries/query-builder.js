@@ -1,8 +1,10 @@
 module.exports = {
 
-  buildHistogramQuery: function (query, groupBy) {
+  buildHistogramQuery: function (query, groupBy, options) {
 
-    return {
+    options = options || {};
+
+    var query = {
       "query": query,
       "aggs": {
         "results": {
@@ -13,6 +15,12 @@ module.exports = {
         }
       },
       "size": 0
+    };
+
+    if (options.time_zone) {
+      query.aggs.results.date_histogram.time_zone = options.time_zone;
     }
+
+    return query;
   }
 };
