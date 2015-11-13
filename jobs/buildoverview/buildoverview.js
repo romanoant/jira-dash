@@ -96,11 +96,16 @@ module.exports = function(config, dependencies, job_callback) {
             return callback(null, result);
           }
 
-          result.isRefreshing = !runningBuildStatus.finished;
-          if (result.isRefreshing) {
-            result.progress = runningBuildStatus.progress.percentageCompletedPretty;
-            result.timeRemaining = runningBuildStatus.progress.prettyTimeRemaining.replace(' remaining', '');
-          }
+            result.isRefreshing = !runningBuildStatus.finished;
+            if (result.isRefreshing) {
+                if (runningBuildStatus.progress) {
+                    result.progress = runningBuildStatus.progress.percentageCompletedPretty;
+                    result.timeRemaining = runningBuildStatus.progress.prettyTimeRemaining.replace(' remaining', '');
+                } else {
+                    result.progress = 0;
+                    result.timeRemaining = "";
+                }
+            }
 
           result.failedTestCount = build.failedTestCount;
           result.testCount = build.failedTestCount + build.quarantinedTestCount + build.successfulTestCount;
