@@ -20,7 +20,8 @@ beforeEach(function (done) {
       { username: "iloire" },
       { username: "dwillis" },
       { username: "gcrain" },
-      { username: "mreis" }
+      { username: "mreis" },
+      { username: "jevans" }
     ]
   };
 
@@ -68,7 +69,7 @@ describe('stash provider', function () {
       stash(mockFetchRequest, mockedDependencies, function(err, users){
         assert.ifError(err);
 
-        assert.equal(users.length, 4);
+        assert.equal(users.length, 5);
 
         assert.equal(users[0].user.username, 'iloire');
         assert.equal(users[0].PR, 5);
@@ -92,10 +93,10 @@ describe('stash provider', function () {
           limit: 15,
           isLastPage: true,
           values: test_util.getFakeStashPR(1, 'mreis', {
-            'dwillis': { role: 'REVIEWER', status: 'APPROVED' },
-            'gcrain':  { role: 'REVIEWER', status: 'UNAPPROVED' },
-            'jevans':  { role: 'PARTICIPANT', status: 'UNAPPROVED' },
-            'iloire':  { role: 'REVIEWER', status: 'NEEDS_WORK' }
+            'dwillis': { role: 'REVIEWER', status: 'APPROVED', approved: true },
+            'gcrain':  { role: 'REVIEWER', status: 'UNAPPROVED', approved: false },
+            'jevans':  { role: 'PARTICIPANT', status: 'UNAPPROVED', approved: false },
+            'iloire':  { role: 'REVIEWER', status: 'NEEDS_WORK', approved: false }
           })
         });
       };
