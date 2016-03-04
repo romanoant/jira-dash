@@ -77,7 +77,7 @@ module.exports = function (fetch, dependencies, callback) {
           var prs = 0;
           for (var d = 0; d < data.values.length; d++) {
             prs = prs + data.values[d].reviewers.filter(function (reviewer) {
-              return reviewer.user.name === fetch.team[i].username && isUnapproved(reviewer);
+              return reviewer.user.name === fetch.team[i].username && needsAction(reviewer);
             }).length;
           }
           approvers[fetch.team[i].username] += prs;
@@ -86,10 +86,10 @@ module.exports = function (fetch, dependencies, callback) {
       });
 
     /**
-     * Returns true iff a reviewer has not approved or marked as "needs work". This should work for
-     * both the old and new stash APIs.
+     * Returns true iff a reviewer needs to act on a PR (i.e. has not yet reviewed it or needs to review again). This
+     * should work for both the old and new stash APIs.
      */
-    function isUnapproved(reviewer) {
+    function needsAction(reviewer) {
       if (typeof reviewer.status == 'string') {
         // new status/role API
         return reviewer.status === 'UNAPPROVED' && reviewer.role === 'REVIEWER';
