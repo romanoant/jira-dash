@@ -92,7 +92,7 @@ module.exports = function (fetch, dependencies, callback) {
     function needsAction(reviewer) {
       if (typeof reviewer.status == 'string') {
         // new status/role API
-        return reviewer.status === 'UNAPPROVED' && reviewer.role === 'REVIEWER';
+        return !(reviewer.status === 'APPROVED' || reviewer.status === 'NEEDS_WORK') && reviewer.role !== 'PARTICIPANT';
       } else {
         // old approved API
         return !reviewer.approved;
