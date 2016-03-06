@@ -77,13 +77,27 @@ module.exports = function (fetch, dependencies, callback) {
           var prs = 0;
           for (var d = 0; d < data.values.length; d++) {
             prs = prs + data.values[d].reviewers.filter(function (reviewer) {
-              return reviewer.user.name === fetch.team[i].username && !reviewer.approved;
+              return reviewer.user.name === fetch.team[i].username && needsAction(reviewer);
             }).length;
           }
           approvers[fetch.team[i].username] += prs;
         }
         return approvers;
       });
+
+    /**
+     * Returns true iff a reviewer needs to act on a PR (i.e. has not yet reviewed it or needs to review again). This
+     * should work for both the old and new stash APIs.
+     */
+    function needsAction(reviewer) {
+      if (typeof reviewer.status == 'string') {
+        // new status/role API
+        return !(reviewer.status === 'APPROVED' || reviewer.status === 'NEEDS_WORK') && reviewer.role !== 'PARTICIPANT';
+      } else {
+        // old approved API
+        return !reviewer.approved;
+      }
+    }
   }
 
   function getRepoSlugNames() {

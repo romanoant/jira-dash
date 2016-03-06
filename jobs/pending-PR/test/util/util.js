@@ -1,9 +1,23 @@
+const _ = require('lodash');
+
 function createUserElement(username) {
+  // would normally have links, displayName, etc
   return {
-    user : {
-      name: username
-    }
+    name: username
   };
+}
+
+/**
+ * Creates a PR participant.
+ *
+ * @param {string} username
+ * @param {object} [properties] optional user properties to set on the element
+ * @return {object} the participant
+ */
+function createParticipant(username, properties) {
+  return _.extend({}, properties, {
+    user: createUserElement(username)
+  });
 }
 
 function createBitBucketParticipant(username) {
@@ -16,27 +30,31 @@ function createBitBucketParticipant(username) {
   };
 }
 
+/**
+ *
+ * @param {number} number the number or PRs to create
+ * @param {string} author the username of the author
+ * @param {[string]|{object}} [reviewers] the usernames of reviewers or a username->properties hash
+ * @return {[object]} an array of PRs
+ */
 function getFakeStashPR (number, author, reviewers) {
-  var listPRs = [];
+  // lift array of usernames into username->properties hash if necessary
+  const reviewerProps = !_.isArray(reviewers) ? reviewers : _(reviewers || []).map(function(username) {
+    return [ username, {} ];
+  }).object().value();
 
-  for (var i = 0; i < number; i++) {
-    var entry = {
+  return _.map(_.range(number), function (i) {
+    return {
       id : i,
       title: 'title' + i,
       description: 'description' + i,
       state: 'OPEN',
-      author: createUserElement(author)
+      author: createParticipant(author),
+      reviewers: _.map(reviewerProps, function(props, username) {
+        return createParticipant(username, props);
+      })
     };
-
-    reviewers = reviewers || [];
-    entry.reviewers = [];
-    for (var p = 0; p < reviewers.length; p++) {
-      entry.reviewers.push(createUserElement(reviewers[p]));
-    }
-
-    listPRs.push(entry);
-  }
-  return listPRs;
+  });
 }
 
 function getFakeBitbucketPR (author, participants) {
@@ -46,7 +64,7 @@ function getFakeBitbucketPR (author, participants) {
     title: 'title',
     description: 'description',
     state: 'OPEN',
-    author: createUserElement(author),
+    author: createParticipant(author),
     links: {
       self: {
         href: 'https://bitbucket.org/atlassian-marketplace/atlassian-upm'

@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var assert = require('assert');
 var stash = require('../providers/stash');
 var test_util = require('./util/util');
@@ -18,7 +19,9 @@ beforeEach(function (done) {
     team: [
       { username: "iloire" },
       { username: "dwillis" },
-      { username: "mreis" }
+      { username: "gcrain" },
+      { username: "mreis" },
+      { username: "jevans" }
     ]
   };
 
@@ -66,7 +69,7 @@ describe('stash provider', function () {
       stash(mockFetchRequest, mockedDependencies, function(err, users){
         assert.ifError(err);
 
-        assert.equal(users.length, 3);
+        assert.equal(users.length, 5);
 
         assert.equal(users[0].user.username, 'iloire');
         assert.equal(users[0].PR, 5);
@@ -74,12 +77,67 @@ describe('stash provider', function () {
         assert.equal(users[1].user.username, 'dwillis');
         assert.equal(users[1].PR, 15);
 
-        assert.equal(users[2].user.username, 'mreis');
-        assert.equal(users[2].PR, 5);
+        assert.equal(users[3].user.username, 'mreis');
+        assert.equal(users[3].PR, 5);
 
         done();
       });
     });
   });
+
+  describe('PR reviewer filtering', function () {
+    it('uses "role" and "status" properties to filter PR reviewers if available', function (done) {
+      mockedDependencies.easyRequest.JSON = function (options, cb) {
+        cb(null, {
+          size: 15,
+          limit: 15,
+          isLastPage: true,
+          values: test_util.getFakeStashPR(1, 'mreis', {
+            'dwillis': { role: 'REVIEWER', status: 'APPROVED', approved: true },
+            'gcrain':  { role: 'REVIEWER', status: 'UNAPPROVED', approved: false },
+            'jevans':  { role: 'PARTICIPANT', status: 'UNAPPROVED', approved: false },
+            'iloire':  { role: 'REVIEWER', status: 'NEEDS_WORK', approved: false }
+          })
+        });
+      };
+
+      stash(mockFetchRequest, mockedDependencies, function(err, users) {
+        assert.ifError(err);
+
+        assert.deepEqual(_(users).filter(hasPRs).map(getUsername).value(), [ 'gcrain' ]);
+        done();
+      });
+    });
+
+    it('falls back to "approved" property if "status" is not present', function (done) {
+      mockedDependencies.easyRequest.JSON = function (options, cb) {
+        cb(null, {
+          size: 15,
+          limit: 15,
+          isLastPage: false,
+          values: test_util.getFakeStashPR(1, 'aavila', {
+            'dwillis': { approved: true },
+            'gcrain':  { approved: false },
+            'iloire':  { approved: false }
+          })
+        });
+      };
+
+      stash(mockFetchRequest, mockedDependencies, function(err, users) {
+        assert.ifError(err);
+
+        assert.deepEqual(_(users).filter(hasPRs).map(getUsername).value(), [ 'iloire', 'gcrain' ]);
+        done();
+      });
+    });
+  });
+
+  function hasPRs(user) {
+    return typeof user.PR == 'number' && user.PR > 0;
+  }
+
+  function getUsername(user) {
+    return user.user.username;
+  }
 
 });
