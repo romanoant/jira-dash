@@ -132,12 +132,12 @@ describe('stash provider', function () {
     });
   });
 
-  function hasPRs(u) {
-    return typeof u.PR == 'number' && u.PR > 0;
+  function hasPRs(user) {
+    return typeof user.PR == 'number' && user.PR > 0;
   }
 
-  function getUsername(u) {
-    return u.user.username;
+  function getUsername(user) {
+    return user.user.username;
   }
 
 });
