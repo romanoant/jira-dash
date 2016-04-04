@@ -337,7 +337,7 @@ Example configuration:
       "widgetTitle": "Reactivations / pass. for inactivity / pass. never logged in",
       "authName": "laas",
       "port": 9200,
-      "host": "queries.prod-west.laas.atl-inf.io",
+      "host": "queries.prod.laas.atlassian.io",
       "queryOptions": {
         "time_zone": "+10:00"
       },
