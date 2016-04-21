@@ -72,9 +72,14 @@ module.exports = function(config, dependencies, job_callback) {
           return callback(null, result);
         }
 
-        result.planName = build.planName;
-	if (build.plan && build.plan.type === 'chain_branch') {
-          result.planName = build.plan.name;
+        if (build.plan && build.plan.type === 'chain_branch') {
+          if (build.plan.master && build.plan.master.shortName) {
+            result.planName = build.plan.master.shortName + ' - ' + build.planName;
+          } else {
+            result.planName = build.plan.name;
+          }
+        } else {
+          result.planName = build.planName;
         }
 
         // Find if there is next build in-progress
