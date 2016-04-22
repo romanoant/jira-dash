@@ -75,7 +75,7 @@ describe('pending PR', function () {
       it('requires team', function (done) {
         mockedConfig.team = null;
         pendingPR(mockedConfig, mockedDependencies, function(err){
-          assert.ok(err);
+          assert.equal(err, 'missing team');
           done();
         });
       });
@@ -83,7 +83,7 @@ describe('pending PR', function () {
       it('requires team with at least one component', function (done) {
         mockedConfig.team = [];
         pendingPR(mockedConfig, mockedDependencies, function(err){
-          assert.ok(err);
+          assert.equal(err, 'missing team');
           done();
         });
       });
@@ -91,7 +91,15 @@ describe('pending PR', function () {
       it('requires servers', function(done) {
         mockedConfig.servers = null;
         pendingPR(mockedConfig, mockedDependencies, function(err){
-          assert.ok(err);
+          assert.equal(err, 'missing servers');
+          done();
+        });
+      });
+
+      it('requires credentials for the server', function(done) {
+        delete mockedConfig.globalAuth.confluence;
+        pendingPR(mockedConfig, mockedDependencies, function(err){
+          assert.equal(err, 'missing auth key for confluence in globalAuth');
           done();
         });
       });

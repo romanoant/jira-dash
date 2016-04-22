@@ -203,6 +203,24 @@ Sample configuration:
             ]
          }
 
+Don't forget to set the proper auth keys in your globalAuth.json:
+ 
+```
+  "stash": {
+    "username": "stash-user",
+    "password": "password123"
+  },
+  "stashdev": {
+    "username": "stashdev-user",
+    "password": "password123"
+  },
+  "bitbucket.org": {
+    "username": "bitbucket-user",
+    "password": "password123"
+  }
+```
+
+
 Requires:
 - md5.js
 
