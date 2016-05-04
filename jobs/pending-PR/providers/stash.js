@@ -69,7 +69,7 @@ module.exports = function (fetch, dependencies, callback) {
 
     return getJSON({ url: pullRequestsUrl, headers: getAuthHeader() })
       .then(function(data) {
-        data = data[0];
+        data = data && (data[0] || data);
         if (!(data && data.values)){
           return q.reject('no data');
         }
@@ -113,7 +113,7 @@ module.exports = function (fetch, dependencies, callback) {
 
       return getJSON({ url: stashBaseUrl + '?limit=100', headers: getAuthHeader() })
         .then(function(data) {
-          data = data[0];
+          data = data && (data[0] || data);
           if (!(data && data.values)){
             return q.reject('no data');
           }
