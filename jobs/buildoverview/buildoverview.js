@@ -27,6 +27,7 @@ module.exports = function(config, dependencies, job_callback) {
 
     // fallback to for configuration compatibility
     var authName = config.authName || 'cbac';
+    var labels = config.labels || [];
 
     if (!config.globalAuth || !config.globalAuth[authName] ||
       !config.globalAuth[authName].username || !config.globalAuth[authName].password){
@@ -41,7 +42,7 @@ module.exports = function(config, dependencies, job_callback) {
 
     var username = config.globalAuth[authName].username;
     var password = config.globalAuth[authName].password;
-    var bamboo = new Bamboo(config.bamboo_server, username, password, dependencies.request, cache, cheerio, async);
+    var bamboo = new Bamboo(config.bamboo_server, username, password, dependencies.request, cache, cheerio, async, logger);
 
     // get display name of a plan or plan branch
     var getPlanName = function(build) {
@@ -177,65 +178,83 @@ module.exports = function(config, dependencies, job_callback) {
       });
     }
 
+    function showPlans(plansForLabels) {
+        //sort function for consistent build listing
+        var failure_sort = function(a, b) {
+            function score (build){
+                return build.down === true ? 20 : (build.success === "failed" ? 10 : 0);
+            }
+            return score(a) > score(b);
+        };
+
+        if (typeof config.sortBuilds == "undefined") {
+            config.sortBuilds = true;
+        }
+
+        var hallOfShame = _.union(config.failBuilds, _.difference(plansForLabels, config.showBuilds));
+        var planDefinitions = [_.compact(hallOfShame), _.compact(config.showBuilds)];
+        
+        // creates callback wrapper that logs error and executes callback
+        var logErrorCallbackWrapper = function (callback) {
+            return function (err, results) {
+                if (err) {
+                    logger.error(err);
+                }
+                callback(err, results);
+            }
+        };
+
+        async.parallel([
+            function getProjectsDetails(callback) {
+                async.map(planDefinitions, execute_planDefinitions, logErrorCallbackWrapper(callback));
+            },
+            function getQueueInfo(callback) {
+                bamboo.getQueueInfo(logErrorCallbackWrapper(callback));
+            }
+        ], function (err, results) {
+            if (err) {
+                // error was logged in original function, don't log it again
+                job_callback(err);
+            }
+            else {
+
+                var projectsDetailsResult = results[0];
+                var queueInfoResult = results[1];
+
+                var showBuilds = projectsDetailsResult[1],
+                    failBuilds = projectsDetailsResult[0];
+                if (config.sortBuilds) {
+                    showBuilds = showBuilds.sort(failure_sort);
+                    failBuilds = failBuilds.sort(failure_sort);
+                }
+
+                job_callback(null, {
+                    showBuilds: showBuilds,
+                    failBuilds: failBuilds,
+                    title: config.widgetTitle,
+                    queue: queueInfoResult,
+                    showQueueInfo: config.showQueueInfo || false,
+                    showResponsibles: config.showResponsibles !== false
+                });
+            }
+        });
+    }
+
     // ------------------------------------------
     // MAIN
     // ------------------------------------------
 
-    //sort function for consistent build listing
-    var failure_sort = function(a, b) {
-      function score (build){
-        return build.down === true ? 20 : (build.success === "failed" ? 10 : 0);
-      }
-      return score(a) > score(b);
-    };
-
-    if (typeof config.sortBuilds == "undefined") {
-      config.sortBuilds = true;
-    }
-
-    var planDefinitions = [_.compact(config.failBuilds), _.compact(config.showBuilds)];
-    // creates callback wrapper that logs error and executes callback
-    var logErrorCallbackWrapper = function (callback) {
-        return function (err, results) {
-            if (err) {
-                logger.error(err);
-            }
-            callback(err, results);
-        }
-    };
-
-    async.parallel([
-        function getProjectsDetails(callback) {
-            async.map(planDefinitions, execute_planDefinitions, logErrorCallbackWrapper(callback));
-        },
-        function getQueueInfo(callback) {
-            bamboo.getQueueInfo(logErrorCallbackWrapper(callback));
-        }
-    ], function (err, results) {
-        if (err) {
-            // error was logged in original function, don't log it again
-            job_callback(err);
-        }
-        else {
-
-            var projectsDetailsResult = results[0];
-            var queueInfoResult = results[1];
-
-            var showBuilds = projectsDetailsResult[1],
-                failBuilds = projectsDetailsResult[0];
-            if (config.sortBuilds) {
-                showBuilds = showBuilds.sort(failure_sort);
-                failBuilds = failBuilds.sort(failure_sort);
-            }
-
-            job_callback(null, {
-                showBuilds: showBuilds,
-                failBuilds: failBuilds,
-                title: config.widgetTitle,
-                queue: queueInfoResult,
-                showQueueInfo: config.showQueueInfo || false,
-                showResponsibles: config.showResponsibles !== false
-            });
-        }
-    });
+    if(!this.plansForLabels) {
+		var job = this;
+		bamboo.getPlansForLabels(labels, function(err, plansForLabels) {
+			if (err) {
+				job_callback(err);
+			} else {
+				job.plansForLabels = plansForLabels;
+				showPlans(plansForLabels);
+			}
+		});
+	} else {
+		showPlans(this.plansForLabels);
+	}
 };

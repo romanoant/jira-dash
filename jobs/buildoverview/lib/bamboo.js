@@ -26,7 +26,7 @@
 
 
   //noinspection UnnecessaryLocalVariableJS
-  module.exports = function (url, username, password, request, cache, cheerio, async) {
+  module.exports = function (url, username, password, request, cache, cheerio, async, logger) {
     var bamboo = {
       createAuth: function (username, password) {
         return "Basic " + new Buffer(username + ":" + password).toString("base64");
@@ -286,6 +286,56 @@
             callback(null, imageUrl, json.width, json.height)
           }
         });
+      },
+      getPlansForLabels: function (labels, callback) {
+          if (!labels) {
+              return callback("missing label parameter", null);
+          }
+
+          if (labels.length == 0) {
+              return callback(null, []);
+          }
+
+          var url = "/rest/api/latest/plan.json";
+          bamboo.getJsonResponse(url, function (err, json) {
+              if (err) return callback(err);
+
+              var size = json.plans.size;
+              bamboo.getJsonResponse(url + '?max-result=' + size, function (err, json) {
+                  if (err) return callback(err);
+
+                  var checkPlan = function checkPlan(plan, callback) {
+                      bamboo.getJsonResponse('/rest/api/latest/plan/' + plan + '/label.json', function (err, json) {
+                          if (err) return callback(err);
+
+                          logger.log(plan + " has " + json.labels.size + " labels.");
+                          callback(null, {
+                              plan: plan,
+                              labels: json.labels.label.map(function (label) {
+                                  return label.name;
+                              })
+                          });
+                      });
+                  };
+                  var plans = json.plans.plan.map(function (plan) {
+                      return plan.key;
+                  });
+                  var tasks = plans.map(function (plan) {
+                      return checkPlan.bind(this, plan);
+                  });
+                  async.parallel(tasks, function processPlans(err, plans) {
+                      if (err) return callback(err);
+
+                      var plansWithLabels = plans.filter(function (plan) {
+                          return _.intersection(plan.labels, labels).length > 0
+                      }).map(function (plan) {
+                          return plan.plan;
+                      });
+                      logger.log("Plans with labels [" + labels + "] are: [" + plansWithLabels + "]");
+                      callback(null, plansWithLabels)
+                  });
+              });
+          });
       }
     };
 
