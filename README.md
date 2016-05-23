@@ -375,3 +375,14 @@ Example configuration:
 
 A simple job to query Elasticsearch with a custom query.
 You can plug your own widget to handle the result. For time series charts, see the "Elasticsearch time series" widget and job.
+
+### Iframe
+
+![Iframe](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/iframe.png)
+
+Drop an iframe into your widget
+
+    "iframe-Atlasboard": {
+      "title": "Atlasboard in an iframe",
+      "url": "http://atlasboard.bitbucket.org/"
+    }
