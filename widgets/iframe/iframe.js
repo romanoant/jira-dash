@@ -3,6 +3,6 @@ widget = {
     if (data.title) {
       $('h2', el).text(data.title);
     }
-    $('.content iframe').attr('src', data.url);
+    $(el).find('.content iframe').attr('src', data.url);
   }
 };
