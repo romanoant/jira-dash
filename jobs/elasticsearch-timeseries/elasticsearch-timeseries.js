@@ -112,7 +112,7 @@ module.exports = {
         }
 
         if (_.isEmpty(data.indices)) {
-          return cb(null, {});
+          return cb('no indices found for ' + serie.index);
         }
 
         var queryUrl = url.format({
