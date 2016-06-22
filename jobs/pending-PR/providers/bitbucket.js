@@ -16,7 +16,7 @@ module.exports = function (fetch, dependencies, callback) {
   var q = require('q');
   var getJSON = q.nbind(dependencies.easyRequest.JSON, dependencies.easyRequest);
 
-  var bitbucketBaseUrl = 'https://bitbucket.org/api/2.0/repositories/' + encodeURIComponent(fetch.repository.org);
+  var bitbucketBaseUrl = 'https://api.bitbucket.org/2.0/repositories/' + encodeURIComponent(fetch.repository.org);
 
   var validationError = validateParams();
   if(validationError) {
