@@ -148,4 +148,38 @@ describe('buildoverview', function () {
 
   });
 
+  // ------------------------------------------
+  //  Test fetching build time graph URL
+  // ------------------------------------------
+  describe('get_build_time_graph_url', function () {
+
+    it('should return build time graph url', function (done) {
+      var json = "{\"location\":\"jfreechart-onetime-425021406045105756.png\",\"imageMapName\":\"8CkV2_map\",\"imageMap\":\"test\",\"width\":1200,\"height\":960}"
+      var expectedUrl = "url/chart?filename=jfreechart-onetime-425021406045105756.png"
+
+      var bamboo = newBambooWithRequest(requestFunctionSuccessful(json));
+
+      var plan = "TEST";
+      bamboo.getBuildTimeChartUrl(plan, function (err, imageUrl) {
+        assert.ok(!err);
+        assert.equal(imageUrl, expectedUrl);
+        done();
+      });
+    });
+
+    it('should handle error if server return error', function (done) {
+      var bamboo = newBambooWithRequest(function (options, callback) {
+        callback("error", {statusCode: 500}, null);
+      });
+
+      var plan = "TEST";
+      bamboo.getBuildTimeChartUrl(plan, function (err, plan_info) {
+        assert.ok(err);
+        assert.ok(!plan_info);
+        done();
+      });
+    });
+
+  });
+
 });
