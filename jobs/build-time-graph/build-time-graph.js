@@ -4,6 +4,7 @@
 
    "build-time-graph-UI" : {
    "bamboo_server" : "https://collaboration-bamboo.internal.atlassian.com",
+   "authName" : "bamboo",
    "retryOnErrorTimes" : 3,
    "interval" : 120000,
    "widgetTitle" : "MASTER CI BUILD TIME",
@@ -25,11 +26,11 @@ module.exports = function(config, dependencies, job_callback) {
 
     if (!config.globalAuth || !config.globalAuth[authName] ||
         !config.globalAuth[authName].username || !config.globalAuth[authName].password){
-        return job_callback('No Bamboo credentials found in buildoverview job for authName \'' + authName + '\'. Please check global authentication file');
+        return job_callback('Authentication problems found in "build-time-graph" job. Please check config.globalAuth and authName attribute in widget configuration');
     }
 
     if (!config.bamboo_server){
-        return job_callback("No bamboo server configured");
+        return job_callback("bamboo_server config key not found");
     }
 
     var logger = dependencies.logger;
@@ -46,7 +47,8 @@ module.exports = function(config, dependencies, job_callback) {
         job_callback(null, {
             graphUrl: graphUrl,
             width: width,
-            height: height
+            height: height,
+            title: config.widgetTitle
         });
     })
 }

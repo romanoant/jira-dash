@@ -154,13 +154,23 @@ describe('buildoverview', function () {
   describe('get_build_time_graph_url', function () {
 
     it('should return build time graph url', function (done) {
-      var json = "{\"location\":\"jfreechart-onetime-425021406045105756.png\",\"imageMapName\":\"8CkV2_map\",\"imageMap\":\"test\",\"width\":1200,\"height\":960}"
-      var expectedUrl = "url/chart?filename=jfreechart-onetime-425021406045105756.png"
+      var graphFilename = "jfreechart-onetime-6973804915249389767.png";
+
+      var json =
+        '{' +
+          '"location": "' +  graphFilename + '",' +
+          '"imageMapName": "MWA0s_map",' +
+          '"imageMap": "<map></map>",' +
+          '"width": 1200,' +
+          '"height": 960' +
+        '}';
+
+      var expectedUrl = 'url/chart?filename=' + graphFilename
 
       var bamboo = newBambooWithRequest(requestFunctionSuccessful(json));
 
       var plan = "TEST";
-      bamboo.getBuildTimeChartUrl(plan, 1200, 960, function (err, imageUrl) {
+      bamboo.getBuildTimeChartUrl(plan, 1200, 960, "LAST_30_DAYS", function (err, imageUrl) {
         assert.ok(!err);
         assert.equal(imageUrl, expectedUrl);
         done();
@@ -173,7 +183,7 @@ describe('buildoverview', function () {
       });
 
       var plan = "TEST";
-      bamboo.getBuildTimeChartUrl(plan, 1200, 960, function (err, plan_info) {
+      bamboo.getBuildTimeChartUrl(plan, 1200, 960, "LAST_30_DAYS", function (err, plan_info) {
         assert.ok(err);
         assert.ok(!plan_info);
         done();
