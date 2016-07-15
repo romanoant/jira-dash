@@ -9,7 +9,8 @@
    "widgetTitle" : "MASTER CI BUILD TIME",
    "planKey" : "SDHMASTER-SDHMASTERPRMY",
    "graphWidth" : 1200,
-   "graphHeight" : 960
+   "graphHeight" : 960,
+   "dateRange" : "LAST_30_DAYS" // One of LAST_7_DAYS, LAST_30_DAYS, LAST_90_DAYS, ALL
  }
 
  */
@@ -37,7 +38,7 @@ module.exports = function(config, dependencies, job_callback) {
     var password = config.globalAuth[authName].password;
     var bamboo = new Bamboo(config.bamboo_server, username, password, dependencies.request, cache, cheerio);
 
-    bamboo.getBuildTimeChartUrl(config.planKey, config.graphWidth, config.graphHeight, function(err, graphUrl, width, height) {
+    bamboo.getBuildTimeChartUrl(config.planKey, config.graphWidth, config.graphHeight, config.dateRange, function(err, graphUrl, width, height) {
         if (err || !graphUrl){
             job_callback(err)
         }

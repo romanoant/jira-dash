@@ -216,8 +216,9 @@
        * @param {string} plan Plan key
        * @param {int} width the required width of the image file
        * @param {int} height the required height of the image file
+       * @param {string} dateRange one of "LAST_7_DAYS", "LAST_30_DAYS", "LAST_90_DAYS", "ALL"
          */
-      getBuildTimeChartUrl: function(planKey, width, height, callback) {
+      getBuildTimeChartUrl: function(planKey, width, height, dateRange, callback) {
         if (!planKey) {
           return callback("missing planKey parameter");
         }
@@ -225,8 +226,8 @@
         var url = "/rest/api/latest/chart.json" +
             "?buildKeys=" + planKey +
             "&reportKey=com.atlassian.bamboo.plugin.system.reports:averageDuration" +
-            "&groupByPeriod=WEEK" +
-            "&dateFilter=LAST_90_DAYS" +
+            "&groupByPeriod=AUTO" +
+            "&dateFilter=" + dateRange +
             "&width=" + width + 
             "&height=" + height;
 
@@ -235,7 +236,7 @@
             callback(err);
           } else {
             var imageUrl = bamboo.config.url + "/chart?filename=" + json.location
-            callback(null, imageUrl, width, height)
+            callback(null, imageUrl, json.width, json.height)
           }
         });
       }
