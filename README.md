@@ -114,6 +114,26 @@ Sample configuration:
       "widgetTitle" : "QUNIT BUILDS",
       "showResponsibles" : false
     }
+    
+### Build Time Graph
+
+![Build overview](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/build-time-graph.png)
+
+Displays a graph of Bamboo build durations over a period of time
+
+Sample configuration:
+
+     "build-time-graph-UI" : {
+       "bamboo_server" : "https://collaboration-bamboo.internal.atlassian.com",
+       "authName" : "bamboo",
+       "retryOnErrorTimes" : 3,
+       "interval" : 120000,
+       "widgetTitle" : "MASTER CI BUILD TIME",
+       "planKey" : "SDHMASTER-SDHMASTERPRMY",
+       "graphWidth" : 1200,
+       "graphHeight" : 960,
+       "dateRange" : "LAST_30_DAYS" // One of LAST_7_DAYS, LAST_30_DAYS, LAST_90_DAYS, ALL
+     }
 
 ### Issue Count and Issues remaining
 

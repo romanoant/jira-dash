@@ -2,7 +2,7 @@
 
  Build time graph job.
 
-   "build-time-graph-UI" : {
+ "build-time-graph-UI" : {
    "bamboo_server" : "https://collaboration-bamboo.internal.atlassian.com",
    "authName" : "bamboo",
    "retryOnErrorTimes" : 3,
