@@ -214,8 +214,10 @@
        * Returns the URL of a .png image file containing a graph of build durations over a period of time.
        *
        * @param {string} plan Plan key
+       * @param {int} width the required width of the image file
+       * @param {int} height the required height of the image file
          */
-      getBuildTimeChartUrl: function(planKey, callback) {
+      getBuildTimeChartUrl: function(planKey, width, height, callback) {
         if (!planKey) {
           return callback("missing planKey parameter");
         }
@@ -225,14 +227,15 @@
             "&reportKey=com.atlassian.bamboo.plugin.system.reports:averageDuration" +
             "&groupByPeriod=WEEK" +
             "&dateFilter=LAST_90_DAYS" +
-            "&width=1200&height=960";
+            "&width=" + width + 
+            "&height=" + height;
 
         return bamboo.getJsonResponse(url, function(err, json) {
           if (err) {
             callback(err);
           } else {
             var imageUrl = bamboo.config.url + "/chart?filename=" + json.location
-            callback(null, imageUrl)
+            callback(null, imageUrl, width, height)
           }
         });
       }

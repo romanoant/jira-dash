@@ -6,7 +6,9 @@
    "bamboo_server" : "https://collaboration-bamboo.internal.atlassian.com",
    "retryOnErrorTimes" : 3,
    "interval" : 120000,
-   "widgetTitle" : "MASTER CI BUILD TIME"
+   "widgetTitle" : "MASTER CI BUILD TIME",
+   "graphWidth" : 1200,
+   "graphHeight" : 960
  }
 
  */
@@ -34,11 +36,11 @@ module.exports = function(config, dependencies, job_callback) {
     var password = config.globalAuth[authName].password;
     var bamboo = new Bamboo(config.bamboo_server, username, password, dependencies.request, cache, cheerio);
 
-    bamboo.getBuildTimeChartUrl(planKey, function(err, graphUrl) {
+    bamboo.getBuildTimeChartUrl(planKey, config.graphWidth, config.graphHeight, function(err, graphUrl, width, height) {
         if (err || !graphUrl){
             job_callback(err)
         }
 
-        job_callback(null, graphUrl)
+        job_callback(null, graphUrl, width, height)
     })
 }

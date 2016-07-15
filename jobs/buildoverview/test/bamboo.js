@@ -160,7 +160,7 @@ describe('buildoverview', function () {
       var bamboo = newBambooWithRequest(requestFunctionSuccessful(json));
 
       var plan = "TEST";
-      bamboo.getBuildTimeChartUrl(plan, function (err, imageUrl) {
+      bamboo.getBuildTimeChartUrl(plan, 1200, 960, function (err, imageUrl) {
         assert.ok(!err);
         assert.equal(imageUrl, expectedUrl);
         done();
@@ -173,7 +173,7 @@ describe('buildoverview', function () {
       });
 
       var plan = "TEST";
-      bamboo.getBuildTimeChartUrl(plan, function (err, plan_info) {
+      bamboo.getBuildTimeChartUrl(plan, 1200, 960, function (err, plan_info) {
         assert.ok(err);
         assert.ok(!plan_info);
         done();
