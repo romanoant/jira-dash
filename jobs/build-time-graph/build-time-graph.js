@@ -14,7 +14,7 @@
 
  */
 
-var Bamboo = require('./lib/bamboo.js'),
+var Bamboo = require('../buildoverview/lib/bamboo.js'),
     cache = require('memory-cache'),
     cheerio = require('cheerio');
 
