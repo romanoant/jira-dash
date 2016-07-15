@@ -7,6 +7,7 @@
    "retryOnErrorTimes" : 3,
    "interval" : 120000,
    "widgetTitle" : "MASTER CI BUILD TIME",
+   "planKey" : "SDHMASTER-SDHMASTERPRMY",
    "graphWidth" : 1200,
    "graphHeight" : 960
  }
@@ -36,11 +37,15 @@ module.exports = function(config, dependencies, job_callback) {
     var password = config.globalAuth[authName].password;
     var bamboo = new Bamboo(config.bamboo_server, username, password, dependencies.request, cache, cheerio);
 
-    bamboo.getBuildTimeChartUrl(planKey, config.graphWidth, config.graphHeight, function(err, graphUrl, width, height) {
+    bamboo.getBuildTimeChartUrl(config.planKey, config.graphWidth, config.graphHeight, function(err, graphUrl, width, height) {
         if (err || !graphUrl){
             job_callback(err)
         }
 
-        job_callback(null, graphUrl, width, height)
+        job_callback(null, {
+            graphUrl: graphUrl,
+            width: width,
+            height: height
+        });
     })
 }
