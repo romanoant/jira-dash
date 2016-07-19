@@ -40,7 +40,7 @@ module.exports = function(config, dependencies, job_callback) {
     var bamboo = new Bamboo(config.bamboo_server, username, password, dependencies.request, cache, cheerio);
 
     bamboo.getBuildTimeChartUrl(config.planKey, config.graphWidth, config.graphHeight, config.dateRange, function(err, graphUrl, width, height) {
-        if (err || !graphUrl){
+        if (err) {
             job_callback(err)
         }
 
