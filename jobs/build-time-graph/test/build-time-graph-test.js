@@ -2,11 +2,11 @@ var assert = require('assert');
 var buildTimeGraph = require('../build-time-graph');
 
 // mocks
-var mockedConfig, mockedDependencies
+var mockedConfig, mockedDependencies;
 
-var graphFilename = 'jfreechart-onetime-425021406045105756.png'
-var requestedWidth = 450
-var requestedHeight = 360
+var graphFilename = 'jfreechart-onetime-425021406045105756.png';
+var requestedWidth = 450;
+var requestedHeight = 360;
 
 beforeEach(function(done){
 
