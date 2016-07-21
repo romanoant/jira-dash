@@ -41,10 +41,10 @@ module.exports = function(config, dependencies, job_callback) {
 
     bamboo.getBuildTimeChartUrl(config.planKey, config.graphWidth, config.graphHeight, config.dateRange, function(err, graphUrl, width, height) {
         if (err) {
-            job_callback(err)
+            return job_callback(err)
         }
 
-        job_callback(null, {
+        return job_callback(null, {
             graphUrl: graphUrl,
             width: width,
             height: height,
