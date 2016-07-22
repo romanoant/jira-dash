@@ -35,6 +35,29 @@ beforeEach(function(done){
 
   mockedDependencies = {
     request: function (options, callback) {
+
+      if(!callback) {
+        var onFunction = function (str, callback) {
+          if(str == 'error') {
+            callback()
+          }
+        };
+
+        return {
+          on: function (str, callback) {
+            return {
+              pipe: function (stream) {
+                return {
+                  on: function (str, callback) {
+                    callback
+                  }
+                }
+              }
+            }
+          }
+        }
+      };
+
       var returnedJson =
         '{' +
         '"location": "' +  graphFilename + '",' +
@@ -49,10 +72,19 @@ beforeEach(function(done){
 
     logger: {
       log : function(input) {},
+      debug : function(input) {},
       error : function(input) {}
+    },
+
+    mkdirp: function (dir, callback) {
+      callback(null);
     }
 
   };
+
+  // mockedDependencies.request.on = function(str, callback) {
+  //   callback
+  // }
 
   done();
 
