@@ -37,12 +37,6 @@ beforeEach(function(done){
     request: function (options, callback) {
 
       if(!callback) {
-        var onFunction = function (str, callback) {
-          if(str == 'error') {
-            callback()
-          }
-        };
-
         return {
           on: function (str, callback) {
             return {
@@ -82,10 +76,6 @@ beforeEach(function(done){
 
   };
 
-  // mockedDependencies.request.on = function(str, callback) {
-  //   callback
-  // }
-
   done();
 
 });
@@ -93,15 +83,6 @@ beforeEach(function(done){
 describe('build-time-graph', function() {
 
   describe('happy path', function() {
-
-    it('should return the correct graph url', function (done) {
-
-      buildTimeGraph(mockedConfig, mockedDependencies, function(err, data) {
-        assert.equal(data.graphUrl, mockedConfig.bamboo_server + '/chart?filename=' + graphFilename)
-        done();
-      });
-
-    });
 
     it('should return the correct graph width', function (done) {
 
