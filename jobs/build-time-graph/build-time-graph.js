@@ -56,7 +56,7 @@ module.exports = function(config, dependencies, job_callback) {
 
             var graphFilename = 'build_time_graph.png';
 
-            request(graphUrl)
+            dependencies.request(graphUrl)
               .on('error', function(err) {
                   return job_callback(err);
               })

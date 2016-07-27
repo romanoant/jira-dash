@@ -1,14 +1,24 @@
+var mock = require('mock-require');
 var assert = require('assert');
 var buildTimeGraph = require('../build-time-graph');
-
-// mocks
-var mockedConfig, mockedDependencies;
 
 var graphFilename = 'jfreechart-onetime-425021406045105756.png';
 var requestedWidth = 450;
 var requestedHeight = 360;
 
+// mocks
+var mockedConfig, mockedDependencies;
+
 beforeEach(function(done){
+  mock('../../buildoverview/lib/bamboo.js', function() {
+    return {
+      getBuildTimeChartUrl: function(planKey, width, height, dateRange, callback) {
+        console.log('Bamboo getBuildTimeChartUrl called');
+        callback(null, "", width, height)
+      }
+    }
+  });
+
 
   mockedConfig = {
 
@@ -33,35 +43,34 @@ beforeEach(function(done){
 
   };
 
+  mockedRequest = {
+    pipe: function() {
+      return mockedRequest;
+    },
+    on: function() {
+      return mockedRequest;
+    }
+  }
+
   mockedDependencies = {
+
     request: function (options, callback) {
 
-      if(!callback) {
-        return {
-          on: function (str, callback) {
-            return {
-              pipe: function (stream) {
-                return {
-                  on: function (str, callback) {
-                    callback
-                  }
-                }
-              }
-            }
-          }
-        }
+      if(callback) {
+        var returnedJson =
+          '{' +
+          '"location": "' +  graphFilename + '",' +
+          '"imageMapName": "MWA0s_map",' +
+          '"imageMap": "<map></map>",' +
+          '"width": ' + requestedWidth + ',' +
+          '"height": ' + requestedHeight +
+          '}';
+
+        callback(null, {statusCode: 200}, returnedJson);
       };
 
-      var returnedJson =
-        '{' +
-        '"location": "' +  graphFilename + '",' +
-        '"imageMapName": "MWA0s_map",' +
-        '"imageMap": "<map></map>",' +
-        '"width": ' + requestedWidth + ',' +
-        '"height": ' + requestedHeight +
-        '}';
+      return mockedRequest;
 
-      callback(null, {statusCode: 200}, returnedJson);
     },
 
     logger: {
@@ -78,6 +87,11 @@ beforeEach(function(done){
 
   done();
 
+});
+
+afterEach(function(done){
+  mock.stop('../../buildoverview/lib/bamboo.js');
+  done();
 });
 
 describe('build-time-graph', function() {
