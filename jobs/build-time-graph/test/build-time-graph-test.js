@@ -1,14 +1,24 @@
+var mock = require('mock-require');
 var assert = require('assert');
 var buildTimeGraph = require('../build-time-graph');
-
-// mocks
-var mockedConfig, mockedDependencies;
 
 var graphFilename = 'jfreechart-onetime-425021406045105756.png';
 var requestedWidth = 450;
 var requestedHeight = 360;
 
+// mocks
+var mockedConfig, mockedDependencies;
+
 beforeEach(function(done){
+  mock('../../buildoverview/lib/bamboo.js', function() {
+    return {
+      getBuildTimeChartUrl: function(planKey, width, height, dateRange, callback) {
+        console.log('Bamboo getBuildTimeChartUrl called');
+        callback(null, "", width, height)
+      }
+    }
+  });
+
 
   mockedConfig = {
 
@@ -33,23 +43,44 @@ beforeEach(function(done){
 
   };
 
-  mockedDependencies = {
-    request: function (options, callback) {
-      var returnedJson =
-        '{' +
-        '"location": "' +  graphFilename + '",' +
-        '"imageMapName": "MWA0s_map",' +
-        '"imageMap": "<map></map>",' +
-        '"width": ' + requestedWidth + ',' +
-        '"height": ' + requestedHeight +
-        '}';
+  mockedRequest = {
+    pipe: function() {
+      return mockedRequest;
+    },
+    on: function() {
+      return mockedRequest;
+    }
+  }
 
-      callback(null, {statusCode: 200}, returnedJson);
+  mockedDependencies = {
+
+    request: function (options, callback) {
+
+      if(callback) {
+        var returnedJson =
+          '{' +
+          '"location": "' +  graphFilename + '",' +
+          '"imageMapName": "MWA0s_map",' +
+          '"imageMap": "<map></map>",' +
+          '"width": ' + requestedWidth + ',' +
+          '"height": ' + requestedHeight +
+          '}';
+
+        callback(null, {statusCode: 200}, returnedJson);
+      };
+
+      return mockedRequest;
+
     },
 
     logger: {
       log : function(input) {},
+      debug : function(input) {},
       error : function(input) {}
+    },
+
+    mkdirp: function (dir, callback) {
+      callback(null);
     }
 
   };
@@ -58,18 +89,14 @@ beforeEach(function(done){
 
 });
 
+afterEach(function(done){
+  mock.stop('../../buildoverview/lib/bamboo.js');
+  done();
+});
+
 describe('build-time-graph', function() {
 
   describe('happy path', function() {
-
-    it('should return the correct graph url', function (done) {
-
-      buildTimeGraph(mockedConfig, mockedDependencies, function(err, data) {
-        assert.equal(data.graphUrl, mockedConfig.bamboo_server + '/chart?filename=' + graphFilename)
-        done();
-      });
-
-    });
 
     it('should return the correct graph width', function (done) {
 
