@@ -53,10 +53,10 @@ module.exports = function (config, dependencies, job_callback) {
   var options = {};
 
   // if authName is defined, use it.
-  if (config.authName && (config.globalAuth && config.globalAuth[authName])) {
+  if (config.authName && (config.globalAuth && config.globalAuth[config.authName])) {
     options.headers = {
-        "authorization": "Basic " + new Buffer(config.globalAuth[authName].username
-          + ":" + config.globalAuth[authName].password).toString("base64")
+        "authorization": "Basic " + new Buffer(config.globalAuth[config.authName].username
+          + ":" + config.globalAuth[config.authName].password).toString("base64")
       }
   }
 
