@@ -7,28 +7,16 @@
         return "Basic " + new Buffer(username + ":" + password).toString("base64");
       },
       getBuildStatus: function (buildWithNumber, callback) {
-
-        var options = {
-          timeout: bamboo.config.timeout,
-          url: bamboo.config.url + "/rest/api/latest/result/status/" + buildWithNumber + ".json",
-          headers: {
-            "authorization": bamboo.config.auth,
-            "accept": "application/json"
-          }
-        };
-
-        request(options, function (err, response, json_body) {
-          if (err || !response || response.statusCode != 200) {
-            if (!err && response && response.statusCode == 404) {
+        var url = "/rest/api/latest/result/status/" + buildWithNumber + ".json";
+        bamboo.getResponse(url, function (err, json_body, response) {
+          if (err) {
+            if (response && response.statusCode == 404) {
               // this build is not running
               return callback(null, {
                 finished: true
               });
-            }
-            else {
-              var errMsg = "bad response from " + options.url
-                  + (response ? " - status code: " + response.statusCode : "");
-              return callback(err || errMsg);
+            } else {
+              return callback(err);
             }
           } else {
             try {
