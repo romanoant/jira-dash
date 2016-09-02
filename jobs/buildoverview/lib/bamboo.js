@@ -1,5 +1,8 @@
 (function () {
 
+  var asyncLimit = 20; //number of simultaneous requests per bamboo instance
+  var maxQueueSize = 10000;
+
   var cookieJars = {};
 
   // remember cookies per bamboo instance and credentials so that session id could be reused
@@ -11,8 +14,19 @@
     return cookieJars[key];
   }
 
+  var queues = {};
+  // remember queue per bamboo instance to minimize concurrency
+  function getQueue(url, queueSupplier, worker) {
+    var key = url;
+    if (!queues[key]) {
+      queues[key] = queueSupplier(worker, asyncLimit);
+    }
+    return queues[key];
+  }
+
+
   //noinspection UnnecessaryLocalVariableJS
-  module.exports = function (url, username, password, request, cache, cheerio) {
+  module.exports = function (url, username, password, request, cache, cheerio, async) {
     var bamboo = {
       createAuth: function (username, password) {
         return "Basic " + new Buffer(username + ":" + password).toString("base64");
@@ -41,6 +55,18 @@
 
       },
       getResponse: function(urlPath, callback) {
+        if(queue.length() == maxQueueSize) {
+          var err_msg = "Could not add request to queue for bamboo [" + bamboo.config.url + "] as it already reached its limit of " + maxQueueSize;
+          return callback(err_msg);
+        }
+        queue.push(function (queueCallback) {
+          bamboo._getResponse(urlPath, function(err, body, response) {
+            callback(err, body, response);
+            queueCallback();
+          });
+        });
+      },
+      _getResponse: function (urlPath, callback) {
         var options = {
           timeout: bamboo.config.timeout,
           url: bamboo.config.url + urlPath,
@@ -266,7 +292,9 @@
       auth: bamboo.createAuth(username, password),
       url: url
     };
-
+    var queue = getQueue(bamboo.config.url, async.queue, function (task, callback) {
+      task(callback);
+    });
     return bamboo;
   };
 

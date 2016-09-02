@@ -1,6 +1,7 @@
 var assert = require('assert');
 var Bamboo = require('../lib/bamboo.js');
 var cheerio = require('cheerio');
+var async = require('async');
 
 describe('buildoverview', function () {
 
@@ -28,7 +29,7 @@ describe('buildoverview', function () {
   }
 
   var newBambooWithRequest = function(request) {
-    return new Bamboo('url', 'user', 'password', request, noCacheMock, cheerio);
+    return new Bamboo('url', 'user', 'password', request, noCacheMock, cheerio, async);
   };
 
   beforeEach(function (done) {
