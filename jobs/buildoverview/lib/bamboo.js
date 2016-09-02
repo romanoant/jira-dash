@@ -1,5 +1,16 @@
 (function () {
 
+  var cookieJars = {};
+
+  // remember cookies per bamboo instance and credentials so that session id could be reused
+  function getCookieJar(url, auth, jarSupplier) {
+    var key = url + auth;
+    if (!cookieJars[key]) {
+      cookieJars[key] = jarSupplier();
+    }
+    return cookieJars[key];
+  }
+
   //noinspection UnnecessaryLocalVariableJS
   module.exports = function (url, username, password, request, cache, cheerio) {
     var bamboo = {
@@ -34,19 +45,37 @@
           timeout: bamboo.config.timeout,
           url: bamboo.config.url + urlPath,
           headers: {
-            "authorization": bamboo.config.auth,
             "accept": "application/json"
-          }
+          },
+          jar: getCookieJar(bamboo.config.url, bamboo.config.auth, request.jar)
         };
         request(options, function (err, response, body) {
-          if (err || !response || response.statusCode != 200) {
+          function handleError(err, response) {
             var err_msg = err || "bad response from " + options.url + (response ? " - status code: "
                 + response.statusCode : "");
             return callback(err || err_msg, null, response);
+          }
+
+          if (err || !response || response.statusCode != 200) {
+            if (response && response.statusCode == 401) {
+              options.headers = {
+                "authorization": bamboo.config.auth,
+                "accept": "application/json"
+              };
+              request(options, function (err, response, body) {
+                if (err || !response || response.statusCode != 200) {
+                  return handleError(err, response);
+                } else {
+                  return callback(null, body, response);
+                }
+              });
+            } else {
+              return handleError(err, response);
+            }
           } else {
             return callback(null, body, response);
           }
-        });
+        })
       },
       getJsonResponse: function (urlPath, callback) {
         bamboo.getResponse(urlPath, function(err, body) {

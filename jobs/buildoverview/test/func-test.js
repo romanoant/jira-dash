@@ -83,6 +83,7 @@ describe('buildoverview', function () {
           }
         }
       };
+      dependencies.request.jar = function() {};
 
       var job_callback = function (error, data) {
         assert.equal(error, null);
