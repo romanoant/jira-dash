@@ -2,6 +2,7 @@ var assert = require('assert');
 var Bamboo = require('../lib/bamboo.js');
 var cheerio = require('cheerio');
 var async = require('async');
+var _ = require('underscore');
 
 describe('buildoverview', function () {
 
@@ -196,6 +197,39 @@ describe('buildoverview', function () {
       });
     });
 
+  });
+
+
+  // ---------------------
+  //  Test request queue
+  // ---------------------
+  describe('request_queue', function () {
+
+    it('should succeed under limit', function (done) {
+      var bamboo = newBambooWithRequest(requestFunctionSuccessful());
+      async.parallel(_.times(9999, function () {
+        return function (callback) {
+          return bamboo.getResponse("test", callback)
+        }
+      }), function (err) {
+        assert.ok(!err);
+        done()
+      });
+    });
+
+
+    it('should fail over limit', function (done) {
+      var bamboo = newBambooWithRequest(requestFunctionSuccessful());
+      async.parallel(_.times(10010, function () {
+        return function (callback) {
+          return bamboo.getResponse("test", callback)
+        }
+      }), function (err) {
+        assert.ok(err);
+        assert.ok(err.indexOf("already reached its limit") >= 0);
+        done()
+      });
+    });
   });
 
 });
