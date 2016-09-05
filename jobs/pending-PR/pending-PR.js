@@ -52,6 +52,9 @@ function parameterSanityCheck (config) {
   }
 
   for (var sourceId in config.servers) {
+    if (!config.globalAuth[sourceId]) {
+      return "missing auth key for " + sourceId + " in globalAuth";
+    }
     if (config.servers.hasOwnProperty(sourceId)) {
       var source = config.servers[sourceId];
 

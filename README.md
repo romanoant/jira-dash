@@ -114,6 +114,26 @@ Sample configuration:
       "widgetTitle" : "QUNIT BUILDS",
       "showResponsibles" : false
     }
+    
+### Build Time Graph
+
+![Build overview](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/build-time-graph.png)
+
+Displays a graph of Bamboo build durations over a period of time
+
+Sample configuration:
+
+     "build-time-graph-UI" : {
+       "bamboo_server" : "https://collaboration-bamboo.internal.atlassian.com",
+       "authName" : "bamboo",
+       "retryOnErrorTimes" : 3,
+       "interval" : 120000,
+       "widgetTitle" : "MASTER CI BUILD TIME",
+       "planKey" : "SDHMASTER-SDHMASTERPRMY",
+       "graphWidth" : 1200,
+       "graphHeight" : 960,
+       "dateRange" : "LAST_30_DAYS" // One of LAST_7_DAYS, LAST_30_DAYS, LAST_90_DAYS, ALL
+     }
 
 ### Issue Count and Issues remaining
 
@@ -202,6 +222,24 @@ Sample configuration:
               { "username": "lmiranda", "display": "luis", "email": "lmiranda@atlassian.com", "aliases": { "bitbucket.org": "luuuis" } }
             ]
          }
+
+Don't forget to set the proper auth keys in your globalAuth.json:
+ 
+```
+  "stash": {
+    "username": "stash-user",
+    "password": "password123"
+  },
+  "stashdev": {
+    "username": "stashdev-user",
+    "password": "password123"
+  },
+  "bitbucket.org": {
+    "username": "bitbucket-user",
+    "password": "password123"
+  }
+```
+
 
 Requires:
 - md5.js
@@ -375,3 +413,14 @@ Example configuration:
 
 A simple job to query Elasticsearch with a custom query.
 You can plug your own widget to handle the result. For time series charts, see the "Elasticsearch time series" widget and job.
+
+### Iframe
+
+![Iframe](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/iframe.png)
+
+Drop an iframe into your widget
+
+    "iframe-Atlasboard": {
+      "title": "Atlasboard in an iframe",
+      "url": "http://atlasboard.bitbucket.org/"
+    }

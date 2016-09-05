@@ -16,7 +16,7 @@ module.exports = function (fetch, dependencies, callback) {
   var q = require('q');
   var getJSON = q.nbind(dependencies.easyRequest.JSON, dependencies.easyRequest);
 
-  var bitbucketBaseUrl = 'https://bitbucket.org/api/2.0/repositories/' + encodeURIComponent(fetch.repository.org);
+  var bitbucketBaseUrl = 'https://api.bitbucket.org/2.0/repositories/' + encodeURIComponent(fetch.repository.org);
 
   var validationError = validateParams();
   if(validationError) {
@@ -81,6 +81,7 @@ module.exports = function (fetch, dependencies, callback) {
       var repoUrl = bitbucketBaseUrl + '?pagelen=100';
       return getJSON({ url: repoUrl, headers: getAuthHeader() })
         .then(function(data) {
+          data = data && (data[0] || data);
           if (!(data && data.values)){
             return q.reject('no data');
           }
@@ -120,6 +121,7 @@ module.exports = function (fetch, dependencies, callback) {
     }
 
     return getJSON({ url: nextPageUrl, headers: getAuthHeader() }).then(function (data) {
+      data = data && (data[0] || data);
       if (!(data && data.values)) {
         return q.reject('no PRs in list: ' + nextPageUrl);
       } else {
@@ -154,6 +156,7 @@ module.exports = function (fetch, dependencies, callback) {
     } else {
       var pullRequestUrl = remainingPRs[0].links.self.href;
       return getJSON({ url: pullRequestUrl, headers: getAuthHeader() }).then(function(data) {
+        data = data && (data[0] || data);
 
         if (!data) {
           return q.reject('no PR in: ' + pullRequestUrl);

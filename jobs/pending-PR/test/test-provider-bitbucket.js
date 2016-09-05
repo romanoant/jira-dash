@@ -6,7 +6,7 @@ var bitbucket = require('../providers/bitbucket');
 var mockFetchRequest, mockedDependencies, page1, JSON;
 
 function prListUrlFor(org, repo) {
-  return "https://bitbucket.org/api/2.0/repositories/" + org + "/" + repo + "/pullrequests?state=OPEN";
+  return "https://api.bitbucket.org/2.0/repositories/" + org + "/" + repo + "/pullrequests?state=OPEN";
 }
 
 function extendJsonMock(stub) {
@@ -101,7 +101,7 @@ describe('Bitbucket provider', function () {
     });
 
     it('should handle response with no PRs', function (done) {
-      mockedDependencies.easyRequest.JSON = sinon.stub().withArgs(sinon.match.has("url", "https://bitbucket.org/api/2.0/repositories/atlassian/atlassian-events/pullrequests?state=OPEN")).callsArgWith(1, null, {
+      mockedDependencies.easyRequest.JSON = sinon.stub().withArgs(sinon.match.has("url", "https://api.bitbucket.org/2.0/repositories/atlassian/atlassian-events/pullrequests?state=OPEN")).callsArgWith(1, null, {
         pagelen: 2,
         page: 1,
         size: 0,
