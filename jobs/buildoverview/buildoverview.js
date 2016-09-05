@@ -43,6 +43,19 @@ module.exports = function(config, dependencies, job_callback) {
     var password = config.globalAuth[authName].password;
     var bamboo = new Bamboo(config.bamboo_server, username, password, dependencies.request, cache, cheerio);
 
+    // get display name of a plan or plan branch
+    var getPlanName = function(build) {
+      if (build.plan && build.plan.type === 'chain_branch') {
+        if (build.plan.master && build.plan.master.shortName) {
+          return build.plan.master.shortName + ' - ' + build.planName;
+        } else {
+          return build.plan.name;
+        }
+      } else {
+        return build.planName;
+      }
+    };
+
     // get plan info with extra info if failed build
     var getData = function(planKey, callback) {
 
@@ -72,15 +85,7 @@ module.exports = function(config, dependencies, job_callback) {
           return callback(null, result);
         }
 
-        if (build.plan && build.plan.type === 'chain_branch') {
-          if (build.plan.master && build.plan.master.shortName) {
-            result.planName = build.plan.master.shortName + ' - ' + build.planName;
-          } else {
-            result.planName = build.plan.name;
-          }
-        } else {
-          result.planName = build.planName;
-        }
+        result.planName = getPlanName(build);
 
         // Find if there is next build in-progress
         var possiblyInProgressBuild = build.key.replace('-' + build.number, '-' + (build.number + 1));
