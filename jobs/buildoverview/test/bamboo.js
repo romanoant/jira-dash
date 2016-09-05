@@ -1,6 +1,8 @@
 var assert = require('assert');
 var Bamboo = require('../lib/bamboo.js');
 var cheerio = require('cheerio');
+var async = require('async');
+var _ = require('underscore');
 
 describe('buildoverview', function () {
 
@@ -11,13 +13,24 @@ describe('buildoverview', function () {
   };
 
   var requestFunctionSuccessful = function(response) {
-    return function (options, callback) {
+    var request = function (options, callback) {
       callback(null, {statusCode: 200}, response);
     };
+    request.jar = function() {};
+    return request;
   };
 
+  function requestFunctionFailure(response) {
+    var request = function (options, callback) {
+      callback("err", {statusCode: 500}, response);
+    };
+    request.jar = function () {
+    };
+    return request;
+  }
+
   var newBambooWithRequest = function(request) {
-    return new Bamboo('url', 'user', 'password', request, noCacheMock, cheerio);
+    return new Bamboo('url', 'user', 'password', request, noCacheMock, cheerio, async);
   };
 
   beforeEach(function (done) {
@@ -60,9 +73,7 @@ describe('buildoverview', function () {
 
 
     it('should return error if there is an error during the http call', function (done) {
-      var bamboo = newBambooWithRequest(function (options, callback) {
-        callback("err", {statusCode: 500}, "{}");
-      });
+      var bamboo = newBambooWithRequest(requestFunctionFailure("{}"));
 
       var buildKey = "test";
       bamboo.getResponsible(buildKey, function (err, users) {
@@ -122,9 +133,7 @@ describe('buildoverview', function () {
 
 
     it('should handle error if server return error', function (done) {
-      var bamboo = newBambooWithRequest(function (options, callback) {
-        callback("error", {statusCode: 500}, null);
-      });
+      var bamboo = newBambooWithRequest(requestFunctionFailure(null));
 
       var plan = "TEST";
       bamboo.getPlanLatestBuildResult(plan, function (err, plan_info) {
@@ -178,9 +187,7 @@ describe('buildoverview', function () {
     });
 
     it('should handle error if server return error', function (done) {
-      var bamboo = newBambooWithRequest(function (options, callback) {
-        callback("error", {statusCode: 500}, null);
-      });
+      var bamboo = newBambooWithRequest(requestFunctionFailure(null));
 
       var plan = "TEST";
       bamboo.getBuildTimeChartUrl(plan, 1200, 960, "LAST_30_DAYS", function (err, plan_info) {
@@ -190,6 +197,39 @@ describe('buildoverview', function () {
       });
     });
 
+  });
+
+
+  // ---------------------
+  //  Test request queue
+  // ---------------------
+  describe('request_queue', function () {
+
+    it('should succeed under limit', function (done) {
+      var bamboo = newBambooWithRequest(requestFunctionSuccessful());
+      async.parallel(_.times(9999, function () {
+        return function (callback) {
+          return bamboo.getResponse("test", callback)
+        }
+      }), function (err) {
+        assert.ok(!err);
+        done()
+      });
+    });
+
+
+    it('should fail over limit', function (done) {
+      var bamboo = newBambooWithRequest(requestFunctionSuccessful());
+      async.parallel(_.times(10010, function () {
+        return function (callback) {
+          return bamboo.getResponse("test", callback)
+        }
+      }), function (err) {
+        assert.ok(err);
+        assert.ok(err.indexOf("already reached its limit") >= 0);
+        done()
+      });
+    });
   });
 
 });

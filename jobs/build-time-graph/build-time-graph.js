@@ -20,7 +20,8 @@ var Bamboo = require('../buildoverview/lib/bamboo.js'),
     cache = require('memory-cache'),
     cheerio = require('cheerio'),
     mkdirp = require('mkdirp'),
-    fs = require('fs');
+    fs = require('fs'),
+    async = require('async');
 
 module.exports = function(config, dependencies, job_callback) {
     // fallback to for configuration compatibility
@@ -40,7 +41,7 @@ module.exports = function(config, dependencies, job_callback) {
     var username = config.globalAuth[authName].username;
     var password = config.globalAuth[authName].password;
 
-    var bamboo = new Bamboo(config.bamboo_server, username, password, dependencies.request, cache, cheerio);
+    var bamboo = new Bamboo(config.bamboo_server, username, password, dependencies.request, cache, cheerio, async);
     bamboo.getBuildTimeChartUrl(config.planKey, config.graphWidth, config.graphHeight, config.dateRange, function(err, graphUrl, width, height) {
         if (err) {
             return job_callback(err);

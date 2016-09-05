@@ -85,6 +85,10 @@ beforeEach(function(done){
 
   };
 
+  mockedDependencies.request.jar = function() {
+    return {}
+  };
+
   done();
 
 });
