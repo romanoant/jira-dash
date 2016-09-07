@@ -6,8 +6,8 @@
     "bamboo_server" : "https://collaboration-bamboo.internal.atlassian.com",
     "retryOnErrorTimes" : 3,
     "interval" : 120000,
-    "failBuilds":["CONFUI-QUNITFFESR", "CONFUI-QUNITFFLATEST", "CONFUI-QUNITCHROMEPLUGINS" , 
-                  "CONFUI-QUNITCHROMELATEST", "CONFUI-QUNITQCCHROMELATEST", "CONFUI-QUNITQCFFLATEST", 
+    "failBuilds":["CONFUI-QUNITFFESR", "CONFUI-QUNITFFLATEST", "CONFUI-QUNITCHROMEPLUGINS" ,
+                  "CONFUI-QUNITCHROMELATEST", "CONFUI-QUNITQCCHROMELATEST", "CONFUI-QUNITQCFFLATEST",
                   "CONFUI-QUNITQEFFLATEST11", "CONFUI-QUNITIE9"],
     "showBuilds":[],
     "widgetTitle" : "QUNIT BUILDS",
@@ -28,6 +28,7 @@ module.exports = function(config, dependencies, job_callback) {
     // fallback to for configuration compatibility
     var authName = config.authName || 'cbac';
     var labels = config.labels || [];
+    var showDisabled = config.showDisabled || false;
 
     if (!config.globalAuth || !config.globalAuth[authName] ||
       !config.globalAuth[authName].username || !config.globalAuth[authName].password){
@@ -172,7 +173,7 @@ module.exports = function(config, dependencies, job_callback) {
         }
 
         return async.map(plans, getData, function(err, results){
-          results = results.filter (function(result) { return result.enabled; });
+          results = results.filter (function(result) { return result.enabled || showDisabled; });
           callback(err, results);
         });
       });
@@ -193,7 +194,7 @@ module.exports = function(config, dependencies, job_callback) {
 
         var hallOfShame = _.union(config.failBuilds, _.difference(plansForLabels, config.showBuilds));
         var planDefinitions = [_.compact(hallOfShame), _.compact(config.showBuilds)];
-        
+
         // creates callback wrapper that logs error and executes callback
         var logErrorCallbackWrapper = function (callback) {
             return function (err, results) {
@@ -234,7 +235,8 @@ module.exports = function(config, dependencies, job_callback) {
                     title: config.widgetTitle,
                     queue: queueInfoResult,
                     showQueueInfo: config.showQueueInfo || false,
-                    showResponsibles: config.showResponsibles !== false
+                    showResponsibles: config.showResponsibles !== false,
+                    showDown: config.showDown || false
                 });
             }
         });
