@@ -1,34 +1,47 @@
 (function () {
 
+  var asyncLimit = 20; //number of simultaneous requests per bamboo instance
+  var maxQueueSize = 10000;
+
+  var cookieJars = {};
+
+  // remember cookies per bamboo instance and credentials so that session id could be reused
+  function getCookieJar(url, auth, jarSupplier) {
+    var key = url + auth;
+    if (!cookieJars[key]) {
+      cookieJars[key] = jarSupplier();
+    }
+    return cookieJars[key];
+  }
+
+  var queues = {};
+  // remember queue per bamboo instance to minimize concurrency
+  function getQueue(url, queueSupplier, worker) {
+    var key = url;
+    if (!queues[key]) {
+      queues[key] = queueSupplier(worker, asyncLimit);
+    }
+    return queues[key];
+  }
+
+
   //noinspection UnnecessaryLocalVariableJS
-  module.exports = function (url, username, password, request, cache, cheerio) {
+  module.exports = function (url, username, password, request, cache, cheerio, async) {
     var bamboo = {
       createAuth: function (username, password) {
         return "Basic " + new Buffer(username + ":" + password).toString("base64");
       },
       getBuildStatus: function (buildWithNumber, callback) {
-
-        var options = {
-          timeout: bamboo.config.timeout,
-          url: bamboo.config.url + "/rest/api/latest/result/status/" + buildWithNumber + ".json",
-          headers: {
-            "authorization": bamboo.config.auth,
-            "accept": "application/json"
-          }
-        };
-
-        request(options, function (err, response, json_body) {
-          if (err || !response || response.statusCode != 200) {
-            if (!err && response && response.statusCode == 404) {
+        var url = "/rest/api/latest/result/status/" + buildWithNumber + ".json";
+        bamboo.getResponse(url, function (err, json_body, response) {
+          if (err) {
+            if (response && response.statusCode == 404) {
               // this build is not running
               return callback(null, {
                 finished: true
               });
-            }
-            else {
-              var errMsg = "bad response from " + options.url
-                  + (response ? " - status code: " + response.statusCode : "");
-              return callback(err || errMsg);
+            } else {
+              return callback(err);
             }
           } else {
             try {
@@ -42,23 +55,53 @@
 
       },
       getResponse: function(urlPath, callback) {
+        if(queue.length() == maxQueueSize) {
+          var err_msg = "Could not add request to queue for bamboo [" + bamboo.config.url + "] as it already reached its limit of " + maxQueueSize;
+          return callback(err_msg);
+        }
+        queue.push(function (queueCallback) {
+          bamboo._getResponse(urlPath, function(err, body, response) {
+            callback(err, body, response);
+            queueCallback();
+          });
+        });
+      },
+      _getResponse: function (urlPath, callback) {
         var options = {
           timeout: bamboo.config.timeout,
           url: bamboo.config.url + urlPath,
           headers: {
-            "authorization": bamboo.config.auth,
             "accept": "application/json"
-          }
+          },
+          jar: getCookieJar(bamboo.config.url, bamboo.config.auth, request.jar)
         };
         request(options, function (err, response, body) {
-          if (err || !response || response.statusCode != 200) {
+          function handleError(err, response) {
             var err_msg = err || "bad response from " + options.url + (response ? " - status code: "
                 + response.statusCode : "");
             return callback(err || err_msg, null, response);
+          }
+
+          if (err || !response || response.statusCode != 200) {
+            if (response && response.statusCode == 401) {
+              options.headers = {
+                "authorization": bamboo.config.auth,
+                "accept": "application/json"
+              };
+              request(options, function (err, response, body) {
+                if (err || !response || response.statusCode != 200) {
+                  return handleError(err, response);
+                } else {
+                  return callback(null, body, response);
+                }
+              });
+            } else {
+              return handleError(err, response);
+            }
           } else {
             return callback(null, body, response);
           }
-        });
+        })
       },
       getJsonResponse: function (urlPath, callback) {
         bamboo.getResponse(urlPath, function(err, body) {
@@ -249,7 +292,9 @@
       auth: bamboo.createAuth(username, password),
       url: url
     };
-
+    var queue = getQueue(bamboo.config.url, async.queue, function (task, callback) {
+      task(callback);
+    });
     return bamboo;
   };
 
