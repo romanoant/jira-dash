@@ -26,7 +26,14 @@
 
 
   //noinspection UnnecessaryLocalVariableJS
-  module.exports = function (url, username, password, request, cache, cheerio, async, logger) {
+  module.exports = function (url, credentials, dependencies) {
+
+      var request = dependencies.request,
+          cache = dependencies.cache,
+          cheerio = dependencies.cheerio,
+          async = dependencies.async,
+          logger = dependencies.logger;
+
     var bamboo = {
       createAuth: function (username, password) {
         return "Basic " + new Buffer(username + ":" + password).toString("base64");
@@ -343,7 +350,7 @@
       cacheExpiration: 60 * 1000,
       plansToProjectsCacheExpiration: 5 * 60 * 1000,
       timeout: 60 * 1000,
-      auth: bamboo.createAuth(username, password),
+      auth: bamboo.createAuth(credentials.username, credentials.password),
       url: url
     };
     var queue = getQueue(bamboo.config.url, async.queue, function (task, callback) {

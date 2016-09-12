@@ -30,7 +30,7 @@ describe('buildoverview', function () {
   }
 
   var newBambooWithRequest = function(request) {
-    return new Bamboo('url', 'user', 'password', request, noCacheMock, cheerio, async);
+    return new Bamboo('url', {username: 'user', passowrd: 'password'}, {request: request, cache: noCacheMock, cheerio: cheerio, async: async});
   };
 
   beforeEach(function (done) {

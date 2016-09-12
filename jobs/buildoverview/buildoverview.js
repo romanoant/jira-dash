@@ -41,9 +41,17 @@ module.exports = function(config, dependencies, job_callback) {
 
     var logger = dependencies.logger;
 
-    var username = config.globalAuth[authName].username;
-    var password = config.globalAuth[authName].password;
-    var bamboo = new Bamboo(config.bamboo_server, username, password, dependencies.request, cache, cheerio, async, logger);
+    var credentials = {
+        username: config.globalAuth[authName].username,
+        password: config.globalAuth[authName].password
+    };
+    var bamboo = new Bamboo(config.bamboo_server, credentials, {
+        request: dependencies.request,
+        cache: cache,
+        cheerio: cheerio,
+        async: async,
+        logger: logger
+    });
 
     // get display name of a plan or plan branch
     var getPlanName = function(build) {
