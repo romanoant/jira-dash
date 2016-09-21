@@ -24,6 +24,8 @@
     return queues[key];
   }
 
+  // map of cache keys to lists of callbacks that should be called when loading of value for those keys is finished
+  var currentLoaders = {};
 
   //noinspection UnnecessaryLocalVariableJS
   module.exports = function (url, credentials, dependencies) {
@@ -66,16 +68,22 @@
         bamboo.getJsonResponse(url, callback);
       },
       getResponse: function(urlPath, callback) {
-        if(queue.length() == maxQueueSize) {
-          var err_msg = "Could not add request to queue for bamboo [" + bamboo.config.url + "] as it already reached its limit of " + maxQueueSize;
-          return callback(err_msg);
-        }
-        queue.push(function (queueCallback) {
-          bamboo._getResponse(urlPath, function(err, body, response) {
-            callback(err, body, response);
-            queueCallback();
+          var key = bamboo.getCacheKey('urlPath-' + urlPath);
+          bamboo.getFromCacheOrLoad(key, callback, function (callback)  {
+              bamboo._getQueuedResponse(urlPath, callback)
           });
-        });
+      },
+      _getQueuedResponse: function (urlPath, callback) {
+          if(queue.length() == maxQueueSize) {
+              var err_msg = "Could not add request to queue for bamboo [" + bamboo.config.url + "] as it already reached its limit of " + maxQueueSize;
+              return callback(err_msg);
+          }
+          queue.push(function (queueCallback) {
+              bamboo._getResponse(urlPath, function(err, body, response) {
+                  callback(err, body, response);
+                  queueCallback();
+              });
+          });
       },
       _getResponse: function (urlPath, callback) {
         var options = {
@@ -173,6 +181,28 @@
           return notCachedCallback(cacheKey, callback);
         }
       },
+        getFromCacheOrLoad: function getFromCacheOrLoad(cacheKey, callback, loader) {
+            var cachedValue = cache.get(cacheKey);
+            if (cachedValue) {
+                return callback(cachedValue.err, cachedValue.response, cachedValue.body);
+            }
+            else {
+                if(currentLoaders[cacheKey]) {
+                    return currentLoaders[cacheKey].push(callback);
+                } else {
+                    currentLoaders[cacheKey] = [callback];
+                    return loader(function(err, response, body) {
+                        var callbacks = currentLoaders[cacheKey];
+                        delete currentLoaders[cacheKey];
+                        bamboo.putCache(cacheKey, {err: err, response: response, body: body});
+                        callbacks.forEach(function(callback){
+                            callback(err, response, body);
+                        });
+                    })
+                }
+            }
+        },
+
       getCacheKey: function(target) {
         return 'bamboo:server-' + bamboo.config.url + ':auth-' + bamboo.config.auth + ':' + target;
       },
