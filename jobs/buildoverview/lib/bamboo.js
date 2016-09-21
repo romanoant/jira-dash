@@ -174,7 +174,7 @@
         }
       },
       getCacheKey: function(target) {
-        return 'bamboo:server-' + bamboo.config.url + ':' + target;
+        return 'bamboo:server-' + bamboo.config.url + ':auth-' + bamboo.config.auth + ':' + target;
       },
 
      /**
