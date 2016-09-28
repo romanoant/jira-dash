@@ -197,9 +197,9 @@ module.exports = function(config, dependencies, job_callback) {
                     return 15;
                 } else if (build.success === "failed") {
                     if (build.responsible.length === 1) {
-                        return build.responsible[0].name.indexOf('Assign responsibility') !== -1 ? 10 : 5;
+                        return build.responsible[0].name.indexOf('Assign responsibility') === -1 ? 5 : 10;
                     } else {
-                        return 5;
+                        return 10;
                     }
                 } else {
                     return 0;
