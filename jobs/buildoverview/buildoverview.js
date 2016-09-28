@@ -189,11 +189,23 @@ module.exports = function(config, dependencies, job_callback) {
 
     function showPlans(plansForLabels) {
         //sort function for consistent build listing
-        var failure_sort = function(a, b) {
-            function score (build){
-                return build.down === true ? 20 : (build.success === "failed" ? 10 : 0);
+        var failure_sort = function (a, b) {
+            function score(build) {
+                if (build.down === true) {
+                    return 20;
+                } else if (build.disabled === true) {
+                    return 15;
+                } else if (build.success === "failed") {
+                    if (build.responsible.length === 1) {
+                        return build.responsible[0].name.indexOf('Assign responsibility') !== -1 ? 10 : 5;
+                    } else {
+                        return 5;
+                    }
+                } else {
+                    return 0;
+                }
             }
-            return score(a) > score(b);
+            return score(b) - score(a);
         };
 
         if (typeof config.sortBuilds == "undefined") {
