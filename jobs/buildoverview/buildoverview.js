@@ -79,7 +79,8 @@ module.exports = function(config, dependencies, job_callback) {
           responsible: [],
           isRefreshing: false,
           success : "",
-          down : false
+          down : false,
+          enabled: true
         };
 
         if (err || !build){
