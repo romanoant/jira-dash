@@ -24,9 +24,18 @@
     return queues[key];
   }
 
+  // map of cache keys to lists of callbacks that should be called when loading of value for those keys is finished
+  var currentLoaders = {};
 
   //noinspection UnnecessaryLocalVariableJS
-  module.exports = function (url, username, password, request, cache, cheerio, async) {
+  module.exports = function (url, credentials, dependencies) {
+
+      var request = dependencies.request,
+          cache = dependencies.cache,
+          cheerio = dependencies.cheerio,
+          async = dependencies.async,
+          logger = dependencies.logger;
+
     var bamboo = {
       createAuth: function (username, password) {
         return "Basic " + new Buffer(username + ":" + password).toString("base64");
@@ -54,17 +63,27 @@
         });
 
       },
+      getQueueInfo: function (callback) {
+        var url = "/rest/api/latest/queue.json?expand=queuedBuilds";
+        bamboo.getJsonResponse(url, callback);
+      },
       getResponse: function(urlPath, callback) {
-        if(queue.length() == maxQueueSize) {
-          var err_msg = "Could not add request to queue for bamboo [" + bamboo.config.url + "] as it already reached its limit of " + maxQueueSize;
-          return callback(err_msg);
-        }
-        queue.push(function (queueCallback) {
-          bamboo._getResponse(urlPath, function(err, body, response) {
-            callback(err, body, response);
-            queueCallback();
+          var key = bamboo.getCacheKey('urlPath-' + urlPath);
+          bamboo.getFromCacheOrLoad(key, callback, function (callback)  {
+              bamboo._getQueuedResponse(urlPath, callback)
           });
-        });
+      },
+      _getQueuedResponse: function (urlPath, callback) {
+          if(queue.length() == maxQueueSize) {
+              var err_msg = "Could not add request to queue for bamboo [" + bamboo.config.url + "] as it already reached its limit of " + maxQueueSize;
+              return callback(err_msg);
+          }
+          queue.push(function (queueCallback) {
+              bamboo._getResponse(urlPath, function(err, body, response) {
+                  callback(err, body, response);
+                  queueCallback();
+              });
+          });
       },
       _getResponse: function (urlPath, callback) {
         var options = {
@@ -162,8 +181,30 @@
           return notCachedCallback(cacheKey, callback);
         }
       },
+        getFromCacheOrLoad: function getFromCacheOrLoad(cacheKey, callback, loader) {
+            var cachedValue = cache.get(cacheKey);
+            if (cachedValue) {
+                return callback(cachedValue.err, cachedValue.response, cachedValue.body);
+            }
+            else {
+                if(currentLoaders[cacheKey]) {
+                    return currentLoaders[cacheKey].push(callback);
+                } else {
+                    currentLoaders[cacheKey] = [callback];
+                    return loader(function(err, response, body) {
+                        var callbacks = currentLoaders[cacheKey];
+                        delete currentLoaders[cacheKey];
+                        bamboo.putCache(cacheKey, {err: err, response: response, body: body});
+                        callbacks.forEach(function(callback){
+                            callback(err, response, body);
+                        });
+                    })
+                }
+            }
+        },
+
       getCacheKey: function(target) {
-        return 'bamboo:server-' + bamboo.config.url + ':' + target;
+        return 'bamboo:server-' + bamboo.config.url + ':auth-' + bamboo.config.auth + ':' + target;
       },
 
      /**
@@ -282,6 +323,56 @@
             callback(null, imageUrl, json.width, json.height)
           }
         });
+      },
+      getPlansForLabels: function (labels, callback) {
+          if (!labels) {
+              return callback("missing label parameter", null);
+          }
+
+          if (labels.length == 0) {
+              return callback(null, []);
+          }
+
+          var url = "/rest/api/latest/plan.json";
+          bamboo.getJsonResponse(url, function (err, json) {
+              if (err) return callback(err);
+
+              var size = json.plans.size;
+              bamboo.getJsonResponse(url + '?max-result=' + size, function (err, json) {
+                  if (err) return callback(err);
+
+                  var checkPlan = function checkPlan(plan, callback) {
+                      bamboo.getJsonResponse('/rest/api/latest/plan/' + plan + '/label.json', function (err, json) {
+                          if (err) return callback(err);
+
+                          logger.log(plan + " has " + json.labels.size + " labels.");
+                          callback(null, {
+                              plan: plan,
+                              labels: json.labels.label.map(function (label) {
+                                  return label.name;
+                              })
+                          });
+                      });
+                  };
+                  var plans = json.plans.plan.map(function (plan) {
+                      return plan.key;
+                  });
+                  var tasks = plans.map(function (plan) {
+                      return checkPlan.bind(this, plan);
+                  });
+                  async.parallel(tasks, function processPlans(err, plans) {
+                      if (err) return callback(err);
+
+                      var plansWithLabels = plans.filter(function (plan) {
+                          return _.intersection(plan.labels, labels).length > 0
+                      }).map(function (plan) {
+                          return plan.plan;
+                      });
+                      logger.log("Plans with labels [" + labels + "] are: [" + plansWithLabels + "]");
+                      callback(null, plansWithLabels)
+                  });
+              });
+          });
       }
     };
 
@@ -289,7 +380,7 @@
       cacheExpiration: 60 * 1000,
       plansToProjectsCacheExpiration: 5 * 60 * 1000,
       timeout: 60 * 1000,
-      auth: bamboo.createAuth(username, password),
+      auth: bamboo.createAuth(credentials.username, credentials.password),
       url: url
     };
     var queue = getQueue(bamboo.config.url, async.queue, function (task, callback) {

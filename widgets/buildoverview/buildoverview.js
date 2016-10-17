@@ -29,7 +29,9 @@ widget = {
       }
 
       var buildInfo = $("<div/>").addClass('build-info');
-      if (build.down) {
+      if (!build.enabled) {
+        buildInfo.append($("<div/>").addClass("plan-name").addClass("down").text(build.planName + " is disabled"));
+      } else if (build.down) {
         buildInfo.append($("<div/>").addClass("plan-name").addClass("down").text(build.planName + " could not be accessed"));
       } else {
         buildInfo.append($("<div/>").addClass("plan-name").append($('<a/>').attr('href', build.link).text(build.planName)));
@@ -106,8 +108,11 @@ widget = {
         if (!_.find(data.showBuilds, isCurrentBuild)){
           totalDownBuilds++;
         }
+        if(data.showDown) {
+          $('.build-breakers', el).append(createBuildEntry(build));
+        }
       }
-      else if (build.success === "failed") {
+      else if (build.success === "failed" || !build.enabled) {
         if (!_.find(data.showBuilds, isCurrentBuild)) {
           totalFailedBuilds++;
         }
@@ -149,7 +154,16 @@ widget = {
     if (totalDownBuilds > 0){
       bar_text += ' (' + totalDownBuilds + ' DOWN)';
     }
-    $('.failed-report', el).html(bar_text);
+
+    var right_bar_text = '';
+    if (data.showQueueInfo) {
+      if (data.queue.queuedBuilds.size > 0) {
+        right_bar_text += data.queue.queuedBuilds.size + ' Q';
+      }
+    }
+
+    $('.builds-header .left', el).html(bar_text);
+    $('.builds-header .right', el).html(right_bar_text);
 
     $('.content', el).removeClass('hidden').addClass('show');
     $('.spinner', el).remove();

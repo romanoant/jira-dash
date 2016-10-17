@@ -1,4 +1,5 @@
 module.exports = function (config, dependencies, job_callback) {
+	var stfuEnabled = config.stfuHours !== undefined;
 	var isStfu = function (date, data) {
 		var time = date.getHours() * 100 + date.getMinutes();
 		for (var i = 0; i < data.length; i++) {
@@ -22,15 +23,16 @@ module.exports = function (config, dependencies, job_callback) {
 			+ '-' + actDate.getFullYear();	
 
 		var dataObj = {
-			isStfu: isStfu(actDate, config.stfuHours),
+			isStfu: isStfu(actDate, config.stfuHours || {}),
 			hour: prefixZero(actDate.getHours()),
 			minutes: prefixZero(actDate.getMinutes()),
-			dateStr: dateStr
+			dateStr: dateStr,
+			stfuEnabled: stfuEnabled
 		};
 	} else {
 		var dataObj = {
 			isStfu: isStfu(actDate, config.stfuHours)
-		};	
+		};
 	}
 
 	job_callback(null, dataObj);

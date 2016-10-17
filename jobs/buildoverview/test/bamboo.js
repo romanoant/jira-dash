@@ -30,7 +30,7 @@ describe('buildoverview', function () {
   }
 
   var newBambooWithRequest = function(request) {
-    return new Bamboo('url', 'user', 'password', request, noCacheMock, cheerio, async);
+    return new Bamboo('url', {username: 'user', passowrd: 'password'}, {request: request, cache: noCacheMock, cheerio: cheerio, async: async});
   };
 
   beforeEach(function (done) {
@@ -207,22 +207,19 @@ describe('buildoverview', function () {
 
     it('should succeed under limit', function (done) {
       var bamboo = newBambooWithRequest(requestFunctionSuccessful());
-      async.parallel(_.times(9999, function () {
+      async.parallel(_.times(9999, function (n) {
         return function (callback) {
-          return bamboo.getResponse("test", callback)
+          return bamboo.getResponse("test" + n, callback)
         }
-      }), function (err) {
-        assert.ok(!err);
-        done()
-      });
+      }), done);
     });
 
 
     it('should fail over limit', function (done) {
       var bamboo = newBambooWithRequest(requestFunctionSuccessful());
-      async.parallel(_.times(10010, function () {
+      async.parallel(_.times(10010, function (n) {
         return function (callback) {
-          return bamboo.getResponse("test", callback)
+          return bamboo.getResponse("test" + n, callback)
         }
       }), function (err) {
         assert.ok(err);

@@ -30,6 +30,10 @@ widget = {
 			} else {
 				stopStfu();
 			}
+
+			if (!data.stfuEnabled) {
+				$('.stfu').hide()
+			}
 		}
 
 		refreshDate();

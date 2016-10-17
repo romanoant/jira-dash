@@ -6,8 +6,8 @@
     "bamboo_server" : "https://collaboration-bamboo.internal.atlassian.com",
     "retryOnErrorTimes" : 3,
     "interval" : 120000,
-    "failBuilds":["CONFUI-QUNITFFESR", "CONFUI-QUNITFFLATEST", "CONFUI-QUNITCHROMEPLUGINS" , 
-                  "CONFUI-QUNITCHROMELATEST", "CONFUI-QUNITQCCHROMELATEST", "CONFUI-QUNITQCFFLATEST", 
+    "failBuilds":["CONFUI-QUNITFFESR", "CONFUI-QUNITFFLATEST", "CONFUI-QUNITCHROMEPLUGINS" ,
+                  "CONFUI-QUNITCHROMELATEST", "CONFUI-QUNITQCCHROMELATEST", "CONFUI-QUNITQCFFLATEST",
                   "CONFUI-QUNITQEFFLATEST11", "CONFUI-QUNITIE9"],
     "showBuilds":[],
     "widgetTitle" : "QUNIT BUILDS",
@@ -27,6 +27,8 @@ module.exports = function(config, dependencies, job_callback) {
 
     // fallback to for configuration compatibility
     var authName = config.authName || 'cbac';
+    var labels = config.labels || [];
+    var showDisabled = config.showDisabled || false;
 
     if (!config.globalAuth || !config.globalAuth[authName] ||
       !config.globalAuth[authName].username || !config.globalAuth[authName].password){
@@ -39,9 +41,17 @@ module.exports = function(config, dependencies, job_callback) {
 
     var logger = dependencies.logger;
 
-    var username = config.globalAuth[authName].username;
-    var password = config.globalAuth[authName].password;
-    var bamboo = new Bamboo(config.bamboo_server, username, password, dependencies.request, cache, cheerio, async);
+    var credentials = {
+        username: config.globalAuth[authName].username,
+        password: config.globalAuth[authName].password
+    };
+    var bamboo = new Bamboo(config.bamboo_server, credentials, {
+        request: dependencies.request,
+        cache: cache,
+        cheerio: cheerio,
+        async: async,
+        logger: logger
+    });
 
     // get display name of a plan or plan branch
     var getPlanName = function(build) {
@@ -96,11 +106,16 @@ module.exports = function(config, dependencies, job_callback) {
             return callback(null, result);
           }
 
-          result.isRefreshing = !runningBuildStatus.finished;
-          if (result.isRefreshing) {
-            result.progress = runningBuildStatus.progress.percentageCompletedPretty;
-            result.timeRemaining = runningBuildStatus.progress.prettyTimeRemaining.replace(' remaining', '');
-          }
+            result.isRefreshing = !runningBuildStatus.finished;
+            if (result.isRefreshing) {
+                if (runningBuildStatus.progress) {
+                    result.progress = runningBuildStatus.progress.percentageCompletedPretty;
+                    result.timeRemaining = runningBuildStatus.progress.prettyTimeRemaining.replace(' remaining', '');
+                } else {
+                    result.progress = 0;
+                    result.timeRemaining = "";
+                }
+            }
 
           result.failedTestCount = build.failedTestCount;
           result.testCount = build.failedTestCount + build.quarantinedTestCount + build.successfulTestCount;
@@ -166,48 +181,102 @@ module.exports = function(config, dependencies, job_callback) {
         }
 
         return async.map(plans, getData, function(err, results){
-          results = results.filter (function(result) { return result.enabled; });
+          results = results.filter (function(result) { return result.enabled || showDisabled; });
           callback(err, results);
         });
       });
+    }
+
+    function showPlans(plansForLabels) {
+        //sort function for consistent build listing
+        var failure_sort = function (a, b) {
+            function score(build) {
+                if (build.down === true) {
+                    return 20;
+                } else if (build.disabled === true) {
+                    return 15;
+                } else if (build.success === "failed") {
+                    if (build.responsible.length === 1) {
+                        return build.responsible[0].name.indexOf('Assign responsibility') === -1 ? 5 : 10;
+                    } else {
+                        return 10;
+                    }
+                } else {
+                    return 0;
+                }
+            }
+            return score(b) - score(a);
+        };
+
+        if (typeof config.sortBuilds == "undefined") {
+            config.sortBuilds = true;
+        }
+
+        var hallOfShame = _.union(config.failBuilds, _.difference(plansForLabels, config.showBuilds));
+        var planDefinitions = [_.compact(hallOfShame), _.compact(config.showBuilds)];
+
+        // creates callback wrapper that logs error and executes callback
+        var logErrorCallbackWrapper = function (callback) {
+            return function (err, results) {
+                if (err) {
+                    logger.error(err);
+                }
+                callback(err, results);
+            }
+        };
+
+        async.parallel([
+            function getProjectsDetails(callback) {
+                async.map(planDefinitions, execute_planDefinitions, logErrorCallbackWrapper(callback));
+            },
+            function getQueueInfo(callback) {
+                bamboo.getQueueInfo(logErrorCallbackWrapper(callback));
+            }
+        ], function (err, results) {
+            if (err) {
+                // error was logged in original function, don't log it again
+                job_callback(err);
+            }
+            else {
+
+                var projectsDetailsResult = results[0];
+                var queueInfoResult = results[1];
+
+                var showBuilds = projectsDetailsResult[1],
+                    failBuilds = projectsDetailsResult[0];
+                if (config.sortBuilds) {
+                    showBuilds = showBuilds.sort(failure_sort);
+                    failBuilds = failBuilds.sort(failure_sort);
+                }
+
+                job_callback(null, {
+                    showBuilds: showBuilds,
+                    failBuilds: failBuilds,
+                    title: config.widgetTitle,
+                    queue: queueInfoResult,
+                    showQueueInfo: config.showQueueInfo || false,
+                    showResponsibles: config.showResponsibles !== false,
+                    showDown: config.showDown || false
+                });
+            }
+        });
     }
 
     // ------------------------------------------
     // MAIN
     // ------------------------------------------
 
-    //sort function for consistent build listing
-    var failure_sort = function(a, b) {
-      function score (build){
-        return build.down === true ? 20 : (build.success === "failed" ? 10 : 0);
-      }
-      return score(a) > score(b);
-    };
-
-    if (typeof config.sortBuilds == "undefined") {
-      config.sortBuilds = true;
-    }
-
-    var planDefinitions = [_.compact(config.failBuilds), _.compact(config.showBuilds)];
-    return async.map(planDefinitions, execute_planDefinitions, function(err, results){
-      if (err){
-        logger.error(err);
-        job_callback(err);
-      }
-      else{
-        var showBuilds = results[1],
-            failBuilds = results[0];
-        if (config.sortBuilds) {
-          showBuilds = showBuilds.sort(failure_sort);
-          failBuilds = failBuilds.sort(failure_sort);
-        }
-
-        job_callback(null, {
-          showBuilds: showBuilds,
-          failBuilds: failBuilds,
-          title: config.widgetTitle,
-          showResponsibles: config.showResponsibles !== false
-        });
-      }
-    });
+    if(!this.plansForLabels) {
+		var job = this;
+		bamboo.getPlansForLabels(labels, function(err, plansForLabels) {
+			if (err) {
+				job_callback(err);
+			} else {
+				job.plansForLabels = plansForLabels;
+				showPlans(plansForLabels);
+			}
+		});
+	} else {
+		showPlans(this.plansForLabels);
+	}
 };
