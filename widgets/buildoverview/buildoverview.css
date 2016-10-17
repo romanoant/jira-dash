@@ -42,7 +42,8 @@ div.build {
 }
 
 .down {
-  color: #FF7400 !important;
+  background-color: #707070;
+  color: white !important;
 }
 
 .plan-name {

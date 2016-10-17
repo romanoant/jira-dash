@@ -24,15 +24,18 @@ widget = {
 
     function createBuildEntry(build) {
       var buildDiv = $("<div/>").addClass('build').addClass("build-status").addClass(build.success);
+      if (build.down) {
+        buildDiv.addClass('down');
+      }
       if (build.progress) {
         $(buildDiv).prepend($('<div class="build-progress"></div>').width(build.progress));
       }
 
       var buildInfo = $("<div/>").addClass('build-info');
       if (!build.enabled) {
-        buildInfo.append($("<div/>").addClass("plan-name").addClass("down").text(build.planName + " is disabled"));
+        buildInfo.append($("<div/>").addClass("plan-name").text(build.planName + " is disabled"));
       } else if (build.down) {
-        buildInfo.append($("<div/>").addClass("plan-name").addClass("down").text(build.planName + " could not be accessed"));
+        buildInfo.append($("<div/>").addClass("plan-name").text(build.planName + " could not be accessed"));
       } else {
         buildInfo.append($("<div/>").addClass("plan-name").append($('<a/>').attr('href', build.link).text(build.planName)));
 
