@@ -24,7 +24,7 @@ widget = {
 
     function createBuildEntry(build) {
       var buildDiv = $("<div/>").addClass('build').addClass("build-status").addClass(build.success);
-      if (build.down) {
+      if (!build.enabled || build.down) {
         buildDiv.addClass('down');
       }
       if (build.progress) {
