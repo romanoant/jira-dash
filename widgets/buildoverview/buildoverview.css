@@ -41,7 +41,7 @@ div.build {
   background-color: #1C842F !important;
 }
 
-.down {
+.down, .disabled {
   background-color: #555555;
   color: white !important;
 }
