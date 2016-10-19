@@ -22,7 +22,7 @@ widget = {
       return {assigneeCount: assigneeCount, responsiblesDiv: responsiblesDiv};
     }
 
-    function buildCssClass(build) {
+    function getBuildCssClass(build) {
       if (!build.enabled) {
         return 'disabled';
       } else if (build.down) {
@@ -36,19 +36,23 @@ widget = {
       }
     }
 
+    function getBuildNameWithLink(build, text) {
+      return $("<div/>").addClass("plan-name").append($('<a/>').attr('href', build.link).text(text || build.planName));
+    }
+
     function createBuildEntry(build) {
-      var buildDiv = $("<div/>").addClass('build').addClass("build-status").addClass(buildCssClass(build));
+      var buildDiv = $("<div/>").addClass('build').addClass("build-status").addClass(getBuildCssClass(build));
       if (build.progress) {
         $(buildDiv).prepend($('<div class="build-progress"></div>').width(build.progress));
       }
 
       var buildInfo = $("<div/>").addClass('build-info');
       if (!build.enabled) {
-        buildInfo.append($("<div/>").addClass("plan-name").append($('<a/>').attr('href', build.link).text(build.planName + " is disabled")));
+        buildInfo.append(getBuildNameWithLink(build, build.planName + " is disabled"));
       } else if (build.down) {
-        buildInfo.append($("<div/>").addClass("plan-name").text(build.planName + " could not be accessed"));
+        buildInfo.append(getBuildNameWithLink(build, build.planName + " could not be accessed"));
       } else {
-        buildInfo.append($("<div/>").addClass("plan-name").append($('<a/>').attr('href', build.link).text(build.planName)));
+        buildInfo.append(getBuildNameWithLink(build));
 
         if (build.success === 'failed') {
           var failDetails = $("<div/>").addClass("fail-details");
