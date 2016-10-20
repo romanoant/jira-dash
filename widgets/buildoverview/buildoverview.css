@@ -41,8 +41,9 @@ div.build {
   background-color: #1C842F !important;
 }
 
-.down {
-  color: #FF7400 !important;
+.down, .disabled {
+  background-color: #555555;
+  color: white !important;
 }
 
 .plan-name {

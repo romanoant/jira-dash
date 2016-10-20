@@ -79,7 +79,8 @@ module.exports = function(config, dependencies, job_callback) {
           responsible: [],
           isRefreshing: false,
           success : "",
-          down : false
+          down : false,
+          enabled: true
         };
 
         if (err || !build){
@@ -193,7 +194,7 @@ module.exports = function(config, dependencies, job_callback) {
             function score(build) {
                 if (build.down === true) {
                     return 20;
-                } else if (build.disabled === true) {
+                } else if (build.enabled === false) {
                     return 15;
                 } else if (build.success === "failed") {
                     if (build.responsible.length === 1) {
