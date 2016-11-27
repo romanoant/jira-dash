@@ -19,7 +19,7 @@ module.exports = function getBranchStatus(config, branchName) {
         getCommitStatus(config.repo, config, commits[0].hash).then(function(commitStatus) {
           var baseResponse = { status: commitStatus };
 
-                    // Find the culprit if master is red
+          // Find the culprit if master is red
           if (config.showCulprits && commitStatus === statusConstants.FAILED) {
             findCulprit(config.repo, config, commits).then(function(culprit) {
               baseResponse.culprit = culprit;
