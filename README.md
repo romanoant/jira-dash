@@ -427,6 +427,8 @@ Drop an iframe into your widget
 
 ### BitBucket Builds
 
+![Bitbucket Builds](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/bitbucket-builds.png)
+
 See the build status of each of your BitBucket branches. Works great with [BitBucket Pipelines](https://bitbucket.org/product/features/pipelines).
 
 ```json
