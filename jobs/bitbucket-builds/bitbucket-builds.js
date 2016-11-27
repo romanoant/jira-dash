@@ -19,14 +19,6 @@ var getBranchBuildStatus = require('./helpers/getBranchBuildStatus');
 module.exports = {
 
     /**
-    * Executed on job initialisation (only once)
-    * @param config
-    * @param dependencies
-    */
-    onInit: function () {
-    },
-
-    /**
     * Executed every interval
     * @param config
     * @param dependencies
