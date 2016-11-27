@@ -5,7 +5,7 @@ module.exports = function bitbucketRequest(opts, callback) {
   var credentials = opts.config.credentials;
   var user = globalAuth[credentials].username;
   var pass = globalAuth[credentials].password;
-  if (!user || !pass) return callback('Bitbucket username and/or password not provided');
+  if (!user || !pass) return callback(new Error('Bitbucket username and/or password not provided'));
 
   var requester = opts.request || request;
   requester({

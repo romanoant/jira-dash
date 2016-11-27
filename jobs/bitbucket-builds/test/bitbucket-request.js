@@ -18,7 +18,7 @@ describe('bitbucket-builds tests', function() {
         },
       };
       bitbucketReqFn(configWithoutCreds, function(err) {
-        assert.equal(err, 'Bitbucket username and/or password not provided');
+        assert.equal(err.message, 'Bitbucket username and/or password not provided');
         done();
       })
     });
