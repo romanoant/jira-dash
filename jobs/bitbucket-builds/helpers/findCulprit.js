@@ -3,9 +3,13 @@ var firstCommitWithStatus = require('./firstCommitWithStatus');
 var statusConstants = require('./statusConstants');
 
 function avatarFromCommit(commit) {
-  var author = commit.author;
-  if (author.hasOwnProperty('user')) {
-    return author.user.links.avatar.href;
+  try {
+    var author = commit.author;
+    if (author.hasOwnProperty('user')) {
+      return author.user.links.avatar.href;
+    }
+  } catch (e) {
+    // continue execution to return null
   }
   return null;
 }
