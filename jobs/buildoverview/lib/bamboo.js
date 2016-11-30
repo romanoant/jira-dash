@@ -264,7 +264,7 @@
           return callback("missing projectKey parameter");
         }
 
-        var url = "/rest/api/latest/result/" + projectKey + ".json";
+        var url = "/rest/api/latest/result/" + projectKey + ".json?max-result=1000";
         var cacheKey = bamboo.getCacheKey('result-' + projectKey);
         return bamboo.maybeCached(cacheKey, callback, function() {
           var cacheAwareCallback = bamboo.cachedCallback(cacheKey, callback);
