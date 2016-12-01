@@ -1,9 +1,32 @@
 widget = {
 	//runs when we receive data from the job
 	onData: function (el, data) {
+		var isStfuCheck = function (date, data) {
+			var time = date.getHours() * 100 + date.getMinutes();
+			for (var i = 0; i < data.length; i++) {
+				var stfuPeriod = data[i];
+				if (stfuPeriod.start <= time && stfuPeriod.end >= time) {
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		var actDate = new Date(data.utc);
+		var	isStfu= (!data.stfuOnly)? isStfuCheck(actDate, data.stfuHours || {}): isStfuCheck(actDate, data.stfuHours);
 		var fadeParams = {duration: 3000, easing: 'linear'};
+		var prefixZero = function (val) {
+			return (val < 10 ? '0' : '') + val;
+		};
+
+		var dateStr = prefixZero(actDate.getDate())
+			+ '-' + prefixZero(actDate.getMonth())
+			+ '-' + actDate.getFullYear();
+			hour =  prefixZero(actDate.getHours());
+			minutes = prefixZero(actDate.getMinutes());
 
 		function startStfu() {
+			
 			$('.stfu-off').fadeOut(fadeParams);
 			$('.stfu-on').fadeIn(fadeParams);
 		}
@@ -14,18 +37,15 @@ widget = {
 		}
 
 		function refreshDate() {
-			if (data.hour !== undefined && data !== undefined) {
-				var d = new Date();
-				var colonClass = 'time-colon time-colon-' + (d.getSeconds() % 2);
-				var colon = '<span class="' + colonClass + '">:</span>';
-				$('.content', el).html(
-						'<div class="clock-time">' + data.hour + colon + data.minutes + '</div>'
-								+ '<div class="clock-date"><br>'
-								+ data.dateStr
-								+ '</div>'
-				);	
-			}
-			if (data.isStfu) {
+			var colonClass = 'time-colon';
+			var colon = '<span class="' + colonClass + '">:</span>';
+			$('.content', el).html(
+					'<div class="clock-time">' + hour + colon + minutes + '</div>'
+							+ '<div class="clock-date"><br>'
+							+ dateStr
+							+ '</div>'
+			);	
+			if (isStfu) {
 				startStfu();
 			} else {
 				stopStfu();
@@ -33,6 +53,7 @@ widget = {
 
 			if (!data.stfuEnabled) {
 				$('.stfu').hide()
+				$('.content').addClass('center');	
 			}
 		}
 
@@ -42,7 +63,7 @@ widget = {
 			clearInterval(widget.prevInterval);
 		}
 
-		widget.prevInterval = setInterval(refreshDate, 1000);
+		widget.prevInterval = setInterval(refreshDate, 10000);
 	},
 	onError: function (el, data) {
 		var $error = $('<div class="container"><img src="images/warning.png"></div>');
