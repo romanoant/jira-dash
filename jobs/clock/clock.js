@@ -1,7 +1,6 @@
 module.exports = function (config, dependencies, job_callback) {
 	var stfuEnabled = config.stfuHours !== undefined;
 	var d = new Date();
-	console.log(d.utc, "ja")
 	var dataObj = {
 		stfuEnabled: stfuEnabled,
 		stfuOnly: config.stfuOnly,
