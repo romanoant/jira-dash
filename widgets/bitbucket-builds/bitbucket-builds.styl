@@ -1,0 +1,72 @@
+.content
+  font-size 3em
+  color $gray-light
+  height 93%
+
+ul
+  margin 0 0.5em
+  padding 0
+  height 100%
+  display flex
+  flex-direction column
+  align-content space-between
+
+li
+  flex 1
+  overflow hidden
+  margin 0.1em 0
+  transition background-color 0.5s, color 0.5s
+  display flex
+  flex-direction row
+  align-items center
+  border-radius 5px
+
+li span
+  flex 1
+  text-align center
+  font-size 0.3em
+  overflow hidden
+  white-space nowrap
+  text-overflow ellipsis
+  padding 0 0.3em
+
+li.important-branch
+  order -1
+  flex-grow 1.5
+  margin-bottom 0.5em
+
+li[data-status="unknown"]
+  background-color #333
+
+li[data-status="successful"]
+  background-color green
+  color #fff
+
+li[data-status="failed"]
+  background-color red
+  color #fff
+
+@keyframes pulse
+  0%
+    opacity 1
+  50%
+    opacity 0.6
+  100%
+    opacity 1
+
+li.inprogress
+  animation pulse 2s ease-out
+  animation-iteration-count infinite
+
+.avatar
+  display inline-block
+  height 1.2em
+  width 1.2em
+  border-radius 1.2em
+  margin-top 0.1em
+  float right
+
+other
+    text-overflow ellipsis
+    width 100%
+    white-space nowrap

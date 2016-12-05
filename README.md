@@ -107,14 +107,14 @@ Sample configuration:
       "bamboo_server" : "https://collaboration-bamboo.internal.atlassian.com",
       "retryOnErrorTimes" : 3,
       "interval" : 120000,
-      "failBuilds":["CONFUI-QUNITFFESR", "CONFUI-QUNITFFLATEST", "CONFUI-QUNITCHROMEPLUGINS" , 
-                    "CONFUI-QUNITCHROMELATEST", "CONFUI-QUNITQCCHROMELATEST", "CONFUI-QUNITQCFFLATEST", 
+      "failBuilds":["CONFUI-QUNITFFESR", "CONFUI-QUNITFFLATEST", "CONFUI-QUNITCHROMEPLUGINS" ,
+                    "CONFUI-QUNITCHROMELATEST", "CONFUI-QUNITQCCHROMELATEST", "CONFUI-QUNITQCFFLATEST",
                     "CONFUI-QUNITQEFFLATEST11", "CONFUI-QUNITIE9"],
       "showBuilds":[],
       "widgetTitle" : "QUNIT BUILDS",
       "showResponsibles" : false
     }
-    
+
 ### Build Time Graph
 
 ![Build overview](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/build-time-graph.png)
@@ -178,7 +178,7 @@ Sample configuration:
 Display pending PRs in a repo, or all repos in a project for a list of users (a team)
 
 Sample configuration:
-     
+
       "pullrequests" : {
             "title": "PR workload",
             "widget": {
@@ -213,7 +213,7 @@ Sample configuration:
                   ]
               }
             },
-      
+
             "team": [
               // if email, related gravatar will be used. Otherwise, "display" property as a text
               { "username": "iloire",   "display": "ivan", "email": "iloire@atlassian.com" },
@@ -224,7 +224,7 @@ Sample configuration:
          }
 
 Don't forget to set the proper auth keys in your globalAuth.json:
- 
+
 ```
   "stash": {
     "username": "stash-user",
@@ -424,3 +424,27 @@ Drop an iframe into your widget
       "title": "Atlasboard in an iframe",
       "url": "http://atlasboard.bitbucket.org/"
     }
+
+### BitBucket Builds
+
+![Bitbucket Builds](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/bitbucket-builds.png)
+
+See the build status of each of your BitBucket branches. Works great with [BitBucket Pipelines](https://bitbucket.org/product/features/pipelines).
+
+```json
+"bitbucket-builds": {
+  "credentials": "bitbucket",
+  "interval": 60000,
+  "title": "My Repo Builds",
+  "repo": "username/repo",
+  "branchCount": 12,
+  "showCulprits": true,
+  "importantBranches": [
+    "master"
+  ]
+},
+```
+
+The `showCulprits` option shows the avatar of the person whose commit made a branch go from green to red.
+
+Any branch names listed in `importantBranches` will be shown at the top of your board in large type.
