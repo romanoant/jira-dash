@@ -8,8 +8,8 @@
 	float: left;
 }
 .center{
-	width:100%;
-	text-align:center;
+	width: 100%;
+	text-align: center;
 }
 
 .stfu {
@@ -97,7 +97,7 @@
 	margin-left: 5px;
 	margin-right: 5px;
 	animation-name: seconds;
-    animation-duration: .5s;
+	animation-duration: .5s;
 	animation-iteration-count: infinite;
 	transition-timing-function: ease-in-out;
 	animation-direction: alternate;

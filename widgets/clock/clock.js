@@ -13,7 +13,7 @@ widget = {
 		}
 		
 		var actDate = new Date(data.utc);
-		var	isStfu= (!data.stfuOnly)? isStfuCheck(actDate, data.stfuHours || {}): isStfuCheck(actDate, data.stfuHours);
+		var isStfu = isStfuCheck(actDate, (data.stfuOnly && data.stfuHours) || {});
 		var fadeParams = {duration: 3000, easing: 'linear'};
 		var prefixZero = function (val) {
 			return (val < 10 ? '0' : '') + val;
@@ -37,8 +37,7 @@ widget = {
 		}
 
 		function refreshDate() {
-			var colonClass = 'time-colon';
-			var colon = '<span class="' + colonClass + '">:</span>';
+			var colon = '<span class="time-colon">:</span>';
 			$('.content', el).html(
 					'<div class="clock-time">' + hour + colon + minutes + '</div>'
 							+ '<div class="clock-date"><br>'
@@ -63,7 +62,7 @@ widget = {
 			clearInterval(widget.prevInterval);
 		}
 
-		widget.prevInterval = setInterval(refreshDate, 10000);
+		widget.prevInterval = setInterval(refreshDate, 1000);
 	},
 	onError: function (el, data) {
 		var $error = $('<div class="container"><img src="images/warning.png"></div>');
