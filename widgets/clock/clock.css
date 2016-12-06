@@ -7,6 +7,10 @@
 	margin-left: 10px;
 	float: left;
 }
+.center{
+	width: 100%;
+	text-align: center;
+}
 
 .stfu {
 	position: relative;
@@ -92,10 +96,15 @@
 	vertical-align: text-top;
 	margin-left: 5px;
 	margin-right: 5px;
+	animation-name: seconds;
+	animation-duration: .5s;
+	animation-iteration-count: infinite;
+	transition-timing-function: ease-in-out;
+	animation-direction: alternate;
 }
-
-.time-colon-1 {
-	color: #205081;
+@keyframes seconds {
+    from {color:inherit}
+    to {color:#205081}
 }
 
 .clock-date {
