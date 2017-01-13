@@ -87,7 +87,7 @@ module.exports = function (fetch, dependencies, callback) {
       });
 
     /**
-     * Returns true iff a reviewer needs to act on a PR (i.e. has not yet reviewed it or needs to review again). This
+     * Returns true if a reviewer needs to act on a PR (i.e. has not yet reviewed it or needs to review again). This
      * should work for both the old and new stash APIs.
      */
     function needsAction(reviewer) {
