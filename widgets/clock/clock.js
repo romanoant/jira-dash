@@ -20,7 +20,7 @@ widget = {
 		};
 
 		var dateStr = prefixZero(actDate.getDate())
-			+ '-' + prefixZero(actDate.getMonth())
+			+ '-' + prefixZero(actDate.getMonth() + 1)
 			+ '-' + actDate.getFullYear();
 			hour =  prefixZero(actDate.getHours());
 			minutes = prefixZero(actDate.getMinutes());

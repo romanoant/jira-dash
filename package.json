@@ -2,6 +2,7 @@
   "author": "Atlassian",
   "name": "atlasboard-atlassian-package",
   "description": "Atlassian package for Atlasboard",
+  "license": "Apache-2.0",
   "version": "0.0.2",
   "homepage": "https://bitbucket.org/atlassian/atlasboard-atlassian-package",
   "repository": {
