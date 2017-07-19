@@ -2,11 +2,7 @@
 
 ![Atlasboard Atlassian Package](https://bitbucket.org/atlassian/atlasboard-atlassian-package/raw/master/screenshots/jag-screenshot.png)
 
-##Build status##
-
-[![Build Status](https://drone.io/bitbucket.org/atlassian/atlasboard-atlassian-package/status.png)](https://drone.io/bitbucket.org/atlassian/atlasboard-atlassian-package/latest)
-
-This is a package ready to be used with [Atlasboard](http://atlasboard.bitbucket.org). It contains dashboards, widgets and jobs related to Atlassian products.
+This is a package ready to be used with [Atlasboard](https://bitbucket.org/atlassian/atlasboard). It contains dashboards, widgets and jobs related to Atlassian products.
 
 ##Installation##
 
