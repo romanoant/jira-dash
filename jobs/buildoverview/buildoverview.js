@@ -27,7 +27,8 @@ module.exports = function(config, dependencies, job_callback) {
 
     // fallback to for configuration compatibility
     var authName = config.authName || 'cbac';
-    var labels = config.labels || [];
+    var failBuildsLabels = config.labels || [];
+    var showBuildsLabels = config.showBuildsLabels || [];
     var showDisabled = config.showDisabled || false;
 
     if (!config.globalAuth || !config.globalAuth[authName] ||
@@ -188,7 +189,7 @@ module.exports = function(config, dependencies, job_callback) {
       });
     }
 
-    function showPlans(plansForLabels) {
+    function showPlans(plansForFailBuildsLabels, plansForShowBuildsLabels) {
         //sort function for consistent build listing
         var failure_sort = function (a, b) {
             function score(build) {
@@ -213,8 +214,9 @@ module.exports = function(config, dependencies, job_callback) {
             config.sortBuilds = true;
         }
 
-        var hallOfShame = _.union(config.failBuilds, _.difference(plansForLabels, config.showBuilds));
-        var planDefinitions = [_.compact(hallOfShame), _.compact(config.showBuilds)];
+        var showBuilds = _.union(config.showBuilds, plansForShowBuildsLabels);
+        var hallOfShame = _.union(config.failBuilds, _.difference(plansForFailBuildsLabels, showBuilds));
+        var planDefinitions = [_.compact(hallOfShame), _.compact(showBuilds)];
 
         // creates callback wrapper that logs error and executes callback
         var logErrorCallbackWrapper = function (callback) {
@@ -267,17 +269,25 @@ module.exports = function(config, dependencies, job_callback) {
     // MAIN
     // ------------------------------------------
 
-    if(!this.plansForLabels) {
+    if(!this.plansForFailBuildsLabels || !this.plansForShowBuildsLabels) {
 		var job = this;
-		bamboo.getPlansForLabels(labels, function(err, plansForLabels) {
-			if (err) {
-				job_callback(err);
-			} else {
-				job.plansForLabels = plansForLabels;
-				showPlans(plansForLabels);
-			}
-		});
+		async.parallel([
+            function getPlansForFailBuildsLabels(callback) {
+                bamboo.getPlansForLabels(failBuildsLabels, callback);
+            },
+            function getPlansForShowBuildsLabels(callback) {
+                bamboo.getPlansForLabels(showBuildsLabels, callback);
+            }
+        ], function (err, results){
+            if (err) {
+                job_callback(err);
+            } else {
+                job.plansForFailBuildsLabels = results[0];
+                job.plansForShowBuildsLabels = results[1];
+                showPlans(job.plansForFailBuildsLabels, job.plansForShowBuildsLabels);
+            }
+        });
 	} else {
-		showPlans(this.plansForLabels);
+		showPlans(this.plansForFailBuildsLabels, this.plansForShowBuildsLabels);
 	}
 };
