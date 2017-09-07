@@ -98,6 +98,7 @@ module.exports = function(config, dependencies, job_callback) {
         }
 
         result.planName = getPlanName(build);
+        result.projectName = build.projectName;
 
         // Find if there is next build in-progress
         var possiblyInProgressBuild = build.key.replace('-' + build.number, '-' + (build.number + 1));
@@ -189,6 +190,11 @@ module.exports = function(config, dependencies, job_callback) {
       });
     }
 
+    function extractMostPopularProjectName(plans) {
+        var projectNames = _.map(plans, function(e){return e.projectName ? e.projectName : ''});
+        return _.max(_.groupBy(projectNames), function(e) { return e.length})[0];
+    }
+
     function showPlans(plansForFailBuildsLabels, plansForShowBuildsLabels) {
         //sort function for consistent build listing
         var failure_sort = function (a, b) {
@@ -252,10 +258,17 @@ module.exports = function(config, dependencies, job_callback) {
                     failBuilds = failBuilds.sort(failure_sort);
                 }
 
+                var widgetTitle;
+                if(config.useProjectNameAsWidgetTitle && showBuilds && showBuilds.length > 0 ) {
+                    widgetTitle = extractMostPopularProjectName(showBuilds)
+                } else {
+                    widgetTitle = config.widgetTitle;
+                }
+
                 job_callback(null, {
                     showBuilds: showBuilds,
                     failBuilds: failBuilds,
-                    title: config.widgetTitle,
+                    title: widgetTitle,
                     queue: queueInfoResult,
                     showQueueInfo: config.showQueueInfo || false,
                     showResponsibles: config.showResponsibles !== false,
