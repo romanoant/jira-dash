@@ -1,0 +1,9 @@
+{
+	"jira":{
+		"username":"anthony.romano@soul-cycle.com",
+        "password":"Install1?"
+    },
+    "github":{
+    	"token":"07e906d6d97980948f412f0a75b14f42941de67d"
+    }
+}

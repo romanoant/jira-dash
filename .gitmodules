@@ -1,0 +1,6 @@
+[submodule "packages/atlassian"]
+	path = packages/atlassian
+	url = https://bitbucket.org/atlassian/atlasboard-atlassian-package
+[submodule "packages/jenkins"]
+	path = packages/jenkins
+	url = https://github.com/incentro/atlasboard-jenkins-package.git
