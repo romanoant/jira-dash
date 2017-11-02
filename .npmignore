@@ -1,2 +1,3 @@
 # Authorization file for environment connections
 globalAuth.json
+config/globalAuth.json
