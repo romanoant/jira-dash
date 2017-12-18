@@ -1,90 +1,144 @@
 {
   "layout": {
-    "title": false,
+    "title": true,
     "customJS": ["md5.js"],
     "widgets": [{
-      "enabled": false,
-      "row": 1,
+      "enabled": true,
+      "row": 5,
       "col": 1,
       "width": 4,
-      "height": 4,
+      "height": 1,
       "widget": "blockers",
       "job": "blockers",
-      "config": "confluence-blockers"
-    }, {
-      "enabled": false,
+      "config": "teamA-blockers"
+    },
+    {
+      "enabled": true,
+      "row": 8,
+      "col": 1,
+      "width": 4,
+      "height": 1,
+      "widget": "blockers",
+      "job": "blockers",
+      "config": "teamB-blockers"
+    },
+    {
+      "enabled": true,
       "row": 1,
-      "col": 2,
+      "col": 3,
       "width": 2,
-      "height": 2,
-      "widget": "fitness",
-      "job": "fitness",
-      "config": "fitness"
+      "height": 1,
+      "widget": "issuecount",
+      "job": "issuecount",
+      "config": "issuecountA"
+    },
+    {
+      "enabled": true,
+      "row": 3,
+      "col": 3,
+      "width": 2,
+      "height": 1,
+      "widget": "issuecount",
+      "job": "issuecount",
+      "config": "issuecountB"
+    },
+    {
+      "enabled": true,
+      "row": 1,
+      "col": 1,
+      "width": 2,
+      "height": 1,
+      "widget": "sprinthealth",
+      "job": "sprinthealth",
+      "config": "sprinthealthA" 
+    },
+    {
+      "enabled": true,
+      "row": 3,
+      "col": 1,
+      "width": 2,
+      "height": 1,
+      "widget": "sprinthealth",
+      "job": "sprinthealth",
+      "config": "sprinthealthB" 
     }]
   },
-
   "config": {
-    "confluence-blockers": {
+    "teamA-blockers": {
       "timeout": 30000,
       "retryOnErrorTimes": 3,
       "interval": 120000,
-      "jira_server": "https://jira.atlassian.com",
-      "jql": "project = \"CONF\" AND updatedDate > -14d AND priority = Blocker"
+      "jira_server": "https://soulcycle.atlassian.net",
+      "useComponentAsteam": false,
+      "jql": "project = PE AND cf[12001] = \"Team A\" AND updatedDate > -7d AND priority = Blocker"
     },
-    "issuecount": {
+    "teamB-blockers": {
+      "timeout": 30000,
+      "retryOnErrorTimes": 3,
+      "interval": 120000,
+      "jira_server": "https://soulcycle.atlassian.net",
+      "useComponentAsteam": false,
+      "jql": "project = PE AND cf[12001] = \"Team B\" AND updatedDate > -7d AND priority = Blocker"
+    },
+    "issuecountA": {
       "interval": 300000,
-      "title": "Blockers In The Last 14 Days",
-      "jiraServer": "https://jira.atlassian.com",
+      "title": "Remaining issues for Team A's sprint",
+      "jiraServer": "https://soulcycle.atlassian.net",
       "sections": [{
-        "title": "Confluence",
+        "title": "Team A Issue Counts",
         "counts": [{
-          "label": "Blockers",
-          "jql": "project = \"CONF\" AND createdDate > -14d AND priority = Blocker"
-        }]
-      }, {
-        "title": "JIRA",
-        "counts": [{
-          "label": "Blockers",
-          "jql": "project = \"JRA\" AND createdDate > -14d AND priority = Blocker"
+          "label": "In Peer Review",
+          "jql": "assignee in (\"anthony.romano@soul-cycle.com\", steve.komae, \"sam.purcell@soul-cycle.com\", \"sloan.mergler@soul-cycle.com\", beau.bouchard, allison.aspis, adiaz, mmera, michael.esposito) AND status in (\"Peer Review\") AND project=\"PE\" AND sprint in openSprints()"
+        },
+        {
+          "label": "In Progress",
+          "jql": "assignee in (\"anthony.romano@soul-cycle.com\", steve.komae, \"sam.purcell@soul-cycle.com\", \"sloan.mergler@soul-cycle.com\", beau.bouchard, allison.aspis, adiaz, mmera, michael.esposito) AND status in (\"In Requirements\", \"In Development\") AND project=\"PE\" AND sprint in openSprints()"
+        },
+        {
+          "label": "To Do",
+          "jql": "assignee in (\"anthony.romano@soul-cycle.com\", steve.komae, \"sam.purcell@soul-cycle.com\", \"sloan.mergler@soul-cycle.com\", beau.bouchard, allison.aspis, adiaz, mmera, michael.esposito) AND status in (\"On Hold\", Open, \"Ready for Dev\") AND project=\"PE\" AND sprint in openSprints()"
+        },
+        {
+          "label": "Pending Release / Done",
+          "jql": "assignee in (\"anthony.romano@soul-cycle.com\", steve.komae, \"sam.purcell@soul-cycle.com\", \"sloan.mergler@soul-cycle.com\", beau.bouchard, allison.aspis, adiaz, mmera, michael.esposito) AND status in (Closed, COMPLETE, \"QA PASSED\", \"Verified in QA\") AND project=\"PE\" AND sprint in openSprints()"
         }]
       }]
     },
-    "fitness": {
-      "_comment": "never gonna give you up, the one and only, rock music, gangnam style, i believe in a thing called love, flight of valkyries, mc hammer, push it, pump up the jam, along comes mary, smooth criminal, cant stop, eye of the tiger, burning heart, maniac",
-      "media": ["dQw4w9WgXcQ", "z8f2mW1GFSI", "DP3MFBzMH2o", "CH1XGdu-hzQ", "sRYNYb30nxU", "3YOYlgvI1uE", "otCpCn0l4Wo", "vCadcBR95oU", "9EcjWd-O4jI", "5WLdLZnZQbQ", "CDl9ZMfj6aE", "BfOdWSiyWoc", "btPJPFnesV4", "lYlkYkHkZxs", "8NjbGr2nk2c"],
-      "widgetTitle": "Daily Fitness",
-      "activities": [{
-        "name": "pushups",
-        "cron": "00 30 10 * * 1-5",
-        "title": "Pushup Time!",
-        "announcement": "Time for morning push ups! With music presented by {0}",
-        "hipchat": {
-          "roomId": "00000",
-          "from": "Sergeant",
-          "message": "Time for some pushups!"
-        }
-      }, {
-        "name": "planks",
-        "cron": "00 00 15 * * 1-5",
-        "title": "Planks",
-        "announcement": "Get down for some serious planking! {0}",
-        "hipchat": {
-          "roomId": "00000",
-          "from": "Sergeant",
-          "message": "Time for some planks!"
-        }
-      }, {
-        "name": "debug",
-        "cron": "30 * * * * *",
-        "title": "lets debug",
-        "announcement": "yoyo debug {0}",
-        "hipchat": {
-          "roomId": "00000",
-          "from": "Sergeant",
-          "message": "Time for some pushups!"
+    "issuecountB": {
+      "interval": 300000,
+      "title": "Remaining issues for Team B's sprint",
+      "jiraServer": "https://soulcycle.atlassian.net",
+      "sections": [{
+        "title": "Team B Issue Counts",
+        "counts": [{
+          "label": "In Peer Review",
+          "jql": "assignee in (vince.donofrio, \"matt.shyman@soul-cycle.com\", darren.lee, \"Kevin.Bulvanoski@soul-cycle.com\", \"ash.kamel@soul-cycle.com\", greg.weissberg, \"david.goodman@soul-cycle.com\", james.lyon, mliriano, csuriel, shilario) AND status in (\"Peer Review\") AND project=\"PE\" AND sprint in openSprints()"
         },
-        "enabled": false
+        {
+          "label": "In Progress",
+          "jql": "assignee in (vince.donofrio, \"matt.shyman@soul-cycle.com\", darren.lee, \"Kevin.Bulvanoski@soul-cycle.com\", \"ash.kamel@soul-cycle.com\", greg.weissberg, \"david.goodman@soul-cycle.com\", james.lyon, mliriano, csuriel, shilario) AND status in (\"In Requirements\", \"In Development\") AND project=\"PE\" AND sprint in openSprints()"
+        },
+        {
+          "label": "To Do",
+          "jql": "assignee in (vince.donofrio, \"matt.shyman@soul-cycle.com\", darren.lee, \"Kevin.Bulvanoski@soul-cycle.com\", \"ash.kamel@soul-cycle.com\", greg.weissberg, \"david.goodman@soul-cycle.com\", james.lyon, mliriano, csuriel, shilario) AND status in (\"On Hold\", Open, \"Ready for Dev\") AND project=\"PE\" AND sprint in openSprints()"
+        },
+        {
+          "label": "Pending Release / Done",
+          "jql": "assignee in (vince.donofrio, \"matt.shyman@soul-cycle.com\", darren.lee, \"Kevin.Bulvanoski@soul-cycle.com\", \"ash.kamel@soul-cycle.com\", greg.weissberg, \"david.goodman@soul-cycle.com\", james.lyon, mliriano, csuriel, shilario)  AND status in (Closed, COMPLETE, \"QA PASSED\", \"Verified in QA\") AND project=\"PE\" AND sprint in openSprints()"
+        }]
       }]
-    }
+    },
+    "sprinthealthA": {
+       "credentials": "jira",
+       "jiraServer": "https://soulcycle.atlassian.net",
+       "rapidViewId": 40, 
+       "widgetTitle": "Sprint Health - Team A"
+     },
+    "sprinthealthB": {
+       "credentials": "jira",
+       "jiraServer": "https://soulcycle.atlassian.net",
+       "rapidViewId": 41, 
+       "widgetTitle": "Sprint Health - Team B"
+     }
   }
 }

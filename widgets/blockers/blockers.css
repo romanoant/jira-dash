@@ -1,5 +1,5 @@
 li {
-  font-size: 1.4em;
+  font-size: 1.1em;
   line-height: 1.2em;
   list-style: none outside none;
   padding: 5px;
@@ -19,6 +19,7 @@ li .issue-data {
 }
 
 li .issue-summary {
+  font-size:0.55em;
   color: gray;
 }
 
@@ -65,10 +66,10 @@ li.unassigned {
 }
 
 li .avatar {
-  width: 60px;
-  height: 60px;
+  width: 45px;
+  height: 45px;
   float: left;
-  margin-right: 15px;
+  margin-right: 20px;
   border-radius: 30px;
 }
 
@@ -88,13 +89,13 @@ li a {
 }
 
 .no-blockers-message {
-  font-size: 3em;
+  font-size: 1.25em;
   text-align: center;
   color: #454545;
 }
 
 .smiley-face {
-  font-size: 4em;
+  font-size: 2.0em;
 }
 
 h2 a {

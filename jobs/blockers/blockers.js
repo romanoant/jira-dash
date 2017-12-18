@@ -78,7 +78,7 @@ function fillIssueWithTeamInfo(config, issue){
 module.exports = function(config, dependencies, job_callback) {
 
   // fallback to for configuration compatibility
-  var authName = config.authName || 'jac';
+  var authName = config.authName || 'jira';
 
   if (!config.globalAuth || !config.globalAuth[authName] ||
     !config.globalAuth[authName].username || !config.globalAuth[authName].password){
