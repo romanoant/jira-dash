@@ -23,7 +23,7 @@ widget = {
     else {
       $('h2', el).html("NO BLOCKERS");
     }
-    
+
 
     if (data.blockers.length > 0) {
 
